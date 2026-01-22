@@ -8,6 +8,8 @@
     <string>com.example.noisydetector</string>
     <key>CFBundleDisplayName</key>
     <string>Noisy Detector</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Need microphone access to detect loud sound direction.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
