@@ -69,7 +69,7 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         // Map -60...0 to 100...220
         let clamped = max(-60.0, min(0.0, currentDecibels))
         let normalized = (clamped + 60.0) / 60.0
-        return 100.0 + (normalized * 120.0)
+        return CGFloat(100.0 + (normalized * 120.0))
     }
 
     override init() {
