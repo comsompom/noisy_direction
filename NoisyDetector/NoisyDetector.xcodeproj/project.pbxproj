@@ -12,6 +12,7 @@
         E1F2A3B4C5D6E7F8091A2B52 /* AudioDirectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D6E7F8091A2B46 /* AudioDirectionManager.swift */; };
         E1F2A3B4C5D6E7F8091A2B53 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D6E7F8091A2B47 /* Assets.xcassets */; };
         E1F2A3B4C5D6E7F8091A2B54 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D6E7F8091A2B48 /* Preview Assets.xcassets */; };
+        E1F2A3B4C5D6E7F8091A2B61 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D6E7F8091A2B60 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
         E1F2A3B4C5D6E7F8091A2B47 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
         E1F2A3B4C5D6E7F8091A2B48 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
         E1F2A3B4C5D6E7F8091A2B49 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+        E1F2A3B4C5D6E7F8091A2B60 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +52,7 @@
                 E1F2A3B4C5D6E7F8091A2B45 /* SoundRadarView.swift */,
                 E1F2A3B4C5D6E7F8091A2B46 /* AudioDirectionManager.swift */,
                 E1F2A3B4C5D6E7F8091A2B47 /* Assets.xcassets */,
+                E1F2A3B4C5D6E7F8091A2B60 /* LaunchScreen.storyboard */,
                 E1F2A3B4C5D6E7F8091A2B56 /* Preview Content */,
                 E1F2A3B4C5D6E7F8091A2B49 /* Info.plist */,
             );
@@ -132,6 +135,7 @@
             files = (
                 E1F2A3B4C5D6E7F8091A2B53 /* Assets.xcassets in Resources */,
                 E1F2A3B4C5D6E7F8091A2B54 /* Preview Assets.xcassets in Resources */,
+                E1F2A3B4C5D6E7F8091A2B61 /* LaunchScreen.storyboard in Resources */,
             );
             runOnlyForDeploymentPostprocessing = 0;
         };

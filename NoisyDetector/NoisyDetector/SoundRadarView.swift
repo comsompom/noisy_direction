@@ -18,6 +18,29 @@ struct SoundRadarView: View {
                     .stroke(Color.gray.opacity(0.3), lineWidth: 10)
                     .frame(width: 280, height: 280)
 
+                // Cardinal direction labels
+                Text("N")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .offset(y: -140)
+                Text("E")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .offset(x: 140)
+                Text("S")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .offset(y: 140)
+                Text("W")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .offset(x: -140)
+
+                // Sound blob visualization
+                SoundBlobShape(points: manager.polarPoints)
+                    .fill(Color.green.opacity(0.2))
+                    .frame(width: 260, height: 260)
+
                 // Phone orientation marker
                 VStack {
                     Image(systemName: "arrow.up")
@@ -50,10 +73,30 @@ struct SoundRadarView: View {
             Text(manager.statusText)
                 .font(.headline)
 
+            ProgressView(value: manager.scanProgress)
+                .tint(.green)
+
             if let result = manager.directionOfLoudestSound {
                 Text("Loudest sound at: \(Int(result))°")
                     .font(.title3)
                     .foregroundColor(.green)
+            }
+
+            Text("Scan quality: \(manager.scanQualityText)")
+                .font(.subheadline)
+                .foregroundColor(scanQualityColor)
+
+            VStack(spacing: 4) {
+                Text("Raw: \(Int(manager.lastRawDecibels)) dB")
+                Text("Smoothed: \(Int(manager.lastSmoothedDecibels)) dB")
+            }
+            .font(.caption)
+            .foregroundColor(.secondary)
+
+            if !manager.topHeadings.isEmpty {
+                Text("Top 3 headings: \(topHeadingsText)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
 
             Text("Do not cover the bottom microphone.")
@@ -87,6 +130,54 @@ struct SoundRadarView: View {
             HelpView()
         }
     }
+
+    private var scanQualityColor: Color {
+        switch manager.scanQualityLevel {
+        case .normal:
+            return .green
+        case .warning:
+            return .orange
+        case .bad:
+            return .red
+        }
+    }
+
+    private var topHeadingsText: String {
+        manager.topHeadings
+            .map { "\(Int($0))°" }
+            .joined(separator: ", ")
+    }
+}
+
+private struct SoundBlobShape: Shape {
+    let points: [AudioDirectionManager.PolarPoint]
+
+    func path(in rect: CGRect) -> Path {
+        guard points.count > 2 else { return Path() }
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        let maxRadius = min(rect.width, rect.height) / 2.0
+        let maxMagnitude = points.map { $0.magnitude }.max() ?? 0.0
+        if maxMagnitude <= 0 {
+            return Path()
+        }
+
+        let sortedPoints = points.sorted { $0.heading < $1.heading }
+        var path = Path()
+        for (index, point) in sortedPoints.enumerated() {
+            let normalized = CGFloat(point.magnitude / maxMagnitude)
+            let radius = maxRadius * normalized
+            let angle = Angle(degrees: point.heading - 90.0).radians
+            let x = center.x + cos(angle) * radius
+            let y = center.y + sin(angle) * radius
+            if index == 0 {
+                path.move(to: CGPoint(x: x, y: y))
+            } else {
+                path.addLine(to: CGPoint(x: x, y: y))
+            }
+        }
+        path.closeSubpath()
+        return path
+    }
 }
 
 #if DEBUG
@@ -96,8 +187,6 @@ struct SoundRadarView: View {
 #endif
 
 private struct HelpView: View {
-    @Environment(\.dismiss) private var dismiss
-
     var body: some View {
         NavigationView {
             ScrollView {
@@ -119,7 +208,7 @@ private struct HelpView: View {
 
                     Divider()
 
-                    Text("Developer: Oleg Bourdo � https://www.linkedin.com/in/oleg-bourdo-8a2360139/")
+                    Text("Developer: Oleg Bourdo — https://www.linkedin.com/in/oleg-bourdo-8a2360139/")
                         .font(.footnote)
                         .foregroundColor(.secondary)
 
@@ -133,15 +222,10 @@ private struct HelpView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") {
-                        dismiss()
+                        // Dismissed by system
                     }
                 }
             }
         }
     }
 }
-
-
-
-
-
