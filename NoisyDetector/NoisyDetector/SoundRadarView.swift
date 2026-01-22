@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SoundRadarView: View {
     @StateObject private var manager = AudioDirectionManager()
+    @State private var showHelp = false
 
     var body: some View {
         VStack(spacing: 24) {
@@ -75,11 +76,72 @@ struct SoundRadarView: View {
                     .cornerRadius(10)
             }
             .padding(.horizontal)
+
+            Button("Help") {
+                showHelp = true
+            }
+            .font(.subheadline)
         }
         .padding()
+        .sheet(isPresented: $showHelp) {
+            HelpView()
+        }
     }
 }
 
+#if DEBUG
 #Preview {
     SoundRadarView()
 }
+#endif
+
+private struct HelpView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Quick Help")
+                        .font(.title2)
+                        .bold()
+
+                    Text("1. Hold the phone upright.")
+                    Text("2. Tap Start Scan.")
+                    Text("3. Slowly rotate 360°.")
+                    Text("4. Tap Stop & Analyze.")
+                    Text("5. The green arrow points to the loudest direction.")
+
+                    Text("Tips")
+                        .font(.headline)
+                    Text("Do not cover the bottom microphone.")
+                    Text("Use a real device for accurate compass readings.")
+
+                    Divider()
+
+                    Text("Developer: Oleg Bourdo � https://www.linkedin.com/in/oleg-bourdo-8a2360139/")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+
+                    Text("This project was created to support the Moon Home Agency initiative: https://moonhome.agency/")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                }
+                .padding()
+            }
+            .navigationTitle("Help")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+
+

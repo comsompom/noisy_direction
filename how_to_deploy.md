@@ -71,3 +71,8 @@ To add a custom icon:
 1. Open `NoisyDetector/Assets.xcassets/AppIcon.appiconset`.
 2. Drag your icon images into the appropriate slots.
 3. Rebuild and run.
+
+## Project Credits
+Developer: Oleg Bourdo — https://www.linkedin.com/in/oleg-bourdo-8a2360139/
+
+This project was created to support the Moon Home Agency initiative: https://moonhome.agency/

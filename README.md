@@ -34,3 +34,8 @@ The app requests:
 4. Tap **Start Scan**, rotate 360°, tap **Stop & Analyze**.
 
 For full deployment steps, see `how_to_deploy.md`.
+
+## Project Credits
+Developer: Oleg Bourdo — https://www.linkedin.com/in/oleg-bourdo-8a2360139/
+
+This project was created to support the Moon Home Agency initiative: https://moonhome.agency/
