@@ -2,7 +2,7 @@ Failed to install the app on the device.
 Domain: com.apple.dt.CoreDeviceError
 Code: 3002
 User Info: {
-    DVTErrorCreationDateKey = "2026-01-22 20:10:01 +0000";
+    DVTErrorCreationDateKey = "2026-01-22 20:14:20 +0000";
     IDERunOperationFailingWorker = IDEInstallCoreDeviceWorker;
     NSURL = "file:///Users/olegbourdo/Library/Developer/Xcode/DerivedData/NoisyDetector-cjnfjiiqllwneddsulzqhvafcrew/Build/Products/Debug-iphoneos/NoisyDetector.app";
 }
@@ -10,8 +10,8 @@ User Info: {
 The item at NoisyDetector.app is not a valid bundle.
 Domain: com.apple.dt.CoreDeviceError
 Code: 3000
-Failure Reason: Failed to get the identifier for the app to be installed.
-Recovery Suggestion: Ensure that your bundle's Info.plist contains a value for the CFBundleIdentifier key.
+Failure Reason: Failed to get the localized bundle name for the app to be installed.
+Recovery Suggestion: Ensure that your bundle's Info.plist contains a value for at least one of the following keys: CFBundleName or CFBundleDisplayName.
 User Info: {
     NSURL = "file:///Users/olegbourdo/Library/Developer/Xcode/DerivedData/NoisyDetector-cjnfjiiqllwneddsulzqhvafcrew/Build/Products/Debug-iphoneos/NoisyDetector.app";
 }
@@ -33,7 +33,7 @@ Event Metadata: com.apple.dt.IDERunOperationWorkerFinished : {
     "launchSession_schemeCommand_enum" = 1;
     "launchSession_targetArch" = arm64;
     "launchSession_targetArch_enum" = 6;
-    "operation_duration_ms" = 133;
+    "operation_duration_ms" = 163;
     "operation_errorCode" = 3000;
     "operation_errorDomain" = "com.apple.dt.CoreDeviceError.3002.com.apple.dt.CoreDeviceError";
     "operation_errorWorker" = IDEInstallCoreDeviceWorker;
@@ -93,4 +93,4 @@ System Information
 
 macOS Version 26.1 (Build 25B78)
 Xcode 26.1.1 (24455) (Build 17B100)
-Timestamp: 2026-01-22T22:10:01+02:00
+Timestamp: 2026-01-22T22:14:20+02:00
