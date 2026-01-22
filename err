@@ -1,0 +1,6 @@
+
+
+/Users/olegbourdo/Development/noisy_direction/NoisyDetector/NoisyDetector/AudioDirectionManager.swift:72:22 Cannot convert return expression of type 'Float' to return type 'CGFloat'
+
+
+/Users/olegbourdo/Development/noisy_direction/NoisyDetector/NoisyDetector/LaunchScreen.storyboard:01J-lp-oVM “View Controller“ is unreachable because it has no entry points, and no identifier for runtime access via -[UIStoryboard instantiateViewControllerWithIdentifier:].
