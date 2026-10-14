@@ -87,6 +87,19 @@ struct SoundRadarView: View {
                 .foregroundColor(scanQualityColor)
 
             VStack(spacing: 4) {
+                Text(manager.soundClassificationStatus)
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
+
+                if !manager.topSoundClassifications.isEmpty {
+                    Text("Top sounds: \(topSoundsText)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+            }
+
+            VStack(spacing: 4) {
                 Text("Raw: \(Int(manager.lastRawDecibels)) dB")
                 Text("Smoothed: \(Int(manager.lastSmoothedDecibels)) dB")
             }
@@ -147,6 +160,15 @@ struct SoundRadarView: View {
             .map { "\(Int($0))°" }
             .joined(separator: ", ")
     }
+
+    private var topSoundsText: String {
+        manager.topSoundClassifications
+            .map { classification in
+                let confidence = Int((classification.confidence * 100.0).rounded())
+                return "\(classification.category) \(confidence)%"
+            }
+            .joined(separator: ", ")
+    }
 }
 
 private struct SoundBlobShape: Shape {
@@ -200,11 +222,13 @@ private struct HelpView: View {
                     Text("3. Slowly rotate 360°.")
                     Text("4. Tap Stop & Analyze.")
                     Text("5. The green arrow points to the loudest direction.")
+                    Text("6. Sound type labels run offline on device.")
 
                     Text("Tips")
                         .font(.headline)
                     Text("Do not cover the bottom microphone.")
                     Text("Use a real device for accurate compass readings.")
+                    Text("Sound labels are best-effort categories and may be wrong in noisy rooms.")
 
                     Divider()
 

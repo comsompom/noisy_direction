@@ -11,8 +11,8 @@
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>NSMicrophoneUsageDescription</key>
-    <string>Need microphone access to detect loud sound direction.</string>
+    <string>Noisy Detector uses the microphone to measure sound levels and classify sound types during a scan. Audio is processed on device and is not recorded or uploaded.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Need compass access to determine sound direction.</string>
+    <string>Noisy Detector uses compass heading from Location Services to estimate the direction of the loudest sound during a scan.</string>
 </dict>
 </plist>

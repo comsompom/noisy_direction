@@ -1,8 +1,10 @@
 import AVFoundation
 import Combine
 import CoreLocation
+import CoreMedia
 import CoreMotion
 import Foundation
+import SoundAnalysis
 import UIKit
 
 final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManagerDelegate {
@@ -18,6 +20,15 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         let magnitude: Float
     }
 
+    struct SoundClassification: Identifiable {
+        let identifier: String
+        let displayName: String
+        let category: String
+        let confidence: Double
+
+        var id: String { identifier }
+    }
+
     private let emaAlpha: Float = 0.2
     private let noiseFloorDownAlpha: Float = 0.2
     private let noiseFloorUpAlpha: Float = 0.02
@@ -27,10 +38,13 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
     private let maxRotationRate: Double = 2.0
     private let noisyEnvironmentThreshold: Float = -35.0
 
-    private var audioRecorder: AVAudioRecorder?
+    private let audioEngine = AVAudioEngine()
+    private let analysisQueue = DispatchQueue(label: "NoisyDetector.SoundAnalysis")
+    private var streamAnalyzer: SNAudioStreamAnalyzer?
+    private var soundClassificationRequest: SNClassifySoundRequest?
+    private var soundClassificationObserver: SoundClassificationObserver?
     private var locationManager: CLLocationManager?
     private let motionManager = CMMotionManager()
-    private var timer: Timer?
     private var samples: [SoundSample] = []
     private var emaDecibels: Float?
     private var noiseFloorEMA: Float = -60.0
@@ -58,6 +72,9 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
     @Published var scanQualityLevel: ScanQualityLevel = .normal
     @Published var topHeadings: [Double] = []
     @Published var polarPoints: [PolarPoint] = []
+    @Published var currentSoundClassification: SoundClassification?
+    @Published var topSoundClassifications: [SoundClassification] = []
+    @Published var soundClassificationStatus: String = "Sound type: Ready"
 
     enum ScanQualityLevel {
         case normal
@@ -105,20 +122,8 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         }
 
         do {
-            try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers])
+            try session.setCategory(.record, mode: .measurement, options: [.duckOthers])
             try session.setActive(true)
-
-            let url = URL(fileURLWithPath: "/dev/null")
-            let settings: [String: Any] = [
-                AVFormatIDKey: Int(kAudioFormatAppleLossless),
-                AVSampleRateKey: 44100.0,
-                AVNumberOfChannelsKey: 1,
-                AVEncoderAudioQualityKey: AVAudioQuality.min.rawValue
-            ]
-
-            audioRecorder = try AVAudioRecorder(url: url, settings: settings)
-            audioRecorder?.isMeteringEnabled = true
-            audioRecorder?.prepareToRecord()
         } catch {
             statusText = "Audio setup failed."
         }
@@ -156,32 +161,124 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         lastHeading = nil
         topHeadings = []
         polarPoints = []
+        currentSoundClassification = nil
+        topSoundClassifications = []
+        soundClassificationStatus = "Sound type: Listening..."
         emaDecibels = nil
         previousAdjustedDecibels = nil
         previousHighPass = 0.0
 
-        audioRecorder?.record()
+        do {
+            try startAudioEngine()
+        } catch {
+            isScanning = false
+            isCalibrating = false
+            statusText = "Audio input failed."
+            scanQualityText = "Audio error"
+            scanQualityLevel = .bad
+            soundClassificationStatus = "Sound type: Unavailable"
+            return
+        }
+
         haptics.prepare()
         haptics.notificationOccurred(.success)
-        timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
-            self?.captureSample()
-        }
     }
 
     func stopScanning() {
         isScanning = false
         isCalibrating = false
-        audioRecorder?.stop()
-        timer?.invalidate()
+        stopAudioEngine()
         analyzeResults()
         haptics.notificationOccurred(.warning)
     }
 
-    private func captureSample() {
-        guard let recorder = audioRecorder else { return }
-        recorder.updateMeters()
+    private func startAudioEngine() throws {
+        stopAudioEngine()
 
-        let decibels = recorder.averagePower(forChannel: 0)
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.record, mode: .measurement, options: [.duckOthers])
+        try session.setActive(true)
+
+        let inputNode = audioEngine.inputNode
+        let inputBus = AVAudioNodeBus(0)
+        let inputFormat = inputNode.outputFormat(forBus: inputBus)
+
+        let analyzer = SNAudioStreamAnalyzer(format: inputFormat)
+        let request = try SNClassifySoundRequest(classifierIdentifier: .version1)
+        request.windowDuration = CMTime(seconds: 1.5, preferredTimescale: 48_000)
+        request.overlapFactor = 0.8
+
+        let observer = SoundClassificationObserver { [weak self] result in
+            self?.handleSoundClassification(result)
+        } onFailure: { [weak self] error in
+            DispatchQueue.main.async {
+                self?.soundClassificationStatus = "Sound type: \(error.localizedDescription)"
+            }
+        }
+
+        try analyzer.add(request, withObserver: observer)
+
+        streamAnalyzer = analyzer
+        soundClassificationRequest = request
+        soundClassificationObserver = observer
+
+        inputNode.removeTap(onBus: inputBus)
+        inputNode.installTap(onBus: inputBus, bufferSize: 4096, format: inputFormat) { [weak self] buffer, time in
+            self?.processAudioBuffer(buffer)
+            self?.analysisQueue.async {
+                self?.streamAnalyzer?.analyze(buffer, atAudioFramePosition: time.sampleTime)
+            }
+        }
+
+        audioEngine.prepare()
+        try audioEngine.start()
+    }
+
+    private func stopAudioEngine() {
+        if audioEngine.isRunning {
+            audioEngine.inputNode.removeTap(onBus: 0)
+            audioEngine.stop()
+        }
+
+        analysisQueue.sync {
+            streamAnalyzer?.completeAnalysis()
+            streamAnalyzer?.removeAllRequests()
+            streamAnalyzer = nil
+            soundClassificationRequest = nil
+            soundClassificationObserver = nil
+        }
+    }
+
+    private func processAudioBuffer(_ buffer: AVAudioPCMBuffer) {
+        let decibels = calculateDecibels(from: buffer)
+        DispatchQueue.main.async { [weak self] in
+            self?.captureSample(decibels: decibels)
+        }
+    }
+
+    private func calculateDecibels(from buffer: AVAudioPCMBuffer) -> Float {
+        guard let channelData = buffer.floatChannelData,
+              buffer.frameLength > 0 else {
+            return -160.0
+        }
+
+        let channel = channelData[0]
+        let frameCount = Int(buffer.frameLength)
+        var sumSquares: Float = 0.0
+
+        for frame in 0..<frameCount {
+            let sample = channel[frame]
+            sumSquares += sample * sample
+        }
+
+        let rms = sqrt(sumSquares / Float(frameCount))
+        guard rms > 0 else { return -160.0 }
+        return max(-160.0, 20.0 * log10(rms))
+    }
+
+    private func captureSample(decibels: Float) {
+        guard isScanning || isCalibrating else { return }
+
         let smoothedDecibels = applyEMA(to: decibels)
         lastRawDecibels = decibels
         lastSmoothedDecibels = smoothedDecibels
@@ -241,6 +338,83 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
             updateProgress(with: currentHeading)
             updateDerivedData()
         }
+    }
+
+    private func handleSoundClassification(_ result: SNClassificationResult) {
+        let classifications = result.classifications
+            .prefix(3)
+            .map { classification in
+                let displayName = formatClassificationName(classification.identifier)
+                return SoundClassification(
+                    identifier: classification.identifier,
+                    displayName: displayName,
+                    category: category(for: classification.identifier),
+                    confidence: classification.confidence
+                )
+            }
+
+        DispatchQueue.main.async {
+            self.topSoundClassifications = Array(classifications)
+
+            guard let best = classifications.first, best.confidence >= 0.15 else {
+                self.currentSoundClassification = nil
+                self.soundClassificationStatus = "Sound type: Unknown"
+                return
+            }
+
+            self.currentSoundClassification = best
+            let confidence = Int((best.confidence * 100.0).rounded())
+            self.soundClassificationStatus = "Sound type: \(best.category) - \(best.displayName) \(confidence)%"
+        }
+    }
+
+    private func category(for identifier: String) -> String {
+        let value = identifier.lowercased()
+
+        if containsAny(value, ["speech", "voice", "conversation", "narration", "singing", "laughter", "giggle", "cough", "sneeze", "snoring", "breathing", "crying", "sigh", "scream", "whisper", "yell", "chant", "human"]) {
+            return "Human voice"
+        }
+        if containsAny(value, ["animal", "dog", "bark", "cat", "meow", "bird", "chirp", "crow", "horse", "neigh", "cow", "moo", "sheep", "goat", "pig", "oink", "chicken", "rooster", "insect", "mosquito", "fly", "bee", "frog"]) {
+            return "Animals"
+        }
+        if containsAny(value, ["vehicle", "car", "auto", "automobile", "bus", "truck", "motorcycle", "motorbike", "aircraft", "airplane", "helicopter", "train", "subway", "boat", "ship"]) {
+            return "Vehicles"
+        }
+        if containsAny(value, ["mechanical", "engine", "motor", "machinery", "machine", "tool", "drill", "saw", "hammer", "jackhammer", "blender", "vacuum", "printer", "typing", "keyboard", "clicking", "clatter", "squeak", "pump"]) {
+            return "Mechanical"
+        }
+        if containsAny(value, ["alarm", "siren", "bell", "buzzer", "smoke detector", "fire alarm", "ringtone", "telephone"]) {
+            return "Alarm"
+        }
+        if containsAny(value, ["music", "musical", "guitar", "piano", "drum", "violin", "flute", "bass", "instrument"]) {
+            return "Music"
+        }
+        if containsAny(value, ["rain", "thunder", "wind", "water", "stream", "ocean", "waves", "fire", "crackle"]) {
+            return "Nature"
+        }
+        if containsAny(value, ["dish", "microwave", "door", "drawer", "faucet", "toilet", "shower", "household"]) {
+            return "Household"
+        }
+        if containsAny(value, ["bang", "thump", "knock", "clap", "footstep", "impact"]) {
+            return "Impact"
+        }
+
+        return "Other"
+    }
+
+    private func containsAny(_ value: String, _ keywords: [String]) -> Bool {
+        keywords.contains { value.contains($0) }
+    }
+
+    private func formatClassificationName(_ identifier: String) -> String {
+        identifier
+            .replacingOccurrences(of: "_", with: " ")
+            .replacingOccurrences(of: "-", with: " ")
+            .split(separator: " ")
+            .map { word in
+                word.prefix(1).uppercased() + word.dropFirst()
+            }
+            .joined(separator: " ")
     }
 
     private func applyEMA(to decibels: Float) -> Float {
@@ -321,5 +495,24 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         let sorted = samples.sorted { $0.signal > $1.signal }
         topHeadings = sorted.prefix(3).map { $0.heading }
         polarPoints = samples.map { PolarPoint(heading: $0.heading, magnitude: $0.signal) }
+    }
+}
+
+private final class SoundClassificationObserver: NSObject, SNResultsObserving {
+    private let onResult: (SNClassificationResult) -> Void
+    private let onFailure: (Error) -> Void
+
+    init(onResult: @escaping (SNClassificationResult) -> Void, onFailure: @escaping (Error) -> Void) {
+        self.onResult = onResult
+        self.onFailure = onFailure
+    }
+
+    func request(_ request: SNRequest, didProduce result: SNResult) {
+        guard let result = result as? SNClassificationResult else { return }
+        onResult(result)
+    }
+
+    func request(_ request: SNRequest, didFailWithError error: Error) {
+        onFailure(error)
     }
 }

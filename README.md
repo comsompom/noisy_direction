@@ -8,6 +8,8 @@ around 360°.
 
 ## Features
 - Live sound level visualization (raw + smoothed)
+- Offline on-device sound type classification using Apple's built-in SoundAnalysis classifier
+- Broad sound categories such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds
 - Radar-style direction display with compass labels (N/E/S/W)
 - Polar "sound blob" visualization of sampled audio
 - Top 3 loudest headings display
@@ -28,7 +30,7 @@ around 360°.
 ## Project Layout
 - `NoisyDetector.xcodeproj` – Xcode project
 - `NoisyDetector/` – App source code
-  - `AudioDirectionManager.swift` – microphone + compass logic
+  - `AudioDirectionManager.swift` – microphone + compass + offline sound classification logic
   - `SoundRadarView.swift` – UI
   - `Info.plist` – permissions
 
@@ -42,6 +44,10 @@ The app requests:
 2. Set your Development Team in Signing.
 3. Run on a physical iPhone.
 4. Tap **Start Scan**, rotate 360°, tap **Stop & Analyze**.
+
+The app does not need internet access for scanning or sound type labels. Sound
+levels, compass heading, and sound classification are processed locally on the
+iPhone.
 
 For full deployment steps, see `how_to_deploy.md`.
 

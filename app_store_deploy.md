@@ -29,7 +29,7 @@ device.
 | In-app purchases | No |
 | Developer backend | No |
 | Ads / analytics / tracking SDKs | None seen in current code |
-| Main user value | Estimate the direction of the loudest sound by combining microphone sound levels with compass heading while the user rotates 360 degrees |
+| Main user value | Estimate the direction of the loudest sound by combining microphone sound levels with compass heading while the user rotates 360 degrees, and classify the sound type locally on device |
 
 Important: `com.example.noisydetector` is a placeholder bundle ID. Do not submit
 with it. Register and use a real unique bundle identifier before upload.
@@ -123,7 +123,7 @@ Complete these before archiving:
 Recommended improved permission text before submission:
 
 ```text
-NSMicrophoneUsageDescription: Noisy Detector uses the microphone to measure sound levels during a scan. Audio is processed on device and is not recorded or uploaded.
+NSMicrophoneUsageDescription: Noisy Detector uses the microphone to measure sound levels and classify sound types during a scan. Audio is processed on device and is not recorded or uploaded.
 NSLocationWhenInUseUsageDescription: Noisy Detector uses compass heading from Location Services to estimate the direction of the loudest sound during a scan.
 ```
 
@@ -295,7 +295,7 @@ Sound Direction Scanner
 Can be edited without submitting a new app version.
 
 ```text
-Estimate where the loudest sound is coming from with a local 360 degree scan using your iPhone microphone and compass.
+Estimate where the loudest sound is coming from and classify the sound type with an offline 360 degree scan using your iPhone microphone and compass.
 ```
 
 ### Description
@@ -303,15 +303,18 @@ Estimate where the loudest sound is coming from with a local 360 degree scan usi
 Paste this into App Store Connect:
 
 ```text
-Noisy Detector is a simple iPhone utility that helps estimate the direction of the loudest sound around you.
+Noisy Detector is a simple iPhone utility that helps estimate the direction of the loudest sound around you and identify the general type of sound.
 
-Tap Start Scan, hold your iPhone upright, stay still during the short calibration step, then slowly turn 360 degrees. Noisy Detector measures sound levels locally on your device and combines them with compass heading to estimate which direction had the strongest sound signal.
+Tap Start Scan, hold your iPhone upright, stay still during the short calibration step, then slowly turn 360 degrees. Noisy Detector measures sound levels locally on your device, combines them with compass heading to estimate which direction had the strongest sound signal, and uses on-device sound classification to label likely sound types.
 
 Key features:
 - 360 degree sound-direction scan
+- Offline sound type classification
+- Broad categories such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds
 - Live radar-style direction display
 - Loudest heading result after each scan
 - Top 3 loudest headings
+- Top sound predictions with confidence
 - Raw and smoothed sound level display
 - Scan progress indicator
 - Scan quality messages for too-fast, too-quiet, or noisy environments
@@ -320,9 +323,9 @@ Key features:
 - Built-in help screen
 - No account, subscription, advertising, analytics, or developer backend
 
-Noisy Detector is designed for casual sound-direction estimates, troubleshooting, demonstrations, and general utility use. Results are estimates and can be affected by background noise, echoes, microphone position, compass accuracy, phone movement, and how slowly the user rotates.
+Noisy Detector is designed for casual sound-direction estimates, troubleshooting, demonstrations, and general utility use. Results and sound labels are estimates and can be affected by background noise, echoes, overlapping sounds, microphone position, compass accuracy, phone movement, and how slowly the user rotates.
 
-Privacy: sound levels and compass heading are processed on device. The app does not create accounts, record audio files, upload microphone audio, or send scan data to a developer server.
+Privacy: sound levels, sound classification, and compass heading are processed on device. The app does not create accounts, record audio files, upload microphone audio, or send scan data to a developer server.
 ```
 
 ### Keywords
@@ -330,10 +333,10 @@ Privacy: sound levels and compass heading are processed on device. The app does 
 Maximum 100 characters total, comma-separated. Do not add spaces unless needed.
 
 ```text
-sound,noise,loud,direction,detector,compass,microphone,decibel,radar,audio,utility
+sound,noise,loud,direction,detector,compass,microphone,classification,audio,utility
 ```
 
-Character count: 82.
+Character count: 83.
 
 ### Support URL
 
@@ -385,8 +388,8 @@ https://TODO.example.com/noisy-detector/privacy
 
 The privacy policy must match the current app behavior. Recommended content:
 
-- Noisy Detector uses microphone permission to measure sound levels during scans.
-- Audio is processed on device.
+- Noisy Detector uses microphone permission to measure sound levels and classify general sound types during scans.
+- Audio is processed on device with Apple system audio and SoundAnalysis frameworks.
 - The app does not record audio files.
 - The app does not upload microphone audio.
 - The app uses location permission only to access compass heading through iOS.
@@ -486,8 +489,8 @@ Tracking: No
 ```
 
 Important: this means the developer does not collect data. The app still
-processes microphone levels and compass heading locally on device. Explain that
-clearly in the privacy policy and Review Notes.
+processes microphone levels, sound classification, and compass heading locally
+on device. Explain that clearly in the privacy policy and Review Notes.
 
 If any of these are added, update App Privacy before submission:
 
@@ -639,36 +642,36 @@ Noisy Detector currently has no account system.
 Paste this into App Store Connect:
 
 ```text
-Noisy Detector is a local sound-direction utility for iPhone. It estimates the direction of the loudest sound by combining microphone sound level readings with the iPhone compass heading while the user slowly rotates 360 degrees.
+Noisy Detector is a local sound-direction utility for iPhone. It estimates the direction of the loudest sound by combining microphone sound level readings with the iPhone compass heading while the user slowly rotates 360 degrees. It also uses Apple's on-device SoundAnalysis classifier to show broad sound type labels such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds.
 
 No account, login, subscription, in-app purchase, sample file, server setup, or test credentials are required.
 
 Main test flow:
 1. Install and launch Noisy Detector on a physical iPhone running iOS 15.0 or later.
-2. Allow microphone access. The microphone is used only to measure sound levels during the scan.
+2. Allow microphone access. The microphone is used only to measure sound levels and classify sound types during the scan.
 3. Allow location access. Location Services are used to provide compass heading for direction estimation.
 4. Tap Start Scan.
 5. Keep the phone still during the short calibration step.
 6. Hold the phone upright and slowly rotate 360 degrees.
 7. Make a clear sound from one direction, such as clapping or speaking, while scanning.
 8. Tap Stop & Analyze.
-9. The app displays the estimated loudest heading in degrees and shows a green marker on the radar.
+9. The app displays the estimated loudest heading in degrees, shows a green marker on the radar, and shows the current best-effort sound type label.
 10. The Help button opens short usage instructions.
 
 Required hardware:
 Review should be performed on a physical iPhone with microphone and compass support. The iOS Simulator cannot fully test the microphone, compass, and motion-sensor workflow.
 
 External services:
-The app uses Apple system frameworks only: SwiftUI, AVFoundation, Core Location, Core Motion, and UIKit haptics. It does not use backend servers, authentication services, payment processors, analytics SDKs, advertising SDKs, tracking SDKs, or cloud AI services.
+The app uses Apple system frameworks only: SwiftUI, AVFoundation, SoundAnalysis, Core Location, Core Motion, and UIKit haptics. It does not use backend servers, authentication services, payment processors, analytics SDKs, advertising SDKs, tracking SDKs, or cloud AI services.
 
 Regional behavior:
 The app functions consistently in all selected countries and regions, subject to iOS permissions and device sensor availability. There are no region-specific accounts, payments, or content differences.
 
 Privacy:
-Sound levels and compass heading are processed on device. The app does not create accounts, record audio files, upload microphone audio, upload location, or send scan data to developer servers.
+Sound levels, sound classification, and compass heading are processed on device. The app does not create accounts, record audio files, upload microphone audio, upload location, or send scan data to developer servers.
 
 Scope:
-Noisy Detector provides casual estimates only. It is not a certified acoustic instrument, emergency system, security system, surveillance tool, medical tool, or professional measurement device. Results may be affected by background noise, echoes, microphone position, compass accuracy, phone movement, and rotation speed.
+Noisy Detector provides casual estimates only. It is not a certified acoustic instrument, emergency system, security system, surveillance tool, medical tool, or professional measurement device. Direction results and sound labels may be affected by background noise, echoes, overlapping sounds, microphone position, compass accuracy, phone movement, and rotation speed.
 ```
 
 ### Demo Attachment
