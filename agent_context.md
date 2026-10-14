@@ -31,6 +31,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - `NoisyDetector/NoisyDetector/Assets.xcassets`: App icon and launch image assets.
 - `README.md`: User-facing project summary and quick start.
 - `how_to_deploy.md`: Xcode deployment guide.
+- `app_store_deploy.md`: App Store submission guide with metadata, review notes, privacy, screenshots, and deployment checklist.
 - `suggestions.md`: Improvement backlog.
 
 ## Current Build Settings Observed
@@ -119,6 +120,27 @@ For code-only changes, useful checks include:
 - Start a scan, wait for calibration, rotate slowly 360 degrees, stop, and verify a loudest heading appears.
 
 ## Change Log
+
+### 2026-10-14
+
+Files changed:
+- `app_store_deploy.md`
+- `agent_context.md`
+
+What changed:
+- Added a dedicated App Store deployment guide for Noisy Detector.
+- Documented recommended App Store Connect fields, review notes, privacy answers, screenshots, age rating, export compliance, build/upload steps, and rejection-prevention checklist.
+- Captured deployment lessons from `get_distance`, `iphone_dust_cleaner`, and `vozhyk`.
+- Added `app_store_deploy.md` to the project layout section of this context file.
+
+Why:
+- The app needs a complete, step-by-step App Store submission reference that accounts for previous review issues and includes accurate product-page and reviewer-facing text.
+
+Verification:
+- Reviewed prior deployment and review documents in `/Users/olegbourdo/Development/get_distance`, `/Users/olegbourdo/Development/iphone_dust_cleaner`, and `/Users/olegbourdo/Development/vozhyk`.
+- Reviewed current Noisy Detector project settings, `Info.plist`, asset catalog metadata, and existing documentation.
+- Cross-checked the submission flow against current Apple App Store Connect and App Review documentation.
+- No build was run because this change only adds documentation.
 
 ### 2026-10-14
 
