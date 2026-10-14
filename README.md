@@ -61,5 +61,8 @@ iPhone.
 
 For full deployment steps, see `how_to_deploy.md`.
 
+## Demo
+YouTube Shorts demo: https://youtube.com/shorts/kxWObeB3aho?feature=share
+
 ## Project Credits
 Main website: https://www.vozhyk.com/

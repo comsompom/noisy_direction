@@ -724,6 +724,12 @@ NoiseRadar provides casual estimates only. It is not a certified acoustic instru
 Optional, but recommended if the first submission receives a Guideline 2.1
 request for more information.
 
+Public YouTube demo:
+
+```text
+https://youtube.com/shorts/kxWObeB3aho?feature=share
+```
+
 Attach a 30-90 second physical-device video showing:
 
 - App launch.

@@ -161,6 +161,23 @@ For code-only changes, useful checks include:
 ### 2026-10-14
 
 Files changed:
+- `README.md`
+- `app_store_deploy.md`
+- `agent_context.md`
+
+What changed:
+- Added the public YouTube Shorts demo link: `https://youtube.com/shorts/kxWObeB3aho?feature=share`.
+- Documented the link in the README demo section and in the App Store deployment guide's demo attachment section.
+
+Why:
+- The user provided a YouTube demo link and asked to update app documentation.
+
+Verification:
+- Searched the documentation to confirm the YouTube URL is present in the expected files.
+
+### 2026-10-14
+
+Files changed:
 - `screenshots/nr_01.jpg`
 - `screenshots/nr_02.jpg`
 - `screenshots/nr_03.jpg`
