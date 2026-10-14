@@ -154,6 +154,32 @@ For code-only changes, useful checks include:
 ### 2026-10-14
 
 Files changed:
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `README.md`
+- `how_to_deploy.md`
+- `suggestions.md`
+- `app_store_deploy.md`
+- `agent_context.md`
+- `/Users/olegbourdo/Development/vozhyk_web/app.py`
+- `/Users/olegbourdo/Development/vozhyk_web/deployed_applications/NOISERADAR_PRIVACY_POLICY.html`
+- `/Users/olegbourdo/Development/vozhyk_web/context_agent.md`
+
+What changed:
+- Replaced the Help screen footer links with the main Vozhyk website URL: `https://www.vozhyk.com/`.
+- Removed previous external personal/agency references from project-facing NoiseRadar docs.
+- Added the NoiseRadar privacy policy URL to the App Store deployment guide: `https://www.vozhyk.com/noiseradar/privacy-policy`.
+- Added a NoiseRadar privacy policy page and Flask route in the Vozhyk web project so the policy is reachable through the main website.
+
+Why:
+- The user requested the app Help main link be `https://www.vozhyk.com/` and asked for a reachable privacy policy page in the Vozhyk web project for App Store submission.
+
+Verification:
+- Searched the NoiseRadar repository outside `.git`, `.idea`, and `build`; no previous external personal/agency references remain.
+- Flask route and Swift typecheck verification were run after the web/app changes; see final response for results.
+
+### 2026-10-14
+
+Files changed:
 - `NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`
 - `NoiseRadar/NoiseRadar/Info.plist`
 - `build/AppStoreExport/ExportOptions.plist`

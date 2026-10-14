@@ -47,7 +47,4 @@ current project structure and features.
 - [ ] Log sample data to a file for debugging in development builds.
 
 ## Project Credits
-Developer: Oleg Bourdo — https://www.linkedin.com/in/oleg-bourdo-8a2360139/
-
-This project was created to support the Moon Home Agency initiative: https://moonhome.agency/
-
+Main website: https://www.vozhyk.com/

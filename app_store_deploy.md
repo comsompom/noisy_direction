@@ -391,10 +391,10 @@ https://github.com/TODO/noiseradar/issues
 
 Optional.
 
-TODO:
+Use the Vozhyk main website:
 
 ```text
-https://TODO.example.com/noisy-detector
+https://www.vozhyk.com/
 ```
 
 This can be a simple product page with screenshots, description, support link,
@@ -404,10 +404,10 @@ and privacy link.
 
 Required for iOS apps.
 
-TODO:
+Use the deployed NoiseRadar privacy policy:
 
 ```text
-https://TODO.example.com/noisy-detector/privacy
+https://www.vozhyk.com/noiseradar/privacy-policy
 ```
 
 The privacy policy must match the current app behavior. Recommended content:

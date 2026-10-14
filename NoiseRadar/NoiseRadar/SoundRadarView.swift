@@ -358,11 +358,7 @@ private struct HelpView: View {
 
                     Divider()
 
-                    Text("Developer: Oleg Bourdo — https://www.linkedin.com/in/oleg-bourdo-8a2360139/")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-
-                    Text("This project was created to support the Moon Home Agency initiative: https://moonhome.agency/")
+                    Text("Website: https://www.vozhyk.com/")
                         .font(.footnote)
                         .foregroundColor(.secondary)
                 }
