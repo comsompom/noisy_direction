@@ -954,7 +954,7 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
     }
 }
 
-private extension Bundle {
+extension Bundle {
     var releaseVersion: String {
         object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
     }

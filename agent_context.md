@@ -161,6 +161,24 @@ For code-only changes, useful checks include:
 ### 2026-10-14
 
 Files changed:
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `NoiseRadar/NoiseRadar/AudioDirectionManager.swift`
+- `agent_context.md`
+
+What changed:
+- Added visible app version/build text to the Help screen.
+- Added an About section in Settings showing the current app version/build.
+- Made the existing `Bundle` version/build helper available to SwiftUI views.
+
+Why:
+- The user reported that the iPhone app did not show the current app version number anywhere.
+
+Verification:
+- Swift typecheck against the iPhoneOS SDK was run after this change.
+
+### 2026-10-14
+
+Files changed:
 - `NoiseRadar/NoiseRadar/AudioDirectionManager.swift`
 - `NoiseRadar/NoiseRadar/SoundRadarView.swift`
 - `README.md`

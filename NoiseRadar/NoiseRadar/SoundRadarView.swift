@@ -424,6 +424,10 @@ private struct HelpView: View {
 
                     Divider()
 
+                    Text("Version \(Bundle.main.releaseVersion) (\(Bundle.main.buildVersion))")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+
                     Text("Website: https://www.vozhyk.com/")
                         .font(.footnote)
                         .foregroundColor(.secondary)
@@ -572,6 +576,15 @@ private struct SettingsView: View {
                     Text("The Share button exports a text summary and CSV event log for the current local session.")
                         .font(.footnote)
                         .foregroundColor(.secondary)
+                }
+
+                Section("About") {
+                    HStack {
+                        Text("Version")
+                        Spacer()
+                        Text("\(Bundle.main.releaseVersion) (\(Bundle.main.buildVersion))")
+                            .foregroundColor(.secondary)
+                    }
                 }
             }
             .navigationTitle("Settings")
