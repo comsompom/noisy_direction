@@ -1,6 +1,6 @@
 # Noisy Detector
 
-![Noisy Detector App Icon](noisy_icon.jpg)
+![Noisy Detector App Icon](noise_icon.png)
 
 An iOS SwiftUI app that finds the direction of the loudest sound by combining
 microphone amplitude with the device's compass heading while the user turns

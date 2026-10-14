@@ -131,6 +131,34 @@ For code-only changes, useful checks include:
 ### 2026-10-14
 
 Files changed:
+- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-1024.png`
+- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-20@2x.png`
+- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-20@3x.png`
+- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-29@2x.png`
+- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-29@3x.png`
+- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-40@2x.png`
+- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-40@3x.png`
+- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-60@2x.png`
+- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-60@3x.png`
+- `README.md`
+- `agent_context.md`
+
+What changed:
+- Replaced all existing AppIcon image renditions with square RGB PNGs generated from the new root asset `noise_icon.png`.
+- Updated the README app icon image reference from `noisy_icon.jpg` to `noise_icon.png`.
+- Confirmed no documentation references to `noisy_icon.jpg` remain.
+
+Why:
+- `noise_icon.png` is now the main app icon source and should replace the previous `noisy_icon.jpg` in documentation and the app icon asset catalog.
+
+Verification:
+- Verified generated AppIcon files have the expected square dimensions and RGB color format.
+- Searched the repository for `noisy_icon.jpg` references outside `.git` and `.idea`; none remain.
+- No build was run because this change only updates image assets and documentation.
+
+### 2026-10-14
+
+Files changed:
 - `image_prompts.md`
 - `agent_context.md`
 
