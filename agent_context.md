@@ -131,6 +131,34 @@ For code-only changes, useful checks include:
 ### 2026-10-14
 
 Files changed:
+- `launch_screen.png`
+- `noisy_load.jpg`
+- `NoisyDetector/NoisyDetector/Assets.xcassets/LaunchImage.imageset/launch_screen.png`
+- `NoisyDetector/NoisyDetector/Assets.xcassets/LaunchImage.imageset/noisy_load.jpg`
+- `NoisyDetector/NoisyDetector/Assets.xcassets/LaunchImage.imageset/Contents.json`
+- `NoisyDetector/NoisyDetector/LaunchScreen.storyboard`
+- `agent_context.md`
+
+What changed:
+- Replaced the previous launch-screen source `noisy_load.jpg` with the new root source `launch_screen.png`.
+- Generated an app-bundled launch asset at `1290 x 2796` RGB PNG for modern iPhone portrait sizing.
+- Updated `LaunchImage.imageset/Contents.json` to reference `launch_screen.png`.
+- Updated the launch storyboard image resource metadata to `1290 x 2796`.
+- Removed the old root `noisy_load.jpg` and old asset-catalog `noisy_load.jpg`.
+
+Why:
+- The new `launch_screen.png` should be the app launch screen, and the bundled launch asset needs to be correctly sized and adjusted for iPhone portrait launch display.
+
+Verification:
+- Verified the asset-catalog `launch_screen.png` is `1290 x 2796` RGB PNG.
+- Verified `LaunchImage.imageset/Contents.json` parses as valid JSON.
+- Searched the repository outside `.git` and `.idea`; no `noisy_load.jpg` references remain.
+- Visually inspected the generated launch image crop for iPhone portrait use.
+- No build was run because this change only updates launch image assets and storyboard metadata.
+
+### 2026-10-14
+
+Files changed:
 - `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-1024.png`
 - `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-20@2x.png`
 - `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-20@3x.png`
