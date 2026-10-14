@@ -17,7 +17,7 @@ Do not leave code, project settings, assets, documentation, or behavior changes 
 
 ## App Summary
 
-Noisy Detector is an iOS SwiftUI app that estimates the direction of the loudest sound source and labels the general sound type offline. It reads microphone buffers while reading the iPhone compass heading as the user slowly rotates 360 degrees. After scanning, it reports the heading where the strongest filtered sound signal was measured. During scanning, it uses Apple's built-in SoundAnalysis classifier locally on device to show broad sound type categories such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds.
+Noisy Detector is an iOS SwiftUI app that estimates the direction of the loudest sound source and labels the general sound type offline. It reads microphone buffers while reading the iPhone compass heading as the user slowly rotates 360 degrees. After scanning, it reports the heading where the strongest filtered sound signal was measured and also shows direction results by sound category. During scanning or foreground Listen mode, it uses Apple's built-in SoundAnalysis classifier locally on device to show broad sound type categories such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds. The app keeps recent local in-memory sound events for scan/listen history.
 
 The app is meant to run on a physical iPhone. The iOS Simulator is not suitable because accurate microphone, compass, and motion behavior require device sensors.
 
@@ -33,6 +33,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - `how_to_deploy.md`: Xcode deployment guide.
 - `app_store_deploy.md`: App Store submission guide with metadata, review notes, privacy, screenshots, and deployment checklist.
 - `image_prompts.md`: Image-generation prompts for the app icon, launch screen, and App Store custom product page header.
+- `road_map.md`: Product roadmap with prioritized feature ideas, customer/trend rationale, implementation phases, and concrete tickets.
 - `suggestions.md`: Improvement backlog.
 
 ## Current Build Settings Observed
@@ -41,6 +42,9 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - iOS deployment target: 15.0.
 - Bundle identifier: `com.example.noisydetector`.
 - Development team currently set in the Xcode project: `6X42CRDLS6`.
+- Target device family: iPhone only (`TARGETED_DEVICE_FAMILY = 1`).
+- Supported platforms: `iphoneos iphonesimulator`.
+- Mac Catalyst, Designed for iPhone/iPad on Mac, and Designed for iPhone/iPad on Vision Pro are disabled.
 
 ## How The App Works
 
@@ -48,12 +52,15 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 
 `SoundRadarView` owns one `@StateObject` instance of `AudioDirectionManager`. It renders:
 - App title and usage prompt.
+- Segmented mode control for `Scan 360` and `Listen`.
 - Radar circle with N/E/S/W labels.
 - A green polar sound blob from sampled headings and signal magnitudes.
 - A red arrow showing current phone heading.
 - A green result marker after analysis.
 - A live volume circle whose size is derived from current decibels.
-- Scan status, progress, quality, raw/smoothed decibels, top 3 headings, and Start/Stop controls.
+- Scan/listen status, progress, quality, raw/smoothed decibels, top 3 headings, direction-by-sound-type cards, readiness checklist, and Start/Stop controls.
+- History sheet for recent local sound events.
+- First-run onboarding sheet using `@AppStorage("hasSeenOnboarding")`.
 - A Help sheet with basic usage steps.
 
 `AudioDirectionManager` coordinates:
@@ -62,6 +69,9 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - `CLLocationManager` for magnetic heading updates.
 - `CMMotionManager` for rotation-rate checks.
 - Decibel calculation from live PCM audio buffers.
+- `DetectionMode.scan360` and `DetectionMode.listen` modes.
+- Per-category direction scoring from signal strength and sound classification confidence.
+- Local in-memory recent sound event history, capped at 50 events.
 
 ## Scan Flow
 
@@ -83,7 +93,15 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
    - Sends the same buffer to SoundAnalysis on a dedicated queue for local sound classification.
 7. The user taps `Stop & Analyze`.
 8. The manager chooses the sample with the highest signal if it is above the minimum signal threshold.
-9. The UI displays the loudest heading and result marker.
+9. The manager also builds direction-by-sound-type results from classified samples.
+10. The UI displays the loudest heading, result marker, and category direction cards.
+
+In Listen mode:
+
+1. The user selects `Listen`.
+2. The manager calibrates briefly and starts processing microphone buffers in the foreground.
+3. The app shows current sound type and creates local recent sound events when a confident sound category is detected.
+4. Stop ends listening without running scan analysis.
 
 ## Important Signal Constants
 
@@ -113,6 +131,7 @@ These constants are currently in `AudioDirectionManager.swift`:
 - Scan progress accumulates absolute heading deltas, so back-and-forth rotation can count toward 360 degrees.
 - Audio input is stopped on manual stop, but there is no explicit app-background or view-disappear cleanup.
 - Sound type labels are best-effort classifications from Apple's built-in SoundAnalysis model and can be wrong when sounds overlap, the room is noisy, or the source is quiet.
+- History is currently local in-memory only and is not persisted across app launches.
 - No automated tests are currently present.
 
 ## Verification Notes
@@ -125,8 +144,58 @@ For code-only changes, useful checks include:
 - Confirm microphone and location permissions are requested.
 - Start a scan, wait for calibration, rotate slowly 360 degrees, stop, and verify a loudest heading appears.
 - Verify the `Sound type` line updates offline on a physical iPhone with internet disabled.
+- Verify `Listen` mode logs local history events without requiring rotation.
 
 ## Change Log
+
+### 2026-10-14
+
+Files changed:
+- `NoisyDetector/NoisyDetector/AudioDirectionManager.swift`
+- `NoisyDetector/NoisyDetector/SoundRadarView.swift`
+- `NoisyDetector/NoisyDetector.xcodeproj/project.pbxproj`
+- `README.md`
+- `suggestions.md`
+- `road_map.md`
+- `app_store_deploy.md`
+- `agent_context.md`
+
+What changed:
+- Implemented Phase 1 of the roadmap for the iPhone app.
+- Added direction-by-sound-type results using signal strength weighted by SoundAnalysis classification confidence.
+- Added foreground Listen mode alongside Scan 360 mode.
+- Added local in-memory event history for recent scan/listen detections.
+- Added first-run onboarding and a readiness checklist for microphone, compass, rotation speed, and noise floor.
+- Updated the UI to use a scrollable iPhone layout with mode selector, category direction cards, history sheet, and dismissible help sheet.
+- Tightened build settings to iPhone/iPhone Simulator only and disabled Mac/Vision designed-for availability.
+- Updated README, suggestions, roadmap, and App Store deployment text for Phase 1 behavior.
+
+Why:
+- The user requested Phase 1 implementation while keeping the app only for iPhone devices, without Apple Watch, iPad, Mac, Vision Pro, or companion surfaces.
+
+Verification:
+- Ran Swift typecheck against the iPhoneOS SDK successfully with local module cache:
+  `xcrun --sdk iphoneos swiftc -typecheck -target arm64-apple-ios15.0 ...`
+- Physical iPhone QA is still required for microphone, compass, Scan 360, Listen mode, and live SoundAnalysis behavior.
+
+### 2026-10-14
+
+Files changed:
+- `road_map.md`
+- `agent_context.md`
+
+What changed:
+- Added a new product roadmap document based on the current app capabilities, existing suggestions, App Store positioning, and current market/customer signals.
+- Prioritized features such as direction by sound type, continuous listen mode, event history, onboarding, threshold alerts, export, calibration, Apple Watch haptics, Shortcuts, outdoor mode, accessibility improvements, and reliability work.
+- Added `road_map.md` to the project layout section of this context file.
+
+Why:
+- The project needed a customer-focused feature roadmap grounded in current trends and customer-requested utility/accessibility/sound-meter features.
+
+Verification:
+- Reviewed the current app README, existing suggestions, agent context, and deployment guidance.
+- Researched current trends and customer signals around on-device/offline AI, accessibility sound recognition, sound meter apps, outdoor safety apps, app privacy, calibration, history, export, and haptic/Watch workflows.
+- No build was run because this change only adds documentation.
 
 ### 2026-10-14
 

@@ -3,78 +3,130 @@ import SwiftUI
 struct SoundRadarView: View {
     @StateObject private var manager = AudioDirectionManager()
     @State private var showHelp = false
+    @State private var showHistory = false
+    @State private var showOnboarding = false
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
 
     var body: some View {
-        VStack(spacing: 24) {
+        ScrollView {
+            VStack(spacing: 20) {
+                header
+                modePicker
+                radar
+                statusPanel
+                categoryResults
+                readinessPanel
+                actionButtons
+            }
+            .padding()
+            .frame(maxWidth: .infinity)
+        }
+        .sheet(isPresented: $showHelp) {
+            HelpView()
+        }
+        .sheet(isPresented: $showHistory) {
+            HistoryView(events: manager.soundEvents)
+        }
+        .sheet(isPresented: $showOnboarding) {
+            OnboardingView {
+                hasSeenOnboarding = true
+                showOnboarding = false
+            }
+        }
+        .onAppear {
+            if !hasSeenOnboarding {
+                showOnboarding = true
+            }
+        }
+    }
+
+    private var header: some View {
+        VStack(spacing: 6) {
             Text("Noisy Detector")
                 .font(.title)
                 .bold()
 
-            Text("Turn slowly 360° while scanning.")
+            Text(manager.selectedMode == .scan360 ? "Turn slowly 360° while scanning." : "Keep the iPhone still and let it listen.")
+                .font(.subheadline)
                 .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+    }
 
-            ZStack {
-                Circle()
-                    .stroke(Color.gray.opacity(0.3), lineWidth: 10)
-                    .frame(width: 280, height: 280)
+    private var modePicker: some View {
+        Picker("Mode", selection: $manager.selectedMode) {
+            ForEach(AudioDirectionManager.DetectionMode.allCases) { mode in
+                Text(mode.title).tag(mode)
+            }
+        }
+        .pickerStyle(.segmented)
+        .disabled(manager.isScanning)
+    }
 
-                // Cardinal direction labels
-                Text("N")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .offset(y: -140)
-                Text("E")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .offset(x: 140)
-                Text("S")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .offset(y: 140)
-                Text("W")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .offset(x: -140)
+    private var radar: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.gray.opacity(0.3), lineWidth: 10)
+                .frame(width: 280, height: 280)
 
-                // Sound blob visualization
-                SoundBlobShape(points: manager.polarPoints)
-                    .fill(Color.green.opacity(0.2))
-                    .frame(width: 260, height: 260)
+            Text("N")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .offset(y: -140)
+            Text("E")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .offset(x: 140)
+            Text("S")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .offset(y: 140)
+            Text("W")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .offset(x: -140)
 
-                // Phone orientation marker
+            SoundBlobShape(points: manager.polarPoints)
+                .fill(Color.green.opacity(0.2))
+                .frame(width: 260, height: 260)
+
+            VStack {
+                Image(systemName: "arrow.up")
+                    .font(.largeTitle)
+                    .foregroundColor(.red)
+                Spacer()
+            }
+            .frame(width: 280, height: 280)
+            .rotationEffect(Angle(degrees: -manager.currentHeading))
+
+            if let targetHeading = manager.directionOfLoudestSound {
                 VStack {
-                    Image(systemName: "arrow.up")
-                        .font(.largeTitle)
-                        .foregroundColor(.red)
+                    Image(systemName: "arrow.up.circle.fill")
+                        .font(.system(size: 40))
+                        .foregroundColor(.green)
                     Spacer()
                 }
-                .frame(width: 280, height: 280)
-                .rotationEffect(Angle(degrees: -manager.currentHeading))
-
-                // Result marker after scan
-                if let targetHeading = manager.directionOfLoudestSound {
-                    VStack {
-                        Image(systemName: "arrow.up.circle.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.green)
-                        Spacer()
-                    }
-                    .frame(width: 260, height: 260)
-                    .rotationEffect(Angle(degrees: targetHeading - manager.currentHeading))
-                }
-
-                // Live volume visualizer
-                Circle()
-                    .fill(manager.isScanning ? Color.red : Color.blue)
-                    .frame(width: manager.volumeCircleSize, height: manager.volumeCircleSize)
-                    .opacity(0.5)
+                .frame(width: 260, height: 260)
+                .rotationEffect(Angle(degrees: targetHeading - manager.currentHeading))
             }
 
+            Circle()
+                .fill(manager.isScanning ? Color.red : Color.blue)
+                .frame(width: manager.volumeCircleSize, height: manager.volumeCircleSize)
+                .opacity(0.5)
+        }
+    }
+
+    private var statusPanel: some View {
+        VStack(spacing: 8) {
             Text(manager.statusText)
                 .font(.headline)
+                .multilineTextAlignment(.center)
 
-            ProgressView(value: manager.scanProgress)
-                .tint(.green)
+            if manager.selectedMode == .scan360 {
+                ProgressView(value: manager.scanProgress)
+                    .tint(.green)
+            }
 
             if let result = manager.directionOfLoudestSound {
                 Text("Loudest sound at: \(Int(result))°")
@@ -82,48 +134,109 @@ struct SoundRadarView: View {
                     .foregroundColor(.green)
             }
 
-            Text("Scan quality: \(manager.scanQualityText)")
+            Text("Quality: \(manager.scanQualityText)")
                 .font(.subheadline)
                 .foregroundColor(scanQualityColor)
 
-            VStack(spacing: 4) {
-                Text(manager.soundClassificationStatus)
-                    .font(.subheadline)
-                    .foregroundColor(.primary)
+            Text(manager.soundClassificationStatus)
+                .font(.subheadline)
+                .multilineTextAlignment(.center)
 
-                if !manager.topSoundClassifications.isEmpty {
-                    Text("Top sounds: \(topSoundsText)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-            }
-
-            VStack(spacing: 4) {
-                Text("Raw: \(Int(manager.lastRawDecibels)) dB")
-                Text("Smoothed: \(Int(manager.lastSmoothedDecibels)) dB")
-            }
-            .font(.caption)
-            .foregroundColor(.secondary)
-
-            if !manager.topHeadings.isEmpty {
-                Text("Top 3 headings: \(topHeadingsText)")
+            if !manager.topSoundClassifications.isEmpty {
+                Text("Top sounds: \(topSoundsText)")
                     .font(.caption)
                     .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+
+            Text("Raw \(Int(manager.lastRawDecibels)) dB · Smoothed \(Int(manager.lastSmoothedDecibels)) dB")
+                .font(.caption)
+                .foregroundColor(.secondary)
+
+            if !manager.topHeadings.isEmpty {
+                Text("Top headings: \(topHeadingsText)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+
+    private var categoryResults: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Directions by Sound Type")
+                .font(.headline)
+
+            if manager.categoryDirectionResults.isEmpty {
+                Text("No categorized direction yet.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            } else {
+                ForEach(manager.categoryDirectionResults) { result in
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(result.category)
+                                .font(.subheadline)
+                                .bold()
+                            Text(result.label)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+
+                        Spacer()
+
+                        Text("\(Int(result.heading))°")
+                            .font(.headline)
+
+                        Text("\(Int((result.confidence * 100.0).rounded()))%")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(10)
+                    .background(Color.secondary.opacity(0.08))
+                    .cornerRadius(8)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var readinessPanel: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Readiness")
+                .font(.headline)
+
+            ForEach(manager.readinessItems) { item in
+                HStack {
+                    Image(systemName: item.isReady ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                        .foregroundColor(item.isReady ? .green : .orange)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(item.title)
+                            .font(.subheadline)
+                        Text(item.detail)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    Spacer()
+                }
             }
 
             Text("Do not cover the bottom microphone.")
                 .font(.footnote)
                 .foregroundColor(.orange)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
 
+    private var actionButtons: some View {
+        VStack(spacing: 12) {
             Button(action: {
                 if manager.isScanning {
                     manager.stopScanning()
                 } else {
-                    manager.startScanning()
+                    manager.startSelectedMode()
                 }
             }) {
-                Text(manager.isScanning ? "Stop & Analyze" : "Start Scan")
+                Text(primaryButtonTitle)
                     .font(.headline)
                     .padding()
                     .frame(maxWidth: .infinity)
@@ -131,17 +244,28 @@ struct SoundRadarView: View {
                     .foregroundColor(.white)
                     .cornerRadius(10)
             }
-            .padding(.horizontal)
 
-            Button("Help") {
-                showHelp = true
+            HStack {
+                Button("History") {
+                    showHistory = true
+                }
+                .font(.subheadline)
+
+                Spacer()
+
+                Button("Help") {
+                    showHelp = true
+                }
+                .font(.subheadline)
             }
-            .font(.subheadline)
         }
-        .padding()
-        .sheet(isPresented: $showHelp) {
-            HelpView()
+    }
+
+    private var primaryButtonTitle: String {
+        if manager.isScanning {
+            return manager.selectedMode == .scan360 ? "Stop & Analyze" : "Stop Listening"
         }
+        return manager.selectedMode == .scan360 ? "Start Scan" : "Start Listening"
     }
 
     private var scanQualityColor: Color {
@@ -209,6 +333,8 @@ private struct SoundBlobShape: Shape {
 #endif
 
 private struct HelpView: View {
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -246,10 +372,139 @@ private struct HelpView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") {
-                        // Dismissed by system
+                        dismiss()
                     }
                 }
             }
         }
     }
+}
+
+private struct HistoryView: View {
+    @Environment(\.dismiss) private var dismiss
+    let events: [AudioDirectionManager.SoundEvent]
+
+    var body: some View {
+        NavigationView {
+            Group {
+                if events.isEmpty {
+                    VStack(spacing: 8) {
+                        Text("No history yet")
+                            .font(.headline)
+                        Text("Scan or listen to create local sound events.")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding()
+                } else {
+                    List(events) { event in
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text(event.category)
+                                    .font(.headline)
+                                Spacer()
+                                Text(event.mode.title)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Text(event.label)
+                                .font(.subheadline)
+
+                            Text(historyDetail(for: event))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+            }
+            .navigationTitle("History")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+
+    private func historyDetail(for event: AudioDirectionManager.SoundEvent) -> String {
+        let confidence = Int((event.confidence * 100.0).rounded())
+        let headingText: String
+        if let heading = event.heading {
+            headingText = "\(Int(heading))°"
+        } else {
+            headingText = "No heading"
+        }
+
+        return "\(DateFormatter.shortTime.string(from: event.date)) · \(headingText) · \(confidence)% · peak \(Int(event.peakDecibels)) dB · avg \(Int(event.averageDecibels)) dB"
+    }
+}
+
+private struct OnboardingView: View {
+    let onDone: () -> Void
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            Text("Noisy Detector")
+                .font(.largeTitle)
+                .bold()
+
+            VStack(alignment: .leading, spacing: 18) {
+                OnboardingRow(icon: "iphone", title: "Hold upright", detail: "Keep the bottom microphone uncovered.")
+                OnboardingRow(icon: "timer", title: "Calibrate first", detail: "Stay still while the app learns the room noise.")
+                OnboardingRow(icon: "arrow.triangle.2.circlepath", title: "Turn slowly", detail: "Use Scan 360 for direction or Listen mode for ongoing sound events.")
+            }
+
+            Spacer()
+
+            Button("Start") {
+                onDone()
+            }
+            .font(.headline)
+            .padding()
+            .frame(maxWidth: .infinity)
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+        }
+        .padding()
+    }
+}
+
+private struct OnboardingRow: View {
+    let icon: String
+    let title: String
+    let detail: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(.green)
+                .frame(width: 32)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                Text(detail)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+}
+
+private extension DateFormatter {
+    static let shortTime: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .short
+        return formatter
+    }()
 }

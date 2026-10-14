@@ -13,6 +13,9 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         let rawDecibels: Float
         let smoothedDecibels: Float
         let signal: Float
+        let soundCategory: String?
+        let soundLabel: String?
+        let soundConfidence: Double
     }
 
     struct PolarPoint {
@@ -27,6 +30,53 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         let confidence: Double
 
         var id: String { identifier }
+    }
+
+    struct CategoryDirectionResult: Identifiable {
+        let category: String
+        let heading: Double
+        let confidence: Double
+        let signal: Float
+        let label: String
+        let sampleCount: Int
+
+        var id: String { category }
+    }
+
+    struct SoundEvent: Identifiable {
+        let id = UUID()
+        let date: Date
+        let mode: DetectionMode
+        let category: String
+        let label: String
+        let confidence: Double
+        let heading: Double?
+        let peakDecibels: Float
+        let averageDecibels: Float
+        let scanQuality: String
+    }
+
+    struct ReadinessItem: Identifiable {
+        let id = UUID()
+        let title: String
+        let detail: String
+        let isReady: Bool
+    }
+
+    enum DetectionMode: String, CaseIterable, Identifiable {
+        case scan360
+        case listen
+
+        var id: String { rawValue }
+
+        var title: String {
+            switch self {
+            case .scan360:
+                return "Scan 360"
+            case .listen:
+                return "Listen"
+            }
+        }
     }
 
     private let emaAlpha: Float = 0.2
@@ -55,11 +105,14 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
     private var currentRotationRate: Double = 0.0
     private var lastHeading: Double?
     private var accumulatedRotation: Double = 0.0
-    private var isRecordingAuthorized = false
-    private var isLocationAuthorized = false
     private var isCalibrating = false
+    private var lastLoggedEventCategory: String?
+    private var lastLoggedEventDate: Date?
     private let haptics = UINotificationFeedbackGenerator()
 
+    @Published var selectedMode: DetectionMode = .scan360
+    @Published private(set) var isMicrophoneAuthorized = false
+    @Published private(set) var isLocationAuthorized = false
     @Published var currentDecibels: Float = -160.0
     @Published var lastRawDecibels: Float = -160.0
     @Published var lastSmoothedDecibels: Float = -160.0
@@ -75,6 +128,8 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
     @Published var currentSoundClassification: SoundClassification?
     @Published var topSoundClassifications: [SoundClassification] = []
     @Published var soundClassificationStatus: String = "Sound type: Ready"
+    @Published var categoryDirectionResults: [CategoryDirectionResult] = []
+    @Published var soundEvents: [SoundEvent] = []
 
     enum ScanQualityLevel {
         case normal
@@ -114,7 +169,7 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         let session = AVAudioSession.sharedInstance()
         session.requestRecordPermission { [weak self] granted in
             DispatchQueue.main.async {
-                self?.isRecordingAuthorized = granted
+                self?.isMicrophoneAuthorized = granted
                 if !granted {
                     self?.statusText = "Microphone permission is required."
                 }
@@ -142,11 +197,24 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
     }
 
     func startScanning() {
-        guard isRecordingAuthorized else {
+        startSession(mode: .scan360)
+    }
+
+    func startListening() {
+        startSession(mode: .listen)
+    }
+
+    func startSelectedMode() {
+        startSession(mode: selectedMode)
+    }
+
+    private func startSession(mode: DetectionMode) {
+        guard isMicrophoneAuthorized else {
             statusText = "Enable microphone in Settings."
             return
         }
 
+        selectedMode = mode
         samples.removeAll()
         calibrationSamples.removeAll()
         calibrationStart = Date()
@@ -161,12 +229,20 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         lastHeading = nil
         topHeadings = []
         polarPoints = []
+        categoryDirectionResults = []
         currentSoundClassification = nil
         topSoundClassifications = []
         soundClassificationStatus = "Sound type: Listening..."
+        lastLoggedEventCategory = nil
+        lastLoggedEventDate = nil
         emaDecibels = nil
         previousAdjustedDecibels = nil
         previousHighPass = 0.0
+
+        if mode == .listen {
+            statusText = "Calibrating... stay still"
+            scanQualityText = "Listening"
+        }
 
         do {
             try startAudioEngine()
@@ -188,7 +264,13 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         isScanning = false
         isCalibrating = false
         stopAudioEngine()
-        analyzeResults()
+        if selectedMode == .scan360 {
+            analyzeResults()
+        } else {
+            statusText = "Listen stopped."
+            scanQualityText = "Ready"
+            scanQualityLevel = .normal
+        }
         haptics.notificationOccurred(.warning)
     }
 
@@ -290,8 +372,13 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
                 let total = calibrationSamples.reduce(0, +)
                 noiseFloorEMA = calibrationSamples.isEmpty ? -60.0 : (total / Float(calibrationSamples.count))
                 isCalibrating = false
-                statusText = "Scanning... turn slowly 360°"
-                scanQualityText = "Good"
+                if selectedMode == .scan360 {
+                    statusText = "Scanning... turn slowly 360°"
+                    scanQualityText = "Good"
+                } else {
+                    statusText = "Listening..."
+                    scanQualityText = "Listening"
+                }
                 scanQualityLevel = .normal
             } else {
                 statusText = "Calibrating... stay still"
@@ -310,13 +397,13 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         currentDecibels = smoothedDecibels
 
         if isScanning {
-            if currentRotationRate > maxRotationRate {
+            if selectedMode == .scan360 && currentRotationRate > maxRotationRate {
                 statusText = "Scanning... slow down"
                 scanQualityText = "Too fast"
                 scanQualityLevel = .bad
                 return
             }
-            if statusText == "Scanning... slow down" {
+            if selectedMode == .scan360 && statusText == "Scanning... slow down" {
                 statusText = "Scanning... turn slowly 360°"
                 scanQualityText = "Good"
                 scanQualityLevel = .normal
@@ -327,16 +414,27 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
             } else if signalForSample < minDetectedSignal {
                 scanQualityText = "Too quiet"
                 scanQualityLevel = .warning
+            } else if selectedMode == .listen {
+                scanQualityText = "Listening"
+                scanQualityLevel = .normal
             }
+
+            let classification = currentSoundClassification
             let sample = SoundSample(
                 heading: currentHeading,
                 rawDecibels: decibels,
                 smoothedDecibels: smoothedDecibels,
-                signal: signalForSample
+                signal: signalForSample,
+                soundCategory: classification?.category,
+                soundLabel: classification?.displayName,
+                soundConfidence: classification?.confidence ?? 0.0
             )
             samples.append(sample)
-            updateProgress(with: currentHeading)
+            if selectedMode == .scan360 {
+                updateProgress(with: currentHeading)
+            }
             updateDerivedData()
+            updateListenEvents(with: sample)
         }
     }
 
@@ -460,6 +558,7 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         statusText = "Scan complete."
         scanQualityText = "Good"
         scanQualityLevel = .normal
+        logSummaryEvents()
         haptics.notificationOccurred(.success)
     }
 
@@ -495,6 +594,159 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         let sorted = samples.sorted { $0.signal > $1.signal }
         topHeadings = sorted.prefix(3).map { $0.heading }
         polarPoints = samples.map { PolarPoint(heading: $0.heading, magnitude: $0.signal) }
+        categoryDirectionResults = buildCategoryDirectionResults(from: samples)
+    }
+
+    private func buildCategoryDirectionResults(from samples: [SoundSample]) -> [CategoryDirectionResult] {
+        let categorized = Dictionary(grouping: samples) { sample in
+            sample.soundCategory ?? "Other"
+        }
+
+        return categorized.compactMap { category, samples in
+            guard category != "Other" || samples.contains(where: { $0.soundConfidence > 0.0 }) else {
+                return nil
+            }
+            guard let best = samples.max(by: { weightedScore($0) < weightedScore($1) }),
+                  best.signal > minDetectedSignal else {
+                return nil
+            }
+
+            return CategoryDirectionResult(
+                category: category,
+                heading: best.heading,
+                confidence: best.soundConfidence,
+                signal: best.signal,
+                label: best.soundLabel ?? category,
+                sampleCount: samples.count
+            )
+        }
+        .sorted { weightedResultScore($0) > weightedResultScore($1) }
+        .prefix(5)
+        .map { $0 }
+    }
+
+    private func weightedScore(_ sample: SoundSample) -> Float {
+        let confidence = max(0.15, Float(sample.soundConfidence))
+        return sample.signal * confidence
+    }
+
+    private func weightedResultScore(_ result: CategoryDirectionResult) -> Float {
+        result.signal * max(0.15, Float(result.confidence))
+    }
+
+    private func updateListenEvents(with sample: SoundSample) {
+        guard selectedMode == .listen,
+              sample.signal > minDetectedSignal,
+              sample.soundConfidence >= 0.25,
+              let category = sample.soundCategory,
+              let label = sample.soundLabel else {
+            return
+        }
+
+        let now = Date()
+        if lastLoggedEventCategory == category,
+           let previous = lastLoggedEventDate,
+           now.timeIntervalSince(previous) < 5.0 {
+            return
+        }
+
+        addSoundEvent(
+            mode: .listen,
+            category: category,
+            label: label,
+            confidence: sample.soundConfidence,
+            heading: isLocationAuthorized ? sample.heading : nil,
+            peakDecibels: sample.smoothedDecibels,
+            averageDecibels: averageSmoothedDecibels(for: category),
+            scanQuality: scanQualityText
+        )
+
+        lastLoggedEventCategory = category
+        lastLoggedEventDate = now
+    }
+
+    private func logSummaryEvents() {
+        for result in categoryDirectionResults.prefix(3) {
+            addSoundEvent(
+                mode: .scan360,
+                category: result.category,
+                label: result.label,
+                confidence: result.confidence,
+                heading: result.heading,
+                peakDecibels: bestPeakDecibels(for: result.category),
+                averageDecibels: averageSmoothedDecibels(for: result.category),
+                scanQuality: scanQualityText
+            )
+        }
+    }
+
+    private func addSoundEvent(
+        mode: DetectionMode,
+        category: String,
+        label: String,
+        confidence: Double,
+        heading: Double?,
+        peakDecibels: Float,
+        averageDecibels: Float,
+        scanQuality: String
+    ) {
+        let event = SoundEvent(
+            date: Date(),
+            mode: mode,
+            category: category,
+            label: label,
+            confidence: confidence,
+            heading: heading,
+            peakDecibels: peakDecibels,
+            averageDecibels: averageDecibels,
+            scanQuality: scanQuality
+        )
+
+        soundEvents.insert(event, at: 0)
+        if soundEvents.count > 50 {
+            soundEvents.removeLast(soundEvents.count - 50)
+        }
+    }
+
+    private func bestPeakDecibels(for category: String) -> Float {
+        samples
+            .filter { ($0.soundCategory ?? "Other") == category }
+            .map { $0.smoothedDecibels }
+            .max() ?? lastSmoothedDecibels
+    }
+
+    private func averageSmoothedDecibels(for category: String) -> Float {
+        let values = samples
+            .filter { ($0.soundCategory ?? "Other") == category }
+            .map { $0.smoothedDecibels }
+
+        guard !values.isEmpty else { return lastSmoothedDecibels }
+        return values.reduce(0, +) / Float(values.count)
+    }
+
+    var readinessItems: [ReadinessItem] {
+        [
+            ReadinessItem(
+                title: "Microphone",
+                detail: isMicrophoneAuthorized ? "Allowed" : "Permission needed",
+                isReady: isMicrophoneAuthorized
+            ),
+            ReadinessItem(
+                title: "Compass",
+                detail: isLocationAuthorized ? "Ready" : "Allow location for heading",
+                isReady: isLocationAuthorized
+            ),
+            ReadinessItem(
+                title: "Rotation",
+                detail: currentRotationRate <= maxRotationRate ? "Slow enough" : "Turn slower",
+                isReady: currentRotationRate <= maxRotationRate
+            ),
+            ReadinessItem(
+                title: "Noise floor",
+                detail: noiseFloorEMA <= noisyEnvironmentThreshold ? "Usable" : "Noisy environment",
+                isReady: noiseFloorEMA <= noisyEnvironmentThreshold
+            )
+        ]
     }
 }
 

@@ -11,7 +11,9 @@ current project structure and features.
 - [x] Add a calibration step to capture baseline noise before scanning.
 
 ## UX and UI
-- [ ] Add a short onboarding screen explaining the 360° scan.
+- [x] Add a short onboarding screen explaining the 360° scan.
+- [x] Add Scan 360 and Listen mode controls.
+- [x] Add a readiness checklist for microphone, compass, rotation speed, and noise floor.
 - [x] Include a compass ring with labeled cardinal directions (N/E/S/W).
 - [x] Show a progress indicator for the 360° sweep.
 - [x] Provide haptic feedback when scanning starts/stops or on result.
@@ -21,6 +23,8 @@ current project structure and features.
 - [x] Plot the full polar “sound blob” instead of only the max point.
 - [x] Show the top 3 loudest headings, not just one.
 - [x] Display raw vs smoothed volume for transparency.
+- [x] Show direction results by sound type.
+- [x] Add recent local sound event history.
 
 ## Device and Sensor Handling
 - [x] Handle missing magnetometer with a clear fallback message.
@@ -46,5 +50,4 @@ current project structure and features.
 Developer: Oleg Bourdo — https://www.linkedin.com/in/oleg-bourdo-8a2360139/
 
 This project was created to support the Moon Home Agency initiative: https://moonhome.agency/
-
 
