@@ -1,6 +1,6 @@
 # Suggestions and Improvements
 
-This file lists ideas to improve the **Noisy Detector** app, based on the
+This file lists ideas to improve the **NoiseRadar** app, based on the
 current project structure and features.
 
 ## Accuracy and Signal Processing

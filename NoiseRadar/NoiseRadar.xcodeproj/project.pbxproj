@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		E1F2A3B4C5D6E7F8091A2B50 /* NoisyDetectorApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D6E7F8091A2B44 /* NoisyDetectorApp.swift */; };
+		E1F2A3B4C5D6E7F8091A2B50 /* NoiseRadarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D6E7F8091A2B44 /* NoiseRadarApp.swift */; };
 		E1F2A3B4C5D6E7F8091A2B51 /* SoundRadarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D6E7F8091A2B45 /* SoundRadarView.swift */; };
 		E1F2A3B4C5D6E7F8091A2B52 /* AudioDirectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D6E7F8091A2B46 /* AudioDirectionManager.swift */; };
 		E1F2A3B4C5D6E7F8091A2B53 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D6E7F8091A2B47 /* Assets.xcassets */; };
@@ -16,8 +16,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		E1F2A3B4C5D6E7F8091A2B43 /* NoisyDetector.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NoisyDetector.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		E1F2A3B4C5D6E7F8091A2B44 /* NoisyDetectorApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoisyDetectorApp.swift; sourceTree = "<group>"; };
+		E1F2A3B4C5D6E7F8091A2B43 /* NoiseRadar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NoiseRadar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1F2A3B4C5D6E7F8091A2B44 /* NoiseRadarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoiseRadarApp.swift; sourceTree = "<group>"; };
 		E1F2A3B4C5D6E7F8091A2B45 /* SoundRadarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundRadarView.swift; sourceTree = "<group>"; };
 		E1F2A3B4C5D6E7F8091A2B46 /* AudioDirectionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioDirectionManager.swift; sourceTree = "<group>"; };
 		E1F2A3B4C5D6E7F8091A2B47 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -40,7 +40,7 @@
 		E1F2A3B4C5D6E7F8091A2B3D = {
 			isa = PBXGroup;
 			children = (
-				E1F2A3B4C5D6E7F8091A2B55 /* NoisyDetector */,
+				E1F2A3B4C5D6E7F8091A2B55 /* NoiseRadar */,
 				E1F2A3B4C5D6E7F8091A2B3E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -48,15 +48,15 @@
 		E1F2A3B4C5D6E7F8091A2B3E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E1F2A3B4C5D6E7F8091A2B43 /* NoisyDetector.app */,
+				E1F2A3B4C5D6E7F8091A2B43 /* NoiseRadar.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E1F2A3B4C5D6E7F8091A2B55 /* NoisyDetector */ = {
+		E1F2A3B4C5D6E7F8091A2B55 /* NoiseRadar */ = {
 			isa = PBXGroup;
 			children = (
-				E1F2A3B4C5D6E7F8091A2B44 /* NoisyDetectorApp.swift */,
+				E1F2A3B4C5D6E7F8091A2B44 /* NoiseRadarApp.swift */,
 				E1F2A3B4C5D6E7F8091A2B45 /* SoundRadarView.swift */,
 				E1F2A3B4C5D6E7F8091A2B46 /* AudioDirectionManager.swift */,
 				E1F2A3B4C5D6E7F8091A2B47 /* Assets.xcassets */,
@@ -64,7 +64,7 @@
 				E1F2A3B4C5D6E7F8091A2B56 /* Preview Content */,
 				E1F2A3B4C5D6E7F8091A2B49 /* Info.plist */,
 			);
-			path = NoisyDetector;
+			path = NoiseRadar;
 			sourceTree = "<group>";
 		};
 		E1F2A3B4C5D6E7F8091A2B56 /* Preview Content */ = {
@@ -78,9 +78,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E1F2A3B4C5D6E7F8091A2B42 /* NoisyDetector */ = {
+		E1F2A3B4C5D6E7F8091A2B42 /* NoiseRadar */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E1F2A3B4C5D6E7F8091A2B5C /* Build configuration list for PBXNativeTarget "NoisyDetector" */;
+			buildConfigurationList = E1F2A3B4C5D6E7F8091A2B5C /* Build configuration list for PBXNativeTarget "NoiseRadar" */;
 			buildPhases = (
 				E1F2A3B4C5D6E7F8091A2B3F /* Sources */,
 				E1F2A3B4C5D6E7F8091A2B40 /* Resources */,
@@ -90,9 +90,9 @@
 			);
 			dependencies = (
 			);
-			name = NoisyDetector;
-			productName = NoisyDetector;
-			productReference = E1F2A3B4C5D6E7F8091A2B43 /* NoisyDetector.app */;
+			name = NoiseRadar;
+			productName = NoiseRadar;
+			productReference = E1F2A3B4C5D6E7F8091A2B43 /* NoiseRadar.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -110,7 +110,7 @@
 					};
 				};
 			};
-			buildConfigurationList = E1F2A3B4C5D6E7F8091A2B5B /* Build configuration list for PBXProject "NoisyDetector" */;
+			buildConfigurationList = E1F2A3B4C5D6E7F8091A2B5B /* Build configuration list for PBXProject "NoiseRadar" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -123,7 +123,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				E1F2A3B4C5D6E7F8091A2B42 /* NoisyDetector */,
+				E1F2A3B4C5D6E7F8091A2B42 /* NoiseRadar */,
 			);
 		};
 /* End PBXProject section */
@@ -146,7 +146,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E1F2A3B4C5D6E7F8091A2B50 /* NoisyDetectorApp.swift in Sources */,
+				E1F2A3B4C5D6E7F8091A2B50 /* NoiseRadarApp.swift in Sources */,
 				E1F2A3B4C5D6E7F8091A2B51 /* SoundRadarView.swift in Sources */,
 				E1F2A3B4C5D6E7F8091A2B52 /* AudioDirectionManager.swift in Sources */,
 			);
@@ -222,7 +222,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6X42CRDLS6;
-				INFOPLIST_FILE = NoisyDetector/Info.plist;
+				INFOPLIST_FILE = NoiseRadar/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -230,7 +230,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.noisydetector;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.noiseradar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -248,7 +248,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6X42CRDLS6;
-				INFOPLIST_FILE = NoisyDetector/Info.plist;
+				INFOPLIST_FILE = NoiseRadar/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -256,7 +256,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.noisydetector;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.noiseradar;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -270,7 +270,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		E1F2A3B4C5D6E7F8091A2B5B /* Build configuration list for PBXProject "NoisyDetector" */ = {
+		E1F2A3B4C5D6E7F8091A2B5B /* Build configuration list for PBXProject "NoiseRadar" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E1F2A3B4C5D6E7F8091A2B57 /* Debug */,
@@ -279,7 +279,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E1F2A3B4C5D6E7F8091A2B5C /* Build configuration list for PBXNativeTarget "NoisyDetector" */ = {
+		E1F2A3B4C5D6E7F8091A2B5C /* Build configuration list for PBXNativeTarget "NoiseRadar" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E1F2A3B4C5D6E7F8091A2B59 /* Debug */,

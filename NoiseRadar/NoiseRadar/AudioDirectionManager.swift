@@ -89,7 +89,7 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
     private let noisyEnvironmentThreshold: Float = -35.0
 
     private let audioEngine = AVAudioEngine()
-    private let analysisQueue = DispatchQueue(label: "NoisyDetector.SoundAnalysis")
+    private let analysisQueue = DispatchQueue(label: "NoiseRadar.SoundAnalysis")
     private var streamAnalyzer: SNAudioStreamAnalyzer?
     private var soundClassificationRequest: SNClassifySoundRequest?
     private var soundClassificationObserver: SoundClassificationObserver?

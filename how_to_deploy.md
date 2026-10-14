@@ -1,6 +1,6 @@
 # How to Deploy (Xcode)
 
-This guide explains how to build and deploy **Noisy Detector** to a real iPhone.
+This guide explains how to build and deploy **NoiseRadar** to a real iPhone.
 
 ## 1) Prerequisites
 - A Mac with Xcode 15+ installed.
@@ -10,24 +10,24 @@ This guide explains how to build and deploy **Noisy Detector** to a real iPhone.
 
 ## 2) Open the Project
 1. On your Mac, open Finder and go to the project folder.
-2. Double‑click `NoisyDetector.xcodeproj`.
+2. Double-click `NoiseRadar/NoiseRadar.xcodeproj`.
 3. Wait for Xcode to load the project and index files.
 
 ## 3) Select the Target
-1. In Xcode, at the top toolbar, ensure the scheme is **NoisyDetector**.
+1. In Xcode, at the top toolbar, ensure the scheme is **NoiseRadar**.
 2. Select your **iPhone** as the run destination (not a Simulator).
    - The compass and microphone require a real device.
 
 ## 4) Configure Signing
-1. Click the **NoisyDetector** project in the Project Navigator.
-2. Select the **NoisyDetector** target.
+1. Click the **NoiseRadar** project in the Project Navigator.
+2. Select the **NoiseRadar** target.
 3. Go to the **Signing & Capabilities** tab.
 4. Check **Automatically manage signing**.
 5. Choose your **Team** (your Apple ID).
 6. If you see errors:
    - Ensure you are signed in to Xcode: **Xcode → Settings → Accounts**.
    - Change the **Bundle Identifier** to a unique value, e.g.
-     `com.yourname.NoisyDetector`.
+     `com.yourname.noiseradar`.
 
 ## 5) Connect and Trust the Device
 1. Connect your iPhone via USB (or enable Wi‑Fi debugging).
@@ -68,7 +68,7 @@ Tap **Allow** for both.
 
 ## 10) Optional: App Icon
 To add a custom icon:
-1. Open `NoisyDetector/Assets.xcassets/AppIcon.appiconset`.
+1. Open `NoiseRadar/NoiseRadar/Assets.xcassets/AppIcon.appiconset`.
 2. Drag your icon images into the appropriate slots.
 3. Rebuild and run.
 

@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct NoisyDetectorApp: App {
+struct NoiseRadarApp: App {
     var body: some Scene {
         WindowGroup {
             SoundRadarView()

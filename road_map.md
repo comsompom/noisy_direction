@@ -1,4 +1,4 @@
-# Noisy Detector Road Map
+# NoiseRadar Road Map
 
 Last updated: 2026-10-14
 
@@ -6,7 +6,7 @@ This roadmap is based on the current app state, existing `suggestions.md`, App S
 
 ## Current App Baseline
 
-Noisy Detector currently provides:
+NoiseRadar currently provides:
 
 - 360 degree scan to estimate the loudest sound direction.
 - Offline on-device sound classification using Apple's built-in SoundAnalysis classifier.
@@ -46,7 +46,7 @@ Current trends and customer requests suggest these directions matter most:
 
 - On-device AI and offline-first behavior are increasingly important because users want privacy, speed, and features that work without connectivity.
 - Accessibility sound-recognition workflows are valuable for deaf and hard-of-hearing users, caregivers, older adults, and anyone who may miss important environmental sounds.
-- Apple already positions Sound Recognition as an accessibility feature using on-device intelligence, which validates the category but also means Noisy Detector should differentiate with direction, scanning, history, and outdoor field use.
+- Apple already positions Sound Recognition as an accessibility feature using on-device intelligence, which validates the category but also means NoiseRadar should differentiate with direction, scanning, history, and outdoor field use.
 - Sound meter apps compete heavily on calibration, session history, min/avg/max readings, charts, threshold alerts, Apple Watch support, Health/noise integrations, CSV/PDF export, and clean readable UI.
 - User discussions around sound meter apps repeatedly ask for logs with date/time, exportable evidence, calibration clarity, threshold alerts, and uncluttered UI.
 - Outdoor safety app trends emphasize offline reliability, clear situational awareness, and practical information when cell service is unavailable.
@@ -61,7 +61,7 @@ Sources checked:
 
 ## Product Direction
 
-Noisy Detector should not try to become a certified sound meter, emergency rescue tool, surveillance tool, or professional acoustic instrument.
+NoiseRadar should not try to become a certified sound meter, emergency rescue tool, surveillance tool, or professional acoustic instrument.
 
 Best positioning:
 
@@ -342,7 +342,7 @@ Feature:
 
 Why customers may like it:
 - Apple Sound Recognition supports some custom sound workflows at the OS level, and customers understand the concept.
-- This would make Noisy Detector personal and useful in recurring environments.
+- This would make NoiseRadar personal and useful in recurring environments.
 
 Implementation caution:
 - This is a larger project. It may require Create ML / custom Core ML model workflows or careful sample capture and classification design.

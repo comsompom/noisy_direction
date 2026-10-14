@@ -42,7 +42,7 @@ struct SoundRadarView: View {
 
     private var header: some View {
         VStack(spacing: 6) {
-            Text("Noisy Detector")
+            Text("NoiseRadar")
                 .font(.title)
                 .bold()
 
@@ -451,7 +451,7 @@ private struct OnboardingView: View {
         VStack(spacing: 24) {
             Spacer()
 
-            Text("Noisy Detector")
+            Text("NoiseRadar")
                 .font(.largeTitle)
                 .bold()
 

@@ -1,6 +1,6 @@
-# Noisy Detector
+# NoiseRadar
 
-![Noisy Detector App Icon](noise_icon.png)
+![NoiseRadar App Icon](noise_icon.png)
 
 An iOS SwiftUI app that finds the direction of the loudest sound by combining
 microphone amplitude with the device's compass heading while the user turns
@@ -35,8 +35,8 @@ The app is configured as an iPhone-only app. It does not add iPad, Apple Watch,
 Mac Catalyst, or Vision Pro companion targets.
 
 ## Project Layout
-- `NoisyDetector.xcodeproj` – Xcode project
-- `NoisyDetector/` – App source code
+- `NoiseRadar/NoiseRadar.xcodeproj` – Xcode project
+- `NoiseRadar/NoiseRadar/` – App source code
   - `AudioDirectionManager.swift` – microphone + compass + offline sound classification logic
   - `SoundRadarView.swift` – UI
   - `Info.plist` – permissions
@@ -47,7 +47,7 @@ The app requests:
 - Location access (When In Use) to read compass heading
 
 ## Quick Start
-1. Open `NoisyDetector.xcodeproj` in Xcode.
+1. Open `NoiseRadar/NoiseRadar.xcodeproj` in Xcode.
 2. Set your Development Team in Signing.
 3. Run on a physical iPhone.
 4. Tap **Start Scan**, rotate 360°, tap **Stop & Analyze**.

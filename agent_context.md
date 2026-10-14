@@ -1,4 +1,4 @@
-# Agent Context: Noisy Detector iPhone App
+# Agent Context: NoiseRadar iPhone App
 
 Last reviewed: 2026-10-14
 
@@ -17,18 +17,18 @@ Do not leave code, project settings, assets, documentation, or behavior changes 
 
 ## App Summary
 
-Noisy Detector is an iOS SwiftUI app that estimates the direction of the loudest sound source and labels the general sound type offline. It reads microphone buffers while reading the iPhone compass heading as the user slowly rotates 360 degrees. After scanning, it reports the heading where the strongest filtered sound signal was measured and also shows direction results by sound category. During scanning or foreground Listen mode, it uses Apple's built-in SoundAnalysis classifier locally on device to show broad sound type categories such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds. The app keeps recent local in-memory sound events for scan/listen history.
+NoiseRadar is an iOS SwiftUI app that estimates the direction of the loudest sound source and labels the general sound type offline. It reads microphone buffers while reading the iPhone compass heading as the user slowly rotates 360 degrees. After scanning, it reports the heading where the strongest filtered sound signal was measured and also shows direction results by sound category. During scanning or foreground Listen mode, it uses Apple's built-in SoundAnalysis classifier locally on device to show broad sound type categories such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds. The app keeps recent local in-memory sound events for scan/listen history.
 
 The app is meant to run on a physical iPhone. The iOS Simulator is not suitable because accurate microphone, compass, and motion behavior require device sensors.
 
 ## Project Layout
 
-- `NoisyDetector/NoisyDetector.xcodeproj`: Xcode project.
-- `NoisyDetector/NoisyDetector/NoisyDetectorApp.swift`: SwiftUI app entry point.
-- `NoisyDetector/NoisyDetector/SoundRadarView.swift`: Main SwiftUI interface, radar visualization, help sheet, controls, and status display.
-- `NoisyDetector/NoisyDetector/AudioDirectionManager.swift`: Sensor, microphone, offline sound classification, scan state, signal processing, and result analysis logic.
-- `NoisyDetector/NoisyDetector/Info.plist`: App display name and permission usage strings.
-- `NoisyDetector/NoisyDetector/Assets.xcassets`: App icon and launch image assets.
+- `NoiseRadar/NoiseRadar.xcodeproj`: Xcode project.
+- `NoiseRadar/NoiseRadar/NoiseRadarApp.swift`: SwiftUI app entry point.
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`: Main SwiftUI interface, radar visualization, help sheet, controls, and status display.
+- `NoiseRadar/NoiseRadar/AudioDirectionManager.swift`: Sensor, microphone, offline sound classification, scan state, signal processing, and result analysis logic.
+- `NoiseRadar/NoiseRadar/Info.plist`: App display name and permission usage strings.
+- `NoiseRadar/NoiseRadar/Assets.xcassets`: App icon and launch image assets.
 - `README.md`: User-facing project summary and quick start.
 - `how_to_deploy.md`: Xcode deployment guide.
 - `app_store_deploy.md`: App Store submission guide with metadata, review notes, privacy, screenshots, and deployment checklist.
@@ -40,7 +40,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 
 - Swift version: 5.0.
 - iOS deployment target: 15.0.
-- Bundle identifier: `com.example.noisydetector`.
+- Bundle identifier: `com.example.noiseradar`.
 - Development team currently set in the Xcode project: `6X42CRDLS6`.
 - Target device family: iPhone only (`TARGETED_DEVICE_FAMILY = 1`).
 - Supported platforms: `iphoneos iphonesimulator`.
@@ -48,7 +48,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 
 ## How The App Works
 
-`NoisyDetectorApp` opens `SoundRadarView`.
+`NoiseRadarApp` opens `SoundRadarView`.
 
 `SoundRadarView` owns one `@StateObject` instance of `AudioDirectionManager`. It renders:
 - App title and usage prompt.
@@ -139,8 +139,8 @@ These constants are currently in `AudioDirectionManager.swift`:
 Because this app depends on real iPhone microphone, compass, and motion sensors, meaningful end-to-end verification should be done on a physical iPhone through Xcode.
 
 For code-only changes, useful checks include:
-- Open `NoisyDetector/NoisyDetector.xcodeproj` in Xcode.
-- Build the `NoisyDetector` scheme for a real device.
+- Open `NoiseRadar/NoiseRadar.xcodeproj` in Xcode.
+- Build the `NoiseRadar` scheme for a real device.
 - Confirm microphone and location permissions are requested.
 - Start a scan, wait for calibration, rotate slowly 360 degrees, stop, and verify a loudest heading appears.
 - Verify the `Sound type` line updates offline on a physical iPhone with internet disabled.
@@ -151,9 +151,41 @@ For code-only changes, useful checks include:
 ### 2026-10-14
 
 Files changed:
-- `NoisyDetector/NoisyDetector/AudioDirectionManager.swift`
-- `NoisyDetector/NoisyDetector/SoundRadarView.swift`
-- `NoisyDetector/NoisyDetector.xcodeproj/project.pbxproj`
+- `NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`
+- `NoiseRadar/NoiseRadar.xcodeproj/xcuserdata/olegbourdo.xcuserdatad/xcschemes/xcschememanagement.plist`
+- `NoiseRadar/NoiseRadar/NoiseRadarApp.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `NoiseRadar/NoiseRadar/AudioDirectionManager.swift`
+- `NoiseRadar/NoiseRadar/Info.plist`
+- `README.md`
+- `how_to_deploy.md`
+- `app_store_deploy.md`
+- `image_prompts.md`
+- `suggestions.md`
+- `road_map.md`
+- `agent_context.md`
+
+What changed:
+- Renamed the app and Xcode project identity from the previous name to `NoiseRadar`.
+- Renamed the project folder to `NoiseRadar/`, the Xcode project to `NoiseRadar.xcodeproj`, the app source folder to `NoiseRadar/NoiseRadar/`, and the Swift app entry file to `NoiseRadarApp.swift`.
+- Updated the Xcode target, product reference, app product name, source path, Info.plist path, and bundle identifier placeholder to `com.example.noiseradar`.
+- Updated the app display name, in-app title text, permission usage descriptions, SoundAnalysis queue label, App Store/deployment documentation, image prompts, roadmap, and README references to use `NoiseRadar`.
+- Preserved the iPhone-only build settings: `TARGETED_DEVICE_FAMILY = 1`, `SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"`, and disabled Mac/Vision designed-for support.
+
+Why:
+- The user selected `NoiseRadar` as the app name and requested that the project and all references be adjusted to the new name.
+
+Verification:
+- Searched the repository outside `.git` and `.idea`; no exact previous app/project identifiers remain.
+- `xcodebuild -list -project NoiseRadar/NoiseRadar.xcodeproj` succeeded and reported the target and scheme as `NoiseRadar`.
+- Swift typecheck against the iPhoneOS SDK succeeded for `NoiseRadarApp.swift`, `SoundRadarView.swift`, and `AudioDirectionManager.swift`.
+
+### 2026-10-14
+
+Files changed:
+- `NoiseRadar/NoiseRadar/AudioDirectionManager.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`
 - `README.md`
 - `suggestions.md`
 - `road_map.md`
@@ -202,10 +234,10 @@ Verification:
 Files changed:
 - `launch_screen.png`
 - `noisy_load.jpg`
-- `NoisyDetector/NoisyDetector/Assets.xcassets/LaunchImage.imageset/launch_screen.png`
-- `NoisyDetector/NoisyDetector/Assets.xcassets/LaunchImage.imageset/noisy_load.jpg`
-- `NoisyDetector/NoisyDetector/Assets.xcassets/LaunchImage.imageset/Contents.json`
-- `NoisyDetector/NoisyDetector/LaunchScreen.storyboard`
+- `NoiseRadar/NoiseRadar/Assets.xcassets/LaunchImage.imageset/launch_screen.png`
+- `NoiseRadar/NoiseRadar/Assets.xcassets/LaunchImage.imageset/noisy_load.jpg`
+- `NoiseRadar/NoiseRadar/Assets.xcassets/LaunchImage.imageset/Contents.json`
+- `NoiseRadar/NoiseRadar/LaunchScreen.storyboard`
 - `agent_context.md`
 
 What changed:
@@ -228,15 +260,15 @@ Verification:
 ### 2026-10-14
 
 Files changed:
-- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-1024.png`
-- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-20@2x.png`
-- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-20@3x.png`
-- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-29@2x.png`
-- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-29@3x.png`
-- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-40@2x.png`
-- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-40@3x.png`
-- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-60@2x.png`
-- `NoisyDetector/NoisyDetector/Assets.xcassets/AppIcon.appiconset/Icon-60@3x.png`
+- `NoiseRadar/NoiseRadar/Assets.xcassets/AppIcon.appiconset/Icon-1024.png`
+- `NoiseRadar/NoiseRadar/Assets.xcassets/AppIcon.appiconset/Icon-20@2x.png`
+- `NoiseRadar/NoiseRadar/Assets.xcassets/AppIcon.appiconset/Icon-20@3x.png`
+- `NoiseRadar/NoiseRadar/Assets.xcassets/AppIcon.appiconset/Icon-29@2x.png`
+- `NoiseRadar/NoiseRadar/Assets.xcassets/AppIcon.appiconset/Icon-29@3x.png`
+- `NoiseRadar/NoiseRadar/Assets.xcassets/AppIcon.appiconset/Icon-40@2x.png`
+- `NoiseRadar/NoiseRadar/Assets.xcassets/AppIcon.appiconset/Icon-40@3x.png`
+- `NoiseRadar/NoiseRadar/Assets.xcassets/AppIcon.appiconset/Icon-60@2x.png`
+- `NoiseRadar/NoiseRadar/Assets.xcassets/AppIcon.appiconset/Icon-60@3x.png`
 - `README.md`
 - `agent_context.md`
 
@@ -260,7 +292,7 @@ Files changed:
 - `agent_context.md`
 
 What changed:
-- Added separate image-generation prompts for the Noisy Detector app icon, launch/loading screen, and App Store custom product page header.
+- Added separate image-generation prompts for the NoiseRadar app icon, launch/loading screen, and App Store custom product page header.
 - Included target sizes, visual direction, negative prompts, and review notes to avoid misleading emergency/security/military positioning.
 - Added `image_prompts.md` to the project layout section of this context file.
 
@@ -274,9 +306,9 @@ Verification:
 ### 2026-10-14
 
 Files changed:
-- `NoisyDetector/NoisyDetector/AudioDirectionManager.swift`
-- `NoisyDetector/NoisyDetector/SoundRadarView.swift`
-- `NoisyDetector/NoisyDetector/Info.plist`
+- `NoiseRadar/NoiseRadar/AudioDirectionManager.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `NoiseRadar/NoiseRadar/Info.plist`
 - `README.md`
 - `app_store_deploy.md`
 - `agent_context.md`
@@ -307,7 +339,7 @@ Files changed:
 - `agent_context.md`
 
 What changed:
-- Added a dedicated App Store deployment guide for Noisy Detector.
+- Added a dedicated App Store deployment guide for NoiseRadar.
 - Documented recommended App Store Connect fields, review notes, privacy answers, screenshots, age rating, export compliance, build/upload steps, and rejection-prevention checklist.
 - Captured deployment lessons from `get_distance`, `iphone_dust_cleaner`, and `vozhyk`.
 - Added `app_store_deploy.md` to the project layout section of this context file.
@@ -317,7 +349,7 @@ Why:
 
 Verification:
 - Reviewed prior deployment and review documents in `/Users/olegbourdo/Development/get_distance`, `/Users/olegbourdo/Development/iphone_dust_cleaner`, and `/Users/olegbourdo/Development/vozhyk`.
-- Reviewed current Noisy Detector project settings, `Info.plist`, asset catalog metadata, and existing documentation.
+- Reviewed current NoiseRadar project settings, `Info.plist`, asset catalog metadata, and existing documentation.
 - Cross-checked the submission flow against current Apple App Store Connect and App Review documentation.
 - No build was run because this change only adds documentation.
 
@@ -335,5 +367,5 @@ Why:
 - The repository needed a durable context document so future AI agents can understand how the app works and keep a clear record of changes.
 
 Verification:
-- Reviewed `README.md`, `how_to_deploy.md`, `suggestions.md`, `Info.plist`, `NoisyDetectorApp.swift`, `SoundRadarView.swift`, `AudioDirectionManager.swift`, and relevant Xcode project settings.
+- Reviewed `README.md`, `how_to_deploy.md`, `suggestions.md`, `Info.plist`, `NoiseRadarApp.swift`, `SoundRadarView.swift`, `AudioDirectionManager.swift`, and relevant Xcode project settings.
 - No build was run because this task only added documentation.

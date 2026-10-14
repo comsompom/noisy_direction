@@ -1,8 +1,8 @@
-# Noisy Detector App Store Deployment Guide
+# NoiseRadar App Store Deployment Guide
 
 Last reviewed: 2026-10-14
 
-Use this guide to prepare, upload, and submit Noisy Detector to App Store Review.
+Use this guide to prepare, upload, and submit NoiseRadar to App Store Review.
 It includes lessons from the previous `get_distance`, `iphone_dust_cleaner`,
 and `vozhyk` submissions: give App Review clear sensor-testing instructions,
 avoid unsupported claims, keep iPhone-only metadata consistent, include all
@@ -13,15 +13,15 @@ device.
 
 | Field | Current value |
 | --- | --- |
-| App display name | Noisy Detector |
-| Xcode project | `NoisyDetector/NoisyDetector.xcodeproj` |
-| App target/source folder | `NoisyDetector/NoisyDetector` |
+| App display name | NoiseRadar |
+| Xcode project | `NoiseRadar/NoiseRadar.xcodeproj` |
+| App target/source folder | `NoiseRadar/NoiseRadar` |
 | Platform | iOS |
 | Device family | iPhone only (`TARGETED_DEVICE_FAMILY = 1`) |
 | Minimum iOS | iOS 15.0 |
 | Version | 1.0 |
 | Build | 1 |
-| Current bundle ID | `com.example.noisydetector` |
+| Current bundle ID | `com.example.noiseradar` |
 | Current Apple team in project | `6X42CRDLS6` |
 | Microphone permission | `NSMicrophoneUsageDescription` |
 | Location permission | `NSLocationWhenInUseUsageDescription` |
@@ -31,13 +31,13 @@ device.
 | Ads / analytics / tracking SDKs | None seen in current code |
 | Main user value | Estimate the direction of the loudest sound by combining microphone sound levels with compass heading while the user rotates 360 degrees, classify the sound type locally on device, and keep recent local sound events |
 
-Important: `com.example.noisydetector` is a placeholder bundle ID. Do not submit
+Important: `com.example.noiseradar` is a placeholder bundle ID. Do not submit
 with it. Register and use a real unique bundle identifier before upload.
 
 Recommended bundle ID:
 
 ```text
-lt.bourdo.noisydetector
+lt.bourdo.noiseradar
 ```
 
 If that identifier is unavailable, use another unique reverse-DNS identifier
@@ -54,7 +54,7 @@ Use conservative wording everywhere.
 Safe positioning:
 
 ```text
-Noisy Detector is a local sound-direction utility that estimates where the loudest sound is coming from during a 360 degree scan.
+NoiseRadar is a local sound-direction utility that estimates where the loudest sound is coming from during a 360 degree scan.
 ```
 
 Avoid unsupported or risky claims:
@@ -91,7 +91,7 @@ and with larger text. If screenshots or metadata say iPhone-only, do not add an
 iPad platform and do not upload iPad screenshots.
 
 Also avoid exaggerated utility claims. Dust Cleaner avoided claiming that it
-repairs hardware; Noisy Detector should avoid claiming certified acoustic
+repairs hardware; NoiseRadar should avoid claiming certified acoustic
 accuracy or guaranteed source location.
 
 ### From Vozhyk
@@ -108,8 +108,8 @@ advertising, or tracking services are used.
 
 Complete these before archiving:
 
-- [ ] Change bundle ID from `com.example.noisydetector` to the final registered bundle ID.
-- [ ] Confirm `CFBundleDisplayName` is `Noisy Detector`.
+- [ ] Change bundle ID from `com.example.noiseradar` to the final registered bundle ID.
+- [ ] Confirm `CFBundleDisplayName` is `NoiseRadar`.
 - [ ] Confirm Version is `1.0`.
 - [ ] Increment Build to a new integer before each upload.
 - [ ] Confirm `TARGETED_DEVICE_FAMILY = 1` if this is intended to be iPhone-only.
@@ -123,8 +123,8 @@ Complete these before archiving:
 Recommended improved permission text before submission:
 
 ```text
-NSMicrophoneUsageDescription: Noisy Detector uses the microphone to measure sound levels and classify sound types during a scan. Audio is processed on device and is not recorded or uploaded.
-NSLocationWhenInUseUsageDescription: Noisy Detector uses compass heading from Location Services to estimate the direction of the loudest sound during a scan.
+NSMicrophoneUsageDescription: NoiseRadar uses the microphone to measure sound levels and classify sound types during a scan. Audio is processed on device and is not recorded or uploaded.
+NSLocationWhenInUseUsageDescription: NoiseRadar uses compass heading from Location Services to estimate the direction of the loudest sound during a scan.
 ```
 
 ## Required Physical-Device QA
@@ -173,26 +173,26 @@ UI in an iPad review environment.
 
 ```text
 Type: App IDs -> App
-Description: Noisy Detector
+Description: NoiseRadar
 Bundle ID type: Explicit
-Bundle ID: lt.bourdo.noisydetector
+Bundle ID: lt.bourdo.noiseradar
 Capabilities: Defaults only
 ```
 
 3. In Xcode, open:
 
 ```text
-NoisyDetector/NoisyDetector.xcodeproj
+NoiseRadar/NoiseRadar.xcodeproj
 ```
 
-4. Select the `NoisyDetector` target.
+4. Select the `NoiseRadar` target.
 5. Open `Signing & Capabilities`.
 6. Set:
 
 ```text
 Automatically manage signing: Enabled
 Team: TODO correct Apple Developer team
-Bundle Identifier: lt.bourdo.noisydetector
+Bundle Identifier: lt.bourdo.noiseradar
 ```
 
 Use the same team that owns the App Store Connect app record.
@@ -200,14 +200,14 @@ Use the same team that owns the App Store Connect app record.
 ## Archive And Upload From Xcode
 
 1. Open the project in Xcode.
-2. Select the `NoisyDetector` scheme.
+2. Select the `NoiseRadar` scheme.
 3. Confirm the target settings:
 
 ```text
-Display Name: Noisy Detector
+Display Name: NoiseRadar
 Version: 1.0
 Build: 1 or next unused build number
-Bundle Identifier: lt.bourdo.noisydetector
+Bundle Identifier: lt.bourdo.noiseradar
 Minimum iOS: 15.0
 Device family: iPhone
 Signing team: TODO correct team
@@ -254,9 +254,9 @@ Fill:
 
 ```text
 Platform: iOS
-Name: Noisy Detector
+Name: NoiseRadar
 Primary Language: English (U.S.)
-Bundle ID: lt.bourdo.noisydetector
+Bundle ID: lt.bourdo.noiseradar
 SKU: noisy-detector-ios-001
 User Access: Full Access
 ```
@@ -271,7 +271,7 @@ refresh App Store Connect.
 Maximum 30 characters.
 
 ```text
-Noisy Detector
+NoiseRadar
 ```
 
 ### Subtitle
@@ -303,9 +303,9 @@ Estimate where the loudest sound is coming from and classify the sound type with
 Paste this into App Store Connect:
 
 ```text
-Noisy Detector is a simple iPhone utility that helps estimate the direction of the loudest sound around you and identify the general type of sound.
+NoiseRadar is a simple iPhone utility that helps estimate the direction of the loudest sound around you and identify the general type of sound.
 
-Use Scan 360 mode to find where sounds are coming from, or Listen mode to monitor nearby sound types in the foreground. Noisy Detector measures sound levels locally on your device, combines them with compass heading to estimate which direction had the strongest sound signal, and uses on-device sound classification to label likely sound types.
+Use Scan 360 mode to find where sounds are coming from, or Listen mode to monitor nearby sound types in the foreground. NoiseRadar measures sound levels locally on your device, combines them with compass heading to estimate which direction had the strongest sound signal, and uses on-device sound classification to label likely sound types.
 
 Key features:
 - 360 degree sound-direction scan
@@ -327,7 +327,7 @@ Key features:
 - Built-in help screen
 - No account, subscription, advertising, analytics, or developer backend
 
-Noisy Detector is designed for casual sound-direction estimates, troubleshooting, demonstrations, and general utility use. Results and sound labels are estimates and can be affected by background noise, echoes, overlapping sounds, microphone position, compass accuracy, phone movement, and how slowly the user rotates.
+NoiseRadar is designed for casual sound-direction estimates, troubleshooting, demonstrations, and general utility use. Results and sound labels are estimates and can be affected by background noise, echoes, overlapping sounds, microphone position, compass accuracy, phone movement, and how slowly the user rotates.
 
 Privacy: sound levels, sound classification, compass heading, and recent event history are processed on device. The app does not create accounts, record audio files, upload microphone audio, or send scan data to a developer server.
 ```
@@ -354,7 +354,7 @@ https://TODO.example.com/noisy-detector/support
 
 Minimum support page content:
 
-- App name: Noisy Detector.
+- App name: NoiseRadar.
 - Contact email or support form.
 - Short usage steps.
 - Troubleshooting for microphone permission, location/compass permission, noisy rooms, and rotating too fast.
@@ -364,7 +364,7 @@ Minimum support page content:
 Temporary option if the repository is public:
 
 ```text
-https://github.com/TODO/noisy_direction/issues
+https://github.com/TODO/noiseradar/issues
 ```
 
 ### Marketing URL
@@ -392,7 +392,7 @@ https://TODO.example.com/noisy-detector/privacy
 
 The privacy policy must match the current app behavior. Recommended content:
 
-- Noisy Detector uses microphone permission to measure sound levels and classify general sound types during scans.
+- NoiseRadar uses microphone permission to measure sound levels and classify general sound types during scans.
 - Audio is processed on device with Apple system audio and SoundAnalysis frameworks.
 - The app does not record audio files.
 - The app does not upload microphone audio.
@@ -480,7 +480,7 @@ Rules:
 In App Store Connect:
 
 ```text
-Apps -> Noisy Detector -> App Privacy
+Apps -> NoiseRadar -> App Privacy
 ```
 
 Recommended answer for the current codebase, if no analytics, ads, crash
@@ -512,7 +512,7 @@ If any of these are added, update App Privacy before submission:
 In App Store Connect:
 
 ```text
-Apps -> Noisy Detector -> App Information -> Age Ratings -> Set Up Age Ratings
+Apps -> NoiseRadar -> App Information -> Age Ratings -> Set Up Age Ratings
 ```
 
 Suggested answers for the current app:
@@ -613,7 +613,7 @@ Manual release gives time to inspect the approved version before it goes live.
 In App Store Connect:
 
 ```text
-Apps -> Noisy Detector -> Distribution -> iOS App Version 1.0 -> App Review
+Apps -> NoiseRadar -> Distribution -> iOS App Version 1.0 -> App Review
 ```
 
 ### Contact Information
@@ -639,19 +639,19 @@ Recommended:
 Sign-in required: No
 ```
 
-Noisy Detector currently has no account system.
+NoiseRadar currently has no account system.
 
 ### Review Notes
 
 Paste this into App Store Connect:
 
 ```text
-Noisy Detector is a local sound-direction utility for iPhone. It estimates the direction of the loudest sound by combining microphone sound level readings with the iPhone compass heading while the user slowly rotates 360 degrees. It also uses Apple's on-device SoundAnalysis classifier to show broad sound type labels such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds. The app includes Scan 360 mode, foreground Listen mode, direction results by sound type, and local recent event history.
+NoiseRadar is a local sound-direction utility for iPhone. It estimates the direction of the loudest sound by combining microphone sound level readings with the iPhone compass heading while the user slowly rotates 360 degrees. It also uses Apple's on-device SoundAnalysis classifier to show broad sound type labels such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds. The app includes Scan 360 mode, foreground Listen mode, direction results by sound type, and local recent event history.
 
 No account, login, subscription, in-app purchase, sample file, server setup, or test credentials are required.
 
 Main test flow:
-1. Install and launch Noisy Detector on a physical iPhone running iOS 15.0 or later.
+1. Install and launch NoiseRadar on a physical iPhone running iOS 15.0 or later.
 2. Allow microphone access. The microphone is used only to measure sound levels and classify sound types during the scan.
 3. Allow location access. Location Services are used to provide compass heading for direction estimation.
 4. Tap Start Scan.
@@ -676,7 +676,7 @@ Privacy:
 Sound levels, sound classification, compass heading, and recent event history are processed on device. The app does not create accounts, record audio files, upload microphone audio, upload location, or send scan data to developer servers.
 
 Scope:
-Noisy Detector provides casual estimates only. It is not a certified acoustic instrument, emergency system, security system, surveillance tool, medical tool, or professional measurement device. Direction results and sound labels may be affected by background noise, echoes, overlapping sounds, microphone position, compass accuracy, phone movement, and rotation speed.
+NoiseRadar provides casual estimates only. It is not a certified acoustic instrument, emergency system, security system, surveillance tool, medical tool, or professional measurement device. Direction results and sound labels may be affected by background noise, echoes, overlapping sounds, microphone position, compass accuracy, phone movement, and rotation speed.
 ```
 
 ### Demo Attachment
@@ -701,7 +701,7 @@ Attach a 30-90 second physical-device video showing:
 After App Store Connect processes the upload:
 
 ```text
-Apps -> Noisy Detector -> Distribution -> iOS App Version 1.0 -> Build
+Apps -> NoiseRadar -> Distribution -> iOS App Version 1.0 -> Build
 ```
 
 Select the exact processed build that was tested on a physical iPhone.
