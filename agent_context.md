@@ -32,6 +32,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - `README.md`: User-facing project summary and quick start.
 - `how_to_deploy.md`: Xcode deployment guide.
 - `app_store_deploy.md`: App Store submission guide with metadata, review notes, privacy, screenshots, and deployment checklist.
+- `image_prompts.md`: Image-generation prompts for the app icon, launch screen, and App Store custom product page header.
 - `suggestions.md`: Improvement backlog.
 
 ## Current Build Settings Observed
@@ -126,6 +127,24 @@ For code-only changes, useful checks include:
 - Verify the `Sound type` line updates offline on a physical iPhone with internet disabled.
 
 ## Change Log
+
+### 2026-10-14
+
+Files changed:
+- `image_prompts.md`
+- `agent_context.md`
+
+What changed:
+- Added separate image-generation prompts for the Noisy Detector app icon, launch/loading screen, and App Store custom product page header.
+- Included target sizes, visual direction, negative prompts, and review notes to avoid misleading emergency/security/military positioning.
+- Added `image_prompts.md` to the project layout section of this context file.
+
+Why:
+- The app needs consistent visual asset prompts for App Store-ready branding and product-page preparation.
+
+Verification:
+- Reviewed the prompts for consistency with the current app behavior, App Store positioning, and existing deployment guidance.
+- No build was run because this change only adds documentation.
 
 ### 2026-10-14
 
