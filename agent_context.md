@@ -17,7 +17,7 @@ Do not leave code, project settings, assets, documentation, or behavior changes 
 
 ## App Summary
 
-NoiseRadar is an iOS SwiftUI app that estimates the direction of the loudest sound source and labels the general sound type offline. It reads microphone buffers while reading the iPhone compass heading as the user slowly rotates 360 degrees. After scanning, it reports the heading where the strongest filtered sound signal was measured and also shows direction results by sound category. During scanning or foreground Listen mode, it uses Apple's built-in SoundAnalysis classifier locally on device to show broad sound type categories such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds. The app keeps recent local in-memory sound events for scan/listen history.
+NoiseRadar is an iOS SwiftUI app that estimates the direction of the loudest sound source and labels the general sound type offline. It reads microphone buffers while reading the iPhone compass heading as the user slowly rotates 360 degrees. After scanning, it reports the heading where the strongest filtered sound signal was measured and also shows direction results by sound category. During scanning or foreground Listen mode, it uses Apple's built-in SoundAnalysis classifier locally on device to show broad sound type categories such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds. The app keeps recent local in-memory sound events for scan/listen history, supports configurable foreground threshold alerts, offers a manual dB calibration offset, and can share local text/CSV session reports.
 
 The app is meant to run on a physical iPhone. The iOS Simulator is not suitable because accurate microphone, compass, and motion behavior require device sensors.
 
@@ -61,13 +61,15 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - A red arrow showing current phone heading.
 - A green result marker after analysis.
 - A live volume circle whose size is derived from current decibels.
-- Scan/listen status, progress, quality, raw/smoothed decibels, top 3 headings, direction-by-sound-type cards, readiness checklist, and Start/Stop controls.
+- Scan/listen status, progress, quality, raw/smoothed decibels, top 3 headings, threshold alert status, direction-by-sound-type cards, readiness checklist, and Start/Stop controls.
 - History sheet for recent local sound events.
+- Settings sheet for threshold alerts and calibration offset.
+- Share sheet for generated text and CSV session report files.
 - First-run onboarding sheet using `@AppStorage("hasSeenOnboarding")`.
 - A Help sheet with basic usage steps.
 
 `AudioDirectionManager` coordinates:
-- `AVAudioSession` and `AVAudioEngine` for microphone input.
+- `AVAudioSession` and `AVAudioEngine` for microphone input, configured as play-and-record so sound alerts can play while listening.
 - `SNAudioStreamAnalyzer` and `SNClassifySoundRequest(classifierIdentifier: .version1)` for offline on-device sound classification.
 - `CLLocationManager` for magnetic heading updates.
 - `CMMotionManager` for rotation-rate checks.
@@ -75,6 +77,9 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - `DetectionMode.scan360` and `DetectionMode.listen` modes.
 - Per-category direction scoring from signal strength and sound classification confidence.
 - Local in-memory recent sound event history, capped at 50 events.
+- Persisted threshold alert settings in `UserDefaults`.
+- Manual dB calibration offset applied to live decibel readings.
+- Text and CSV session report generation into temporary files for iOS sharing.
 
 ## Scan Flow
 
@@ -125,16 +130,17 @@ These constants are currently in `AudioDirectionManager.swift`:
 `Info.plist` declares:
 - `NSMicrophoneUsageDescription`: required for reading microphone sound levels.
 - `NSLocationWhenInUseUsageDescription`: required because compass heading is accessed through Core Location.
+- `NSMotionUsageDescription`: explains device motion use for rotation-speed checks.
 
 ## Current Known Gaps And Risks
 
 - Location authorization is tracked but `startScanning()` currently only blocks on microphone authorization, not location authorization.
-- Help sheet `Done` button does not explicitly dismiss the sheet.
 - The app uses magnetic heading only; no true-heading option is implemented.
 - Scan progress accumulates absolute heading deltas, so back-and-forth rotation can count toward 360 degrees.
 - Audio input is stopped on manual stop, but there is no explicit app-background or view-disappear cleanup.
 - Sound type labels are best-effort classifications from Apple's built-in SoundAnalysis model and can be wrong when sounds overlap, the room is noisy, or the source is quiet.
 - History is currently local in-memory only and is not persisted across app launches.
+- Threshold alerts are foreground-only and best-effort; sound alerts may be picked up by the microphone in quiet environments.
 - No automated tests are currently present.
 
 ## Verification Notes
@@ -148,8 +154,43 @@ For code-only changes, useful checks include:
 - Start a scan, wait for calibration, rotate slowly 360 degrees, stop, and verify a loudest heading appears.
 - Verify the `Sound type` line updates offline on a physical iPhone with internet disabled.
 - Verify `Listen` mode logs local history events without requiring rotation.
+- Verify threshold alerts, screen flash, haptic/sound alert styles, calibration offset, and Share report output on a physical iPhone.
 
 ## Change Log
+
+### 2026-10-14
+
+Files changed:
+- `NoiseRadar/NoiseRadar/AudioDirectionManager.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `README.md`
+- `suggestions.md`
+- `road_map.md`
+- `app_store_deploy.md`
+- `agent_context.md`
+- `/Users/olegbourdo/Development/vozhyk_web/deployed_applications/NOISERADAR_PRIVACY_POLICY.html`
+- `/Users/olegbourdo/Development/vozhyk_web/context_agent.md`
+
+What changed:
+- Implemented Phase 2 for the iPhone-only app, excluding Apple Watch companion work by product decision.
+- Added configurable foreground threshold alerts with enable switch, sound category, dB threshold, confidence threshold, and alert style.
+- Added alert styles for none, haptic, screen flash, and system sound.
+- Added a Settings sheet for threshold alert configuration and manual dB calibration offset.
+- Added manual calibration offset persistence and reset.
+- Added local session report generation with text summary and CSV event log.
+- Added Share sheet support that writes timestamped `.txt` and `.csv` report files to the temporary directory and shares them through iOS.
+- Updated App Store guidance, README, suggestions, and roadmap to describe Phase 2 behavior and keep the scope iPhone-only.
+- Updated the hosted NoiseRadar privacy policy to describe local alert settings, calibration settings, and temporary local text/CSV share reports.
+
+Why:
+- The user requested Phase 2 implementation while keeping the app limited to iPhone only, without Watch, iPad, Mac, Vision Pro, or other companion surfaces.
+
+Verification:
+- Swift typecheck against the iPhoneOS SDK succeeded for `NoiseRadarApp.swift`, `SoundRadarView.swift`, and `AudioDirectionManager.swift`.
+- `xcodebuild -list -project NoiseRadar/NoiseRadar.xcodeproj` succeeded and reported target/scheme `NoiseRadar`.
+- Confirmed project settings remain iPhone-only: `TARGETED_DEVICE_FAMILY = 1`, supported platforms are `iphoneos iphonesimulator`, and Mac/Vision designed-for support remains disabled.
+- Flask test-client verification was run for the hosted NoiseRadar privacy policy after the policy text update.
+- Physical iPhone QA is still required for threshold alert behavior, sound playback while listening, calibration feel, and the Share sheet output.
 
 ### 2026-10-14
 

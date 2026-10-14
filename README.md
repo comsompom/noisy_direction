@@ -13,6 +13,9 @@ around 360°.
 - Direction results by sound type, so users can separate voice, animal, vehicle, mechanical, alarm, and other sound directions
 - Scan 360 mode for direction finding and Listen mode for foreground sound monitoring
 - Local in-app event history for recent sound categories, headings, confidence, and dB estimates
+- Configurable foreground threshold alerts by sound type, dB level, confidence, and alert style
+- Shareable local session reports with text summary and CSV event log content
+- Manual dB calibration offset with reset guidance
 - First-run onboarding and readiness checklist for microphone, compass, rotation speed, and noise floor
 - Radar-style direction display with compass labels (N/E/S/W)
 - Polar "sound blob" visualization of sampled audio

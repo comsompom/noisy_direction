@@ -4,28 +4,47 @@ struct SoundRadarView: View {
     @StateObject private var manager = AudioDirectionManager()
     @State private var showHelp = false
     @State private var showHistory = false
+    @State private var showSettings = false
+    @State private var showShareSheet = false
+    @State private var shareItems: [Any] = []
     @State private var showOnboarding = false
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                header
-                modePicker
-                radar
-                statusPanel
-                categoryResults
-                readinessPanel
-                actionButtons
+        ZStack {
+            ScrollView {
+                VStack(spacing: 20) {
+                    header
+                    modePicker
+                    radar
+                    statusPanel
+                    alertPanel
+                    categoryResults
+                    readinessPanel
+                    actionButtons
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
             }
-            .padding()
-            .frame(maxWidth: .infinity)
+
+            if manager.shouldFlashAlert {
+                Color.yellow
+                    .opacity(0.45)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+            }
         }
         .sheet(isPresented: $showHelp) {
             HelpView()
         }
         .sheet(isPresented: $showHistory) {
             HistoryView(events: manager.soundEvents)
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView(manager: manager)
+        }
+        .sheet(isPresented: $showShareSheet) {
+            ShareSheet(items: shareItems)
         }
         .sheet(isPresented: $showOnboarding) {
             OnboardingView {
@@ -161,6 +180,33 @@ struct SoundRadarView: View {
         }
     }
 
+    private var alertPanel: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Threshold Alerts")
+                    .font(.headline)
+                Spacer()
+                Text(manager.isThresholdAlertEnabled ? "On" : "Off")
+                    .font(.caption)
+                    .foregroundColor(manager.isThresholdAlertEnabled ? .green : .secondary)
+            }
+
+            Text(manager.lastAlertMessage)
+                .font(.caption)
+                .foregroundColor(.secondary)
+
+            if manager.isThresholdAlertEnabled {
+                Text("\(manager.alertCategory) · \(Int(manager.alertDecibelThreshold)) dB · \(Int((manager.alertConfidenceThreshold * 100.0).rounded()))% · \(manager.alertStyle.title)")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.secondary.opacity(0.08))
+        .cornerRadius(8)
+    }
+
     private var categoryResults: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Directions by Sound Type")
@@ -248,6 +294,26 @@ struct SoundRadarView: View {
             HStack {
                 Button("History") {
                     showHistory = true
+                }
+                .font(.subheadline)
+
+                Spacer()
+
+                Button("Settings") {
+                    showSettings = true
+                }
+                .font(.subheadline)
+
+                Spacer()
+
+                Button("Share") {
+                    do {
+                        shareItems = try manager.writeSessionReportFiles()
+                    } catch {
+                        let report = manager.makeSessionReport()
+                        shareItems = [report.text, report.csv]
+                    }
+                    showShareSheet = true
                 }
                 .font(.subheadline)
 
@@ -438,6 +504,96 @@ private struct HistoryView: View {
 
         return "\(DateFormatter.shortTime.string(from: event.date)) · \(headingText) · \(confidence)% · peak \(Int(event.peakDecibels)) dB · avg \(Int(event.averageDecibels)) dB"
     }
+}
+
+private struct SettingsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var manager: AudioDirectionManager
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section("Threshold Alerts") {
+                    Toggle("Enable Alerts", isOn: $manager.isThresholdAlertEnabled)
+
+                    Picker("Sound Type", selection: $manager.alertCategory) {
+                        ForEach(AudioDirectionManager.alertCategories, id: \.self) { category in
+                            Text(category).tag(category)
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("dB Threshold: \(Int(manager.alertDecibelThreshold)) dB")
+                        Slider(
+                            value: Binding(
+                                get: { Double(manager.alertDecibelThreshold) },
+                                set: { manager.alertDecibelThreshold = Float($0) }
+                            ),
+                            in: -70...0,
+                            step: 1
+                        )
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Confidence: \(Int((manager.alertConfidenceThreshold * 100.0).rounded()))%")
+                        Slider(value: $manager.alertConfidenceThreshold, in: 0.15...0.95, step: 0.05)
+                    }
+
+                    Picker("Alert Style", selection: $manager.alertStyle) {
+                        ForEach(AudioDirectionManager.AlertStyle.allCases) { style in
+                            Text(style.title).tag(style)
+                        }
+                    }
+                }
+
+                Section("Calibration") {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Manual Offset: \(String(format: "%.1f", manager.calibrationOffset)) dB")
+                        Slider(
+                            value: Binding(
+                                get: { Double(manager.calibrationOffset) },
+                                set: { manager.calibrationOffset = Float($0) }
+                            ),
+                            in: -20...20,
+                            step: 0.5
+                        )
+                    }
+
+                    Button("Reset Calibration") {
+                        manager.resetCalibrationOffset()
+                    }
+
+                    Text("Use a quiet room or a known reference meter. NoiseRadar results are phone microphone estimates, not certified measurements.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                }
+
+                Section("Reports") {
+                    Text("The Share button exports a text summary and CSV event log for the current local session.")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .navigationTitle("Settings")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 private struct OnboardingView: View {

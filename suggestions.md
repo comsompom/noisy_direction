@@ -25,6 +25,11 @@ current project structure and features.
 - [x] Display raw vs smoothed volume for transparency.
 - [x] Show direction results by sound type.
 - [x] Add recent local sound event history.
+- [x] Add shareable local session reports with text summary and CSV event log content.
+
+## Alerts and Calibration
+- [x] Add configurable foreground threshold alerts by sound type, dB level, confidence, and alert style.
+- [x] Add manual dB calibration offset, reset, and calibration guidance.
 
 ## Device and Sensor Handling
 - [x] Handle missing magnetometer with a clear fallback message.

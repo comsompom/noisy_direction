@@ -31,7 +31,7 @@ device.
 | In-app purchases | No |
 | Developer backend | No |
 | Ads / analytics / tracking SDKs | None seen in current code |
-| Main user value | Estimate the direction of the loudest sound by combining microphone sound levels with compass heading while the user rotates 360 degrees, classify the sound type locally on device, and keep recent local sound events |
+| Main user value | Estimate the direction of the loudest sound by combining microphone sound levels with compass heading while the user rotates 360 degrees, classify the sound type locally on device, keep recent local sound events, provide configurable foreground threshold alerts, and share local session reports |
 
 Prepared bundle ID:
 
@@ -325,13 +325,16 @@ Paste this into App Store Connect:
 ```text
 NoiseRadar is a simple iPhone utility that helps estimate the direction of the loudest sound around you and identify the general type of sound.
 
-Use Scan 360 mode to find where sounds are coming from, or Listen mode to monitor nearby sound types in the foreground. NoiseRadar measures sound levels locally on your device, combines them with compass heading to estimate which direction had the strongest sound signal, and uses on-device sound classification to label likely sound types.
+Use Scan 360 mode to find where sounds are coming from, or Listen mode to monitor nearby sound types in the foreground. NoiseRadar measures sound levels locally on your device, combines them with compass heading to estimate which direction had the strongest sound signal, and uses on-device sound classification to label likely sound types. Optional foreground threshold alerts and local share reports help users keep practical notes without recording or uploading audio.
 
 Key features:
 - 360 degree sound-direction scan
 - Direction results by sound type
 - Foreground Listen mode
 - Local recent event history
+- Configurable foreground threshold alerts
+- Local text and CSV share reports
+- Manual dB calibration offset
 - First-run onboarding and readiness checklist
 - Offline sound type classification
 - Broad categories such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds
@@ -417,6 +420,8 @@ The privacy policy must match the current app behavior. Recommended content:
 - The app does not record audio files.
 - The app does not upload microphone audio.
 - The app uses location permission only to access compass heading through iOS.
+- The app uses motion only to check scan rotation speed.
+- The app can generate local share reports from the current session.
 - The app does not collect precise location for developer use.
 - The app does not create accounts.
 - The app does not use advertising or tracking SDKs.
@@ -666,7 +671,7 @@ NoiseRadar currently has no account system.
 Paste this into App Store Connect:
 
 ```text
-NoiseRadar is a local sound-direction utility for iPhone. It estimates the direction of the loudest sound by combining microphone sound level readings with the iPhone compass heading while the user slowly rotates 360 degrees. It also uses Apple's on-device SoundAnalysis classifier to show broad sound type labels such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds. The app includes Scan 360 mode, foreground Listen mode, direction results by sound type, and local recent event history.
+NoiseRadar is a local sound-direction utility for iPhone. It estimates the direction of the loudest sound by combining microphone sound level readings with the iPhone compass heading while the user slowly rotates 360 degrees. It also uses Apple's on-device SoundAnalysis classifier to show broad sound type labels such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds. The app includes Scan 360 mode, foreground Listen mode, direction results by sound type, local recent event history, configurable foreground threshold alerts, manual calibration offset, and local share reports.
 
 No account, login, subscription, in-app purchase, sample file, server setup, or test credentials are required.
 

@@ -33,6 +33,13 @@ Phase 1 is implemented in the iPhone app:
 - First-run onboarding and readiness checklist.
 - iPhone-only build settings tightened to iPhone/iPhone Simulator only, with Mac/Vision designed-for availability disabled.
 
+Phase 2 is implemented for the iPhone app:
+
+- Threshold alerts with configurable sound category, dB threshold, confidence threshold, and alert style.
+- Shareable session reports with text summary and CSV event log content.
+- Manual calibration offset with reset and calibration guidance.
+- Apple Watch companion was intentionally not implemented because the app is currently scoped to iPhone only.
+
 Remaining Phase 1 hardening:
 
 - Physical iPhone QA for scan/listen behavior.
@@ -187,9 +194,13 @@ Why customers may like it:
 
 ## Phase 2: Features Customers Can Pay For Or Review Positively
 
+Implementation status: implemented for iPhone, except Apple Watch companion intentionally skipped.
+
 Priority: Next after the first usable App Store version.
 
 #### 5. Threshold Alerts
+
+Status: Implemented for foreground iPhone use.
 
 Feature:
 - User chooses:
@@ -211,6 +222,8 @@ Review caution:
 - Avoid emergency-service claims. Phrase as `best-effort local alerts`.
 
 #### 6. Export And Share Report
+
+Status: Implemented as shareable text and CSV content.
 
 Feature:
 - Export session summaries as:
@@ -234,6 +247,8 @@ Why customers may like it:
 
 #### 7. Calibration Settings
 
+Status: Implemented as manual dB offset with reset and guidance.
+
 Feature:
 - Manual dB offset setting.
 - Calibration guide:
@@ -248,6 +263,8 @@ Review caution:
 - Do not claim professional accuracy.
 
 #### 8. Apple Watch Companion
+
+Status: Not implemented. The app remains iPhone-only by product decision.
 
 Feature:
 - Watch shows:

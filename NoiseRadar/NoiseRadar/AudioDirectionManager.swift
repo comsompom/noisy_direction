@@ -1,4 +1,5 @@
 import AVFoundation
+import AudioToolbox
 import Combine
 import CoreLocation
 import CoreMedia
@@ -63,6 +64,11 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         let isReady: Bool
     }
 
+    struct SessionReport {
+        let text: String
+        let csv: String
+    }
+
     enum DetectionMode: String, CaseIterable, Identifiable {
         case scan360
         case listen
@@ -75,6 +81,28 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
                 return "Scan 360"
             case .listen:
                 return "Listen"
+            }
+        }
+    }
+
+    enum AlertStyle: String, CaseIterable, Identifiable {
+        case none
+        case haptic
+        case screenFlash
+        case sound
+
+        var id: String { rawValue }
+
+        var title: String {
+            switch self {
+            case .none:
+                return "None"
+            case .haptic:
+                return "Haptic"
+            case .screenFlash:
+                return "Screen Flash"
+            case .sound:
+                return "Sound"
             }
         }
     }
@@ -108,7 +136,10 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
     private var isCalibrating = false
     private var lastLoggedEventCategory: String?
     private var lastLoggedEventDate: Date?
+    private var lastThresholdAlertDate: Date?
+    private var lastThresholdAlertCategory: String?
     private let haptics = UINotificationFeedbackGenerator()
+    private let defaults = UserDefaults.standard
 
     @Published var selectedMode: DetectionMode = .scan360
     @Published private(set) var isMicrophoneAuthorized = false
@@ -130,6 +161,26 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
     @Published var soundClassificationStatus: String = "Sound type: Ready"
     @Published var categoryDirectionResults: [CategoryDirectionResult] = []
     @Published var soundEvents: [SoundEvent] = []
+    @Published var isThresholdAlertEnabled: Bool {
+        didSet { defaults.set(isThresholdAlertEnabled, forKey: "isThresholdAlertEnabled") }
+    }
+    @Published var alertDecibelThreshold: Float {
+        didSet { defaults.set(alertDecibelThreshold, forKey: "alertDecibelThreshold") }
+    }
+    @Published var alertConfidenceThreshold: Double {
+        didSet { defaults.set(alertConfidenceThreshold, forKey: "alertConfidenceThreshold") }
+    }
+    @Published var alertCategory: String {
+        didSet { defaults.set(alertCategory, forKey: "alertCategory") }
+    }
+    @Published var alertStyle: AlertStyle {
+        didSet { defaults.set(alertStyle.rawValue, forKey: "alertStyle") }
+    }
+    @Published var calibrationOffset: Float {
+        didSet { defaults.set(calibrationOffset, forKey: "calibrationOffset") }
+    }
+    @Published var lastAlertMessage: String = "Alerts ready"
+    @Published var shouldFlashAlert = false
 
     enum ScanQualityLevel {
         case normal
@@ -145,6 +196,13 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
     }
 
     override init() {
+        let storedAlertStyle = defaults.string(forKey: "alertStyle").flatMap(AlertStyle.init(rawValue:)) ?? .haptic
+        isThresholdAlertEnabled = defaults.object(forKey: "isThresholdAlertEnabled") as? Bool ?? false
+        alertDecibelThreshold = defaults.object(forKey: "alertDecibelThreshold") as? Float ?? -30.0
+        alertConfidenceThreshold = defaults.object(forKey: "alertConfidenceThreshold") as? Double ?? 0.45
+        alertCategory = defaults.string(forKey: "alertCategory") ?? "Any"
+        alertStyle = storedAlertStyle
+        calibrationOffset = defaults.object(forKey: "calibrationOffset") as? Float ?? 0.0
         super.init()
         setupLocation()
         setupAudio()
@@ -177,7 +235,7 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         }
 
         do {
-            try session.setCategory(.record, mode: .measurement, options: [.duckOthers])
+            try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
             try session.setActive(true)
         } catch {
             statusText = "Audio setup failed."
@@ -278,7 +336,7 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         stopAudioEngine()
 
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.record, mode: .measurement, options: [.duckOthers])
+        try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
         try session.setActive(true)
 
         let inputNode = audioEngine.inputNode
@@ -332,7 +390,7 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
     }
 
     private func processAudioBuffer(_ buffer: AVAudioPCMBuffer) {
-        let decibels = calculateDecibels(from: buffer)
+        let decibels = calculateDecibels(from: buffer) + calibrationOffset
         DispatchQueue.main.async { [weak self] in
             self?.captureSample(decibels: decibels)
         }
@@ -430,6 +488,7 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
                 soundConfidence: classification?.confidence ?? 0.0
             )
             samples.append(sample)
+            evaluateThresholdAlert(with: sample)
             if selectedMode == .scan360 {
                 updateProgress(with: currentHeading)
             }
@@ -708,6 +767,151 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         }
     }
 
+    private func evaluateThresholdAlert(with sample: SoundSample) {
+        guard isThresholdAlertEnabled,
+              sample.smoothedDecibels >= alertDecibelThreshold,
+              sample.soundConfidence >= alertConfidenceThreshold,
+              sample.signal > minDetectedSignal else {
+            return
+        }
+
+        let category = sample.soundCategory ?? "Other"
+        guard alertCategory == "Any" || alertCategory == category else { return }
+
+        let now = Date()
+        if lastThresholdAlertCategory == category,
+           let previous = lastThresholdAlertDate,
+           now.timeIntervalSince(previous) < 8.0 {
+            return
+        }
+
+        lastThresholdAlertCategory = category
+        lastThresholdAlertDate = now
+        lastAlertMessage = "\(category) over \(Int(alertDecibelThreshold)) dB"
+
+        switch alertStyle {
+        case .none:
+            break
+        case .haptic:
+            haptics.notificationOccurred(.warning)
+        case .screenFlash:
+            triggerScreenFlash()
+        case .sound:
+            AudioServicesPlayAlertSound(SystemSoundID(1057))
+        }
+    }
+
+    private func triggerScreenFlash() {
+        shouldFlashAlert = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) { [weak self] in
+            self?.shouldFlashAlert = false
+        }
+    }
+
+    func resetCalibrationOffset() {
+        calibrationOffset = 0.0
+    }
+
+    static let alertCategories = [
+        "Any",
+        "Human voice",
+        "Animals",
+        "Vehicles",
+        "Mechanical",
+        "Alarm",
+        "Music",
+        "Nature",
+        "Household",
+        "Impact",
+        "Other"
+    ]
+
+    func makeSessionReport() -> SessionReport {
+        let text = makeTextReport()
+        let csv = makeCSVReport()
+        return SessionReport(text: text, csv: csv)
+    }
+
+    func writeSessionReportFiles() throws -> [URL] {
+        let report = makeSessionReport()
+        let directory = FileManager.default.temporaryDirectory
+        let timestamp = DateFormatter.fileTimestamp.string(from: Date())
+        let textURL = directory.appendingPathComponent("NoiseRadar-Report-\(timestamp).txt")
+        let csvURL = directory.appendingPathComponent("NoiseRadar-Events-\(timestamp).csv")
+
+        try report.text.write(to: textURL, atomically: true, encoding: .utf8)
+        try report.csv.write(to: csvURL, atomically: true, encoding: .utf8)
+        return [textURL, csvURL]
+    }
+
+    private func makeTextReport() -> String {
+        var lines: [String] = []
+        lines.append("NoiseRadar Session Report")
+        lines.append("Generated: \(DateFormatter.reportDate.string(from: Date()))")
+        lines.append("Device: \(UIDevice.current.model)")
+        lines.append("App Version: \(Bundle.main.releaseVersion) (\(Bundle.main.buildVersion))")
+        lines.append("Mode: \(selectedMode.title)")
+        lines.append("Calibration Offset: \(String(format: "%.1f", calibrationOffset)) dB")
+        lines.append("Noise Floor: \(Int(noiseFloorEMA)) dB")
+        lines.append("Peak dB: \(Int(samples.map { $0.smoothedDecibels }.max() ?? lastSmoothedDecibels))")
+        lines.append("Average dB: \(Int(averageAllSmoothedDecibels()))")
+        if let heading = directionOfLoudestSound {
+            lines.append("Loudest Direction: \(Int(heading)) degrees")
+        }
+        if !topHeadings.isEmpty {
+            lines.append("Top Headings: \(topHeadings.map { "\(Int($0)) degrees" }.joined(separator: ", "))")
+        }
+        if !categoryDirectionResults.isEmpty {
+            lines.append("")
+            lines.append("Sound Type Directions:")
+            for result in categoryDirectionResults {
+                let confidence = Int((result.confidence * 100.0).rounded())
+                lines.append("- \(result.category): \(Int(result.heading)) degrees, \(confidence)% confidence, \(Int(result.signal)) signal")
+            }
+        }
+        if !soundEvents.isEmpty {
+            lines.append("")
+            lines.append("Recent Events:")
+            for event in soundEvents.prefix(20) {
+                let confidence = Int((event.confidence * 100.0).rounded())
+                let heading = event.heading.map { "\(Int($0)) degrees" } ?? "No heading"
+                lines.append("- \(DateFormatter.reportDate.string(from: event.date)): \(event.category), \(event.label), \(heading), \(confidence)%, peak \(Int(event.peakDecibels)) dB")
+            }
+        }
+        lines.append("")
+        lines.append("Disclaimer: NoiseRadar provides casual phone microphone estimates only. It is not a certified acoustic instrument, emergency system, security system, medical tool, or professional measurement device.")
+        return lines.joined(separator: "\n")
+    }
+
+    private func makeCSVReport() -> String {
+        var rows = ["date,mode,category,label,confidence,heading,peak_db,average_db,quality"]
+        for event in soundEvents {
+            rows.append([
+                csvEscape(DateFormatter.reportDate.string(from: event.date)),
+                csvEscape(event.mode.title),
+                csvEscape(event.category),
+                csvEscape(event.label),
+                String(format: "%.2f", event.confidence),
+                event.heading.map { String(format: "%.0f", $0) } ?? "",
+                String(format: "%.0f", event.peakDecibels),
+                String(format: "%.0f", event.averageDecibels),
+                csvEscape(event.scanQuality)
+            ].joined(separator: ","))
+        }
+        return rows.joined(separator: "\n")
+    }
+
+    private func csvEscape(_ value: String) -> String {
+        let escaped = value.replacingOccurrences(of: "\"", with: "\"\"")
+        return "\"\(escaped)\""
+    }
+
+    private func averageAllSmoothedDecibels() -> Float {
+        guard !samples.isEmpty else { return lastSmoothedDecibels }
+        let total = samples.reduce(Float(0.0)) { $0 + $1.smoothedDecibels }
+        return total / Float(samples.count)
+    }
+
     private func bestPeakDecibels(for category: String) -> Float {
         samples
             .filter { ($0.soundCategory ?? "Other") == category }
@@ -748,6 +952,31 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
             )
         ]
     }
+}
+
+private extension Bundle {
+    var releaseVersion: String {
+        object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+    }
+
+    var buildVersion: String {
+        object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
+    }
+}
+
+private extension DateFormatter {
+    static let reportDate: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .medium
+        return formatter
+    }()
+
+    static let fileTimestamp: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyyMMdd-HHmmss"
+        return formatter
+    }()
 }
 
 private final class SoundClassificationObserver: NSObject, SNResultsObserving {
