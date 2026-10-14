@@ -23,11 +23,12 @@ This guide explains how to build and deploy **NoiseRadar** to a real iPhone.
 2. Select the **NoiseRadar** target.
 3. Go to the **Signing & Capabilities** tab.
 4. Check **Automatically manage signing**.
-5. Choose your **Team** (your Apple ID).
-6. If you see errors:
+5. Choose team **8J9SSA37RS** for the App Store-ready project setup.
+6. Confirm the Bundle Identifier is `lt.bourdo.NoiseRadar`.
+7. If you see errors:
    - Ensure you are signed in to Xcode: **Xcode → Settings → Accounts**.
    - Change the **Bundle Identifier** to a unique value, e.g.
-     `com.yourname.noiseradar`.
+     `lt.bourdo.NoiseRadar`.
 
 ## 5) Connect and Trust the Device
 1. Connect your iPhone via USB (or enable Wi‑Fi debugging).

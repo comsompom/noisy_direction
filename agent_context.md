@@ -40,8 +40,11 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 
 - Swift version: 5.0.
 - iOS deployment target: 15.0.
-- Bundle identifier: `com.example.noiseradar`.
-- Development team currently set in the Xcode project: `6X42CRDLS6`.
+- Bundle identifier: `lt.bourdo.NoiseRadar`.
+- Development team currently set in the Xcode project: `8J9SSA37RS`.
+- Marketing version: `1.0`.
+- Build number: `1`.
+- App Store export options: `build/AppStoreExport/ExportOptions.plist`.
 - Target device family: iPhone only (`TARGETED_DEVICE_FAMILY = 1`).
 - Supported platforms: `iphoneos iphonesimulator`.
 - Mac Catalyst, Designed for iPhone/iPad on Mac, and Designed for iPhone/iPad on Vision Pro are disabled.
@@ -152,6 +155,39 @@ For code-only changes, useful checks include:
 
 Files changed:
 - `NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`
+- `NoiseRadar/NoiseRadar/Info.plist`
+- `build/AppStoreExport/ExportOptions.plist`
+- `app_store_deploy.md`
+- `how_to_deploy.md`
+- `agent_context.md`
+
+What changed:
+- Prepared NoiseRadar signing and App Store build settings using the deployed TargetLock/Vozhyk pattern.
+- Set automatic signing to Apple Developer team `8J9SSA37RS`.
+- Set the app bundle identifier to `lt.bourdo.NoiseRadar`.
+- Kept version `1.0` and build `1` for the first App Store upload.
+- Added explicit Info.plist bundle/version metadata backed by `PRODUCT_BUNDLE_IDENTIFIER`, `MARKETING_VERSION`, and `CURRENT_PROJECT_VERSION`.
+- Added `LSRequiresIPhoneOS`, single-scene metadata, portrait orientation, and motion permission text.
+- Added `build/AppStoreExport/ExportOptions.plist` for App Store Connect export with automatic signing, Swift symbol stripping, dSYM upload, and team `8J9SSA37RS`.
+- Updated deployment documentation to remove placeholder bundle/team instructions.
+
+Why:
+- The user requested the app be signed and prepared in Xcode using the previous successful deployment setup from TargetLock and Vozhyk.
+
+Verification:
+- Compared signing/build settings and Info.plist structure from `/Users/olegbourdo/Development/get_distance/TargetLock` and `/Users/olegbourdo/Development/vozhyk/iphone_detector`.
+- `plutil -lint` passed for `NoiseRadar/NoiseRadar/Info.plist` and `build/AppStoreExport/ExportOptions.plist`.
+- `xcodebuild -list -project NoiseRadar/NoiseRadar.xcodeproj` succeeded and reported target/scheme `NoiseRadar`.
+- Swift typecheck against the iPhoneOS SDK succeeded.
+- `xcodebuild archive` first failed without provisioning updates because no local profile existed for `lt.bourdo.NoiseRadar`; rerunning with `-allowProvisioningUpdates` succeeded and created `build/archives/NoiseRadar.xcarchive`.
+- `xcodebuild -exportArchive` with `build/AppStoreExport/ExportOptions.plist` succeeded and created `build/AppStoreExport/NoiseRadar.ipa`.
+- Export summary showed `Cloud Managed Apple Distribution`, profile `iOS Team Store Provisioning Profile: lt.bourdo.NoiseRadar`, team `8J9SSA37RS`, version `1.0`, build `1`, architecture `arm64`, and `get-task-allow = false`.
+- Export printed a non-blocking App Store Connect provider warning: `No provider associated with App Store Connect user`. The IPA was still exported successfully; App Store upload may require selecting/signing into the correct App Store Connect provider in Xcode.
+
+### 2026-10-14
+
+Files changed:
+- `NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`
 - `NoiseRadar/NoiseRadar.xcodeproj/xcuserdata/olegbourdo.xcuserdatad/xcschemes/xcschememanagement.plist`
 - `NoiseRadar/NoiseRadar/NoiseRadarApp.swift`
 - `NoiseRadar/NoiseRadar/SoundRadarView.swift`
@@ -168,7 +204,7 @@ Files changed:
 What changed:
 - Renamed the app and Xcode project identity from the previous name to `NoiseRadar`.
 - Renamed the project folder to `NoiseRadar/`, the Xcode project to `NoiseRadar.xcodeproj`, the app source folder to `NoiseRadar/NoiseRadar/`, and the Swift app entry file to `NoiseRadarApp.swift`.
-- Updated the Xcode target, product reference, app product name, source path, Info.plist path, and bundle identifier placeholder to `com.example.noiseradar`.
+- Updated the Xcode target, product reference, app product name, source path, Info.plist path, and bundle identifier placeholder to `lt.bourdo.NoiseRadar`.
 - Updated the app display name, in-app title text, permission usage descriptions, SoundAnalysis queue label, App Store/deployment documentation, image prompts, roadmap, and README references to use `NoiseRadar`.
 - Preserved the iPhone-only build settings: `TARGETED_DEVICE_FAMILY = 1`, `SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"`, and disabled Mac/Vision designed-for support.
 

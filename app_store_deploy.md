@@ -21,31 +21,26 @@ device.
 | Minimum iOS | iOS 15.0 |
 | Version | 1.0 |
 | Build | 1 |
-| Current bundle ID | `com.example.noiseradar` |
-| Current Apple team in project | `6X42CRDLS6` |
+| Current bundle ID | `lt.bourdo.NoiseRadar` |
+| Current Apple team in project | `8J9SSA37RS` |
 | Microphone permission | `NSMicrophoneUsageDescription` |
 | Location permission | `NSLocationWhenInUseUsageDescription` |
+| Motion permission text | `NSMotionUsageDescription` |
+| App Store export options | `build/AppStoreExport/ExportOptions.plist` |
 | Account required | No |
 | In-app purchases | No |
 | Developer backend | No |
 | Ads / analytics / tracking SDKs | None seen in current code |
 | Main user value | Estimate the direction of the loudest sound by combining microphone sound levels with compass heading while the user rotates 360 degrees, classify the sound type locally on device, and keep recent local sound events |
 
-Important: `com.example.noiseradar` is a placeholder bundle ID. Do not submit
-with it. Register and use a real unique bundle identifier before upload.
-
-Recommended bundle ID:
+Prepared bundle ID:
 
 ```text
-lt.bourdo.noiseradar
+lt.bourdo.NoiseRadar
 ```
 
-If that identifier is unavailable, use another unique reverse-DNS identifier
-owned by the developer account, for example:
-
-```text
-lt.bourdo.noisy-detector
-```
+Before upload, confirm this identifier exists in the Apple Developer account
+owned by team `8J9SSA37RS` and matches the App Store Connect app record.
 
 ## Review Risk Guardrails
 
@@ -108,8 +103,9 @@ advertising, or tracking services are used.
 
 Complete these before archiving:
 
-- [ ] Change bundle ID from `com.example.noiseradar` to the final registered bundle ID.
+- [ ] Confirm bundle ID `lt.bourdo.NoiseRadar` is registered in Apple Developer.
 - [ ] Confirm `CFBundleDisplayName` is `NoiseRadar`.
+- [ ] Confirm signing team is `8J9SSA37RS`.
 - [ ] Confirm Version is `1.0`.
 - [ ] Increment Build to a new integer before each upload.
 - [ ] Confirm `TARGETED_DEVICE_FAMILY = 1` if this is intended to be iPhone-only.
@@ -175,7 +171,7 @@ UI in an iPad review environment.
 Type: App IDs -> App
 Description: NoiseRadar
 Bundle ID type: Explicit
-Bundle ID: lt.bourdo.noiseradar
+Bundle ID: lt.bourdo.NoiseRadar
 Capabilities: Defaults only
 ```
 
@@ -191,8 +187,8 @@ NoiseRadar/NoiseRadar.xcodeproj
 
 ```text
 Automatically manage signing: Enabled
-Team: TODO correct Apple Developer team
-Bundle Identifier: lt.bourdo.noiseradar
+Team: 8J9SSA37RS
+Bundle Identifier: lt.bourdo.NoiseRadar
 ```
 
 Use the same team that owns the App Store Connect app record.
@@ -206,11 +202,11 @@ Use the same team that owns the App Store Connect app record.
 ```text
 Display Name: NoiseRadar
 Version: 1.0
-Build: 1 or next unused build number
-Bundle Identifier: lt.bourdo.noiseradar
+Build: 1 or next unused build number if App Store Connect already processed build 1
+Bundle Identifier: lt.bourdo.NoiseRadar
 Minimum iOS: 15.0
 Device family: iPhone
-Signing team: TODO correct team
+Signing team: 8J9SSA37RS
 ```
 
 4. Select:
@@ -238,6 +234,30 @@ Distribute App -> App Store Connect -> Upload
 11. Wait for App Store Connect processing email or for the build to appear in
     the app version page.
 
+Command-line export should use:
+
+```text
+build/AppStoreExport/ExportOptions.plist
+```
+
+Current prepared export from this repo:
+
+```text
+Archive: build/archives/NoiseRadar.xcarchive
+IPA: build/AppStoreExport/NoiseRadar.ipa
+Signing: Cloud Managed Apple Distribution
+Provisioning profile: iOS Team Store Provisioning Profile: lt.bourdo.NoiseRadar
+Team: 8J9SSA37RS
+Version: 1.0
+Build: 1
+```
+
+During the local command-line export, Xcode printed a non-blocking App Store
+Connect provider warning: `No provider associated with App Store Connect user`.
+The IPA was still exported successfully. If upload fails from Organizer or
+command line, sign into the correct App Store Connect account/provider in Xcode
+and retry upload.
+
 If upload warnings appear, read them carefully. Non-blocking warnings may still
 allow build processing, but any signing, bundle ID, missing icon, or privacy
 manifest problem should be fixed before submitting.
@@ -256,7 +276,7 @@ Fill:
 Platform: iOS
 Name: NoiseRadar
 Primary Language: English (U.S.)
-Bundle ID: lt.bourdo.noiseradar
+Bundle ID: lt.bourdo.NoiseRadar
 SKU: noisy-detector-ios-001
 User Access: Full Access
 ```
