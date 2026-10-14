@@ -14,6 +14,7 @@ device.
 | Field | Current value |
 | --- | --- |
 | App display name | NoiseRadar |
+| App Store listing name | `NoiseRadar: Sound Finder` |
 | Xcode project | `NoiseRadar/NoiseRadar.xcodeproj` |
 | App target/source folder | `NoiseRadar/NoiseRadar` |
 | Platform | iOS |
@@ -264,6 +265,18 @@ manifest problem should be fixed before submitting.
 
 ## Create The App Store Connect App Record
 
+Important: do not let Xcode auto-create the app record with the name
+`NoiseRadar`. App Store Connect may reject that with:
+
+```text
+App Record Creation Error
+The App Name you entered is already being used.
+```
+
+Fix: create the app record manually in App Store Connect first, using the unique
+App Store listing name `NoiseRadar: Sound Finder`. The installed iPhone app can
+still display as `NoiseRadar`.
+
 In App Store Connect:
 
 ```text
@@ -274,15 +287,17 @@ Fill:
 
 ```text
 Platform: iOS
-Name: NoiseRadar
+Name: NoiseRadar: Sound Finder
 Primary Language: English (U.S.)
 Bundle ID: lt.bourdo.NoiseRadar
-SKU: noisy-detector-ios-001
+SKU: noiseradar-ios-001
 User Access: Full Access
 ```
 
 If the bundle ID does not appear, register it in Apple Developer first, then
-refresh App Store Connect.
+refresh App Store Connect. After this app record exists, upload the archive
+again from Xcode Organizer. Xcode should attach the build to the existing app
+record instead of trying to create a new record named `NoiseRadar`.
 
 ## App Store Product Page Fields
 
@@ -505,7 +520,7 @@ Rules:
 In App Store Connect:
 
 ```text
-Apps -> NoiseRadar -> App Privacy
+Apps -> NoiseRadar: Sound Finder -> App Privacy
 ```
 
 Recommended answer for the current codebase, if no analytics, ads, crash
@@ -537,7 +552,7 @@ If any of these are added, update App Privacy before submission:
 In App Store Connect:
 
 ```text
-Apps -> NoiseRadar -> App Information -> Age Ratings -> Set Up Age Ratings
+Apps -> NoiseRadar: Sound Finder -> App Information -> Age Ratings -> Set Up Age Ratings
 ```
 
 Suggested answers for the current app:
@@ -638,7 +653,7 @@ Manual release gives time to inspect the approved version before it goes live.
 In App Store Connect:
 
 ```text
-Apps -> NoiseRadar -> Distribution -> iOS App Version 1.0 -> App Review
+Apps -> NoiseRadar: Sound Finder -> Distribution -> iOS App Version 1.0 -> App Review
 ```
 
 ### Contact Information
@@ -726,7 +741,7 @@ Attach a 30-90 second physical-device video showing:
 After App Store Connect processes the upload:
 
 ```text
-Apps -> NoiseRadar -> Distribution -> iOS App Version 1.0 -> Build
+Apps -> NoiseRadar: Sound Finder -> Distribution -> iOS App Version 1.0 -> Build
 ```
 
 Select the exact processed build that was tested on a physical iPhone.
@@ -789,6 +804,9 @@ If App Store Connect blocks submission, check these common missing items:
 - [ ] Pricing and availability incomplete.
 - [ ] DSA/trader status incomplete if prompted.
 - [ ] Paid Apps agreement, banking, or tax forms incomplete if submitting as a paid app.
+- [ ] App Store listing name is already used. If so, keep the installed app
+      display name as `NoiseRadar`, but use a unique listing name such as
+      `NoiseRadar: Sound Finder` in App Store Connect.
 
 ## Final Rejection Prevention Checklist
 

@@ -161,6 +161,60 @@ For code-only changes, useful checks include:
 ### 2026-10-14
 
 Files changed:
+- `screenshots/nr_01.jpg`
+- `screenshots/nr_02.jpg`
+- `screenshots/nr_03.jpg`
+- `screenshots/nr_04.jpg`
+- `screenshots/nr_05.jpg`
+- `agent_context.md`
+
+What changed:
+- Resized the existing App Store screenshot files in place from `590 x 1280` to `1179 x 2556`.
+
+Why:
+- App Store Connect rejected the screenshot files because their dimensions were invalid. The user requested adjusting the current files without creating new ones.
+
+Verification:
+- `sips -g pixelWidth -g pixelHeight` reports `1179 x 2556` for `nr_01.jpg` through `nr_05.jpg`.
+- `file` reports all five files as JPEG images at `1179 x 2556`.
+
+### 2026-10-14
+
+Files changed:
+- `screenshots/header_custom.png`
+- `agent_context.md`
+
+What changed:
+- Resized the existing `screenshots/header_custom.png` file in place from `1716 x 872` to `3840 x 1646`.
+
+Why:
+- App Store Connect rejected the custom product page header image because its dimensions were invalid. The user requested converting the current file without creating a new file.
+
+Verification:
+- `sips -g pixelWidth -g pixelHeight screenshots/header_custom.png` reports `3840 x 1646`.
+- `file screenshots/header_custom.png` reports PNG image data at `3840 x 1646`.
+
+### 2026-10-14
+
+Files changed:
+- `app_store_deploy.md`
+- `agent_context.md`
+
+What changed:
+- Documented the App Store Connect `App Record Creation Error` caused by the product-page app name `NoiseRadar` already being in use.
+- Updated the App Store submission guide to use `NoiseRadar: Sound Finder` as the unique App Store listing name while keeping the installed iPhone app display name as `NoiseRadar`.
+- Added manual App Store Connect record creation steps so Xcode Organizer uploads attach to an existing record instead of trying to auto-create a record named `NoiseRadar`.
+- Updated App Store Connect navigation examples to use `NoiseRadar: Sound Finder`.
+
+Why:
+- The user hit an App Store Connect deployment error saying the entered app name is already being used.
+
+Verification:
+- Swift typecheck against the iPhoneOS SDK was run after this documentation update to confirm no app code was broken.
+
+### 2026-10-14
+
+Files changed:
 - `NoiseRadar/NoiseRadar/SoundRadarView.swift`
 - `NoiseRadar/NoiseRadar/AudioDirectionManager.swift`
 - `agent_context.md`
