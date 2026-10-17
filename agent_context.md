@@ -158,6 +158,23 @@ For code-only changes, useful checks include:
 
 ## Change Log
 
+### 2026-10-17
+
+Files changed:
+- `shared_experience/ios_apps_experience/noisy_direction/app_deployment.md`
+- `agent_context.md`
+
+What changed:
+- Added a NoiseRadar-specific shared App Store deployment experience document.
+- Captured app identity, signing/export settings, manual App Store Connect record creation, unique listing-name fix, metadata, review notes, privacy answers, screenshot/header asset size fixes, physical-device QA, support/privacy URLs, and future deployment lessons.
+
+Why:
+- The user asked to store the current app's App Store deployment experience under the shared iOS app deployment experience folder for reuse by future apps.
+
+Verification:
+- Reviewed `agent_context.md`, the existing `shared_experience/ios_apps_experience/my_finance_ios/app_deployment.md` format, and `app_store_deploy.md`.
+- No build was run because this change only adds documentation.
+
 ### 2026-10-14
 
 Files changed:
