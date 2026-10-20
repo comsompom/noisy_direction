@@ -158,6 +158,22 @@ For code-only changes, useful checks include:
 
 ## Change Log
 
+### 2026-10-20
+
+Files changed:
+- `shared_experience/ios_apps_experience/noisy_direction/web_integrate.md`
+- `agent_context.md`
+
+What changed:
+- Added a NoiseRadar-specific web integration experience document covering the Vozhyk web support page, privacy endpoint, optimized assets, Development page app-logo tile, sitemap entries, deploy smoke checks, verification, and reusable checklist for future apps.
+
+Why:
+- The user asked to document how the NoiseRadar web integration was done so the same approach can be reused for future iOS apps.
+
+Verification:
+- Reviewed the new document for the expected public URLs, file paths, route names, asset names, link behavior, and verification steps.
+- No build or app run was needed because this change only adds documentation.
+
 ### 2026-10-17
 
 Files changed:
