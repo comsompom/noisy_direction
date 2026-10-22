@@ -1,6 +1,6 @@
 # Agent Context: NoiseRadar iPhone App
 
-Last reviewed: 2026-10-14
+Last reviewed: 2026-10-22
 
 ## Mandatory Agent Rule
 
@@ -25,6 +25,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 
 - `NoiseRadar/NoiseRadar.xcodeproj`: Xcode project.
 - `NoiseRadar/NoiseRadar/NoiseRadarApp.swift`: SwiftUI app entry point.
+- `NoiseRadar/NoiseRadar/AdSupport.swift`: Google Mobile Ads setup, production AdMob IDs, and SwiftUI banner wrapper.
 - `NoiseRadar/NoiseRadar/SoundRadarView.swift`: Main SwiftUI interface, radar visualization, help sheet, controls, and status display.
 - `NoiseRadar/NoiseRadar/AudioDirectionManager.swift`: Sensor, microphone, offline sound classification, scan state, signal processing, and result analysis logic.
 - `NoiseRadar/NoiseRadar/Info.plist`: App display name and permission usage strings.
@@ -48,12 +49,17 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - Target device family: iPhone only (`TARGETED_DEVICE_FAMILY = 1`).
 - Supported platforms: `iphoneos iphonesimulator`.
 - Mac Catalyst, Designed for iPhone/iPad on Mac, and Designed for iPhone/iPad on Vision Pro are disabled.
+- Google Mobile Ads Swift Package is linked from `https://github.com/googleads/swift-package-manager-google-mobile-ads.git`, up to next major from `13.0.0`.
+- `Package.resolved` currently pins GoogleMobileAds `13.11.0` and GoogleUserMessagingPlatform `3.1.0`.
 
 ## How The App Works
 
 `NoiseRadarApp` opens `SoundRadarView`.
 
+`NoiseRadarApp` also initializes Google Mobile Ads through `AdMobSupport.configure()`, setting the SDK max ad content rating to General before startup.
+
 `SoundRadarView` owns one `@StateObject` instance of `AudioDirectionManager`. It renders:
+- A 320x50 AdMob banner at the top of the main screen.
 - App title and usage prompt.
 - Segmented mode control for `Scan 360` and `Listen`.
 - Radar circle with N/E/S/W labels.
@@ -157,6 +163,34 @@ For code-only changes, useful checks include:
 - Verify threshold alerts, screen flash, haptic/sound alert styles, calibration offset, and Share report output on a physical iPhone.
 
 ## Change Log
+
+### 2026-10-22
+
+Files changed:
+- `NoiseRadar/NoiseRadar/AdSupport.swift`
+- `NoiseRadar/NoiseRadar/NoiseRadarApp.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `NoiseRadar/NoiseRadar/Info.plist`
+- `NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`
+- `NoiseRadar/NoiseRadar.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`
+- `agent_context.md`
+
+What changed:
+- Added the Google Mobile Ads Swift Package dependency and linked the `GoogleMobileAds` product.
+- Added `AdSupport.swift` with the NoiseRadar production AdMob app ID `ca-app-pub-2367013361044576~9236993009`, banner ad unit ID `ca-app-pub-2367013361044576/3564109908`, General Audience SDK request configuration, and a SwiftUI `BannerAdView`.
+- Initialized Google Mobile Ads from `NoiseRadarApp`.
+- Added a 320x50 top banner to `SoundRadarView`.
+- Added `GADApplicationIdentifier` and Google-published `SKAdNetworkItems` entries to `Info.plist`.
+- Added the Xcode-generated SwiftPM lockfile pinning GoogleMobileAds `13.11.0` and GoogleUserMessagingPlatform `3.1.0`.
+
+Why:
+- The user created a dedicated NoiseRadar AdMob app and banner unit and asked to implement the same banner AdMob solution used by prior iOS apps.
+
+Verification:
+- Ran `plutil -lint NoiseRadar/NoiseRadar/Info.plist`.
+- Ran `plutil -lint NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`.
+- Ran `xcodebuild -list -project NoiseRadar/NoiseRadar.xcodeproj`, which resolved GoogleMobileAds `13.11.0` and GoogleUserMessagingPlatform `3.1.0`.
+- Ran `xcodebuild -project NoiseRadar/NoiseRadar.xcodeproj -scheme NoiseRadar -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO`; build succeeded.
 
 ### 2026-10-20
 

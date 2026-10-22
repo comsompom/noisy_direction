@@ -12,19 +12,26 @@ struct SoundRadarView: View {
 
     var body: some View {
         ZStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    header
-                    modePicker
-                    radar
-                    statusPanel
-                    alertPanel
-                    categoryResults
-                    readinessPanel
-                    actionButtons
+            VStack(spacing: 0) {
+                BannerAdView()
+                    .frame(width: 320, height: 50)
+                    .padding(.top, 8)
+                    .padding(.bottom, 6)
+
+                ScrollView {
+                    VStack(spacing: 20) {
+                        header
+                        modePicker
+                        radar
+                        statusPanel
+                        alertPanel
+                        categoryResults
+                        readinessPanel
+                        actionButtons
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
                 }
-                .padding()
-                .frame(maxWidth: .infinity)
             }
 
             if manager.shouldFlashAlert {
