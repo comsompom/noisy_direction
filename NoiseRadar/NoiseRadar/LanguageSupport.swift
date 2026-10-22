@@ -2,6 +2,7 @@ import Foundation
 
 struct AppLanguage: Identifiable, Hashable {
     let code: String
+    let flag: String
     let name: String
 
     var id: String { code }
@@ -11,22 +12,22 @@ enum LanguagePack {
     static let storageKey = "appLanguageCode"
 
     static let supportedLanguages: [AppLanguage] = [
-        AppLanguage(code: "en", name: "English"),
-        AppLanguage(code: "de", name: "Deutsch"),
-        AppLanguage(code: "es", name: "Español"),
-        AppLanguage(code: "fr", name: "Français"),
-        AppLanguage(code: "it", name: "Italiano"),
-        AppLanguage(code: "pl", name: "Polski"),
-        AppLanguage(code: "cs", name: "Čeština"),
-        AppLanguage(code: "ro", name: "Română"),
-        AppLanguage(code: "lt", name: "Lietuvių"),
-        AppLanguage(code: "lv", name: "Latviešu"),
-        AppLanguage(code: "et", name: "Eesti"),
-        AppLanguage(code: "sv", name: "Svenska"),
-        AppLanguage(code: "fi", name: "Suomi"),
-        AppLanguage(code: "uk", name: "Українська"),
-        AppLanguage(code: "el", name: "Ελληνικά"),
-        AppLanguage(code: "be", name: "Беларуская")
+        AppLanguage(code: "en", flag: "🇺🇸", name: "English"),
+        AppLanguage(code: "de", flag: "🇩🇪", name: "Deutsch"),
+        AppLanguage(code: "es", flag: "🇪🇸", name: "Español"),
+        AppLanguage(code: "fr", flag: "🇫🇷", name: "Français"),
+        AppLanguage(code: "it", flag: "🇮🇹", name: "Italiano"),
+        AppLanguage(code: "pl", flag: "🇵🇱", name: "Polski"),
+        AppLanguage(code: "cs", flag: "🇨🇿", name: "Čeština"),
+        AppLanguage(code: "ro", flag: "🇷🇴", name: "Română"),
+        AppLanguage(code: "lt", flag: "🇱🇹", name: "Lietuvių"),
+        AppLanguage(code: "lv", flag: "🇱🇻", name: "Latviešu"),
+        AppLanguage(code: "et", flag: "🇪🇪", name: "Eesti"),
+        AppLanguage(code: "sv", flag: "🇸🇪", name: "Svenska"),
+        AppLanguage(code: "fi", flag: "🇫🇮", name: "Suomi"),
+        AppLanguage(code: "uk", flag: "🇺🇦", name: "Українська"),
+        AppLanguage(code: "el", flag: "🇬🇷", name: "Ελληνικά"),
+        AppLanguage(code: "be", flag: "🇧🇾", name: "Беларуская")
     ]
 
     static func text(_ key: String, languageCode: String) -> String {

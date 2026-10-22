@@ -567,10 +567,28 @@ private struct SettingsView: View {
         NavigationView {
             Form {
                 Section(t("Language")) {
-                    Picker(t("Language"), selection: $languageCode) {
-                        ForEach(LanguagePack.supportedLanguages) { language in
-                            Text(language.name).tag(language.code)
+                    ForEach(LanguagePack.supportedLanguages) { language in
+                        Button {
+                            languageCode = language.code
+                        } label: {
+                            HStack(spacing: 12) {
+                                Text(language.flag)
+                                    .font(.title2)
+                                    .frame(width: 34)
+
+                                Text(language.name)
+                                    .foregroundColor(.primary)
+
+                                Spacer()
+
+                                if languageCode == language.code {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.green)
+                                }
+                            }
+                            .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
                     }
                 }
 

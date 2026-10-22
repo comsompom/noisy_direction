@@ -44,7 +44,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - iOS deployment target: 15.0.
 - Bundle identifier: `lt.bourdo.NoiseRadar`.
 - Development team currently set in the Xcode project: `8J9SSA37RS`.
-- Marketing version: `1.0`.
+- Marketing version: `1.1`.
 - Build number: `1`.
 - App Store export options: `build/AppStoreExport/ExportOptions.plist`.
 - Target device family: iPhone only (`TARGETED_DEVICE_FAMILY = 1`).
@@ -52,7 +52,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - Mac Catalyst, Designed for iPhone/iPad on Mac, and Designed for iPhone/iPad on Vision Pro are disabled.
 - Google Mobile Ads Swift Package is linked from `https://github.com/googleads/swift-package-manager-google-mobile-ads.git`, up to next major from `13.0.0`.
 - `Package.resolved` currently pins GoogleMobileAds `13.11.0` and GoogleUserMessagingPlatform `3.1.0`.
-- In-app language selection is persisted with `@AppStorage("appLanguageCode")`.
+- In-app language selection is persisted with `@AppStorage("appLanguageCode")` and shown as tappable flag rows in Settings.
 - The language pack currently supports English, German, Spanish, French, Italian, Polish, Czech, Romanian, Lithuanian, Latvian, Estonian, Swedish, Finnish, Ukrainian, Greek, and Belarusian.
 
 ## How The App Works
@@ -167,6 +167,40 @@ For code-only changes, useful checks include:
 - Verify threshold alerts, screen flash, haptic/sound alert styles, calibration offset, and Share report output on a physical iPhone.
 
 ## Change Log
+
+### 2026-10-22
+
+Files changed:
+- `NoiseRadar/NoiseRadar/LanguageSupport.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `agent_context.md`
+
+What changed:
+- Added flag metadata to each supported app language.
+- Replaced the plain scrolling SwiftUI language picker in Settings with finance-style tappable flag rows and a checkmark for the selected language.
+
+Why:
+- The user clarified that the language pack should match the finance app style with flags, not the current scrolling picker.
+
+Verification:
+- Ran `plutil -lint NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`.
+- Ran `xcodebuild -project NoiseRadar/NoiseRadar.xcodeproj -scheme NoiseRadar -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO`; build succeeded.
+
+### 2026-10-22
+
+Files changed:
+- `NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`
+- `agent_context.md`
+
+What changed:
+- Bumped the NoiseRadar target marketing version from `1.0` to `1.1` for Debug and Release builds.
+- Updated the observed build settings in this context file.
+
+Why:
+- The user clarified that this update should be the new app version `1.1`.
+
+Verification:
+- Ran `plutil -lint NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`.
 
 ### 2026-10-22
 
