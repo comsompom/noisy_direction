@@ -183,6 +183,23 @@ For code-only changes, useful checks include:
 ### 2026-10-22
 
 Files changed:
+- `screenshots/nr_06.jpg`
+- `screenshots/nr_ads.jpg`
+- `agent_context.md`
+
+What changed:
+- Resized the two new App Store screenshot images from `590x1280` to the existing screenshot format `1179x2556`.
+- Kept both files as JPEGs to match the existing `nr_01.jpg` through `nr_05.jpg` screenshots.
+
+Why:
+- The new screenshots needed to match the established App Store screenshot dimensions and format used by the existing NoiseRadar images.
+
+Verification:
+- Ran `sips -g pixelWidth -g pixelHeight -g format` and confirmed both `nr_06.jpg` and `nr_ads.jpg` are `1179x2556` JPEGs.
+
+### 2026-10-22
+
+Files changed:
 - `NoiseRadar/NoiseRadar/AdSupport.swift`
 - `agent_context.md`
 
