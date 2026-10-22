@@ -4,6 +4,7 @@ import StoreKit
 @MainActor
 final class PurchaseManager: ObservableObject {
     static let removeAdsProductID = "lt.bourdo.noiseradar.remove_ads"
+    static let removeAdsFallbackPrice = "€0.99"
     private static let adFreeStorageKey = "isAdFree"
 
     @Published private(set) var removeAdsProduct: Product?

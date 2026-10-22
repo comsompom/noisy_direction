@@ -27,7 +27,7 @@ enum LanguagePack {
         AppLanguage(code: "fi", flag: "🇫🇮", name: "Suomi"),
         AppLanguage(code: "uk", flag: "🇺🇦", name: "Українська"),
         AppLanguage(code: "el", flag: "🇬🇷", name: "Ελληνικά"),
-        AppLanguage(code: "be", flag: "🇧🇾", name: "Беларуская")
+        AppLanguage(code: "be", flag: "", name: "Беларуская")
     ]
 
     static func text(_ key: String, languageCode: String) -> String {
@@ -136,6 +136,8 @@ private func purchaseUI(adFree: String, removeAds: String, restore: String, remo
     [
         "Ad-Free": adFree,
         "Remove Ads": removeAds,
+        "Remove banner ads.": removeAds,
+        "Remove banner ads from NoiseRadar forever with a one-time purchase.": removeAds,
         "Restore Purchases": restore,
         "Ads removed": removed,
         "Purchase unavailable": unavailable,

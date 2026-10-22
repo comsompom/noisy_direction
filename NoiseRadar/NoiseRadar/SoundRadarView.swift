@@ -7,6 +7,7 @@ struct SoundRadarView: View {
     @State private var showHistory = false
     @State private var showSettings = false
     @State private var showShareSheet = false
+    @State private var showRemoveAds = false
     @State private var shareItems: [Any] = []
     @State private var showOnboarding = false
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
@@ -24,6 +25,7 @@ struct SoundRadarView: View {
                         alertPanel
                         categoryResults
                         readinessPanel
+                        removeAdsPrompt
                         actionButtons
                     }
                     .padding()
@@ -49,6 +51,9 @@ struct SoundRadarView: View {
         }
         .sheet(isPresented: $showShareSheet) {
             ShareSheet(items: shareItems)
+        }
+        .sheet(isPresented: $showRemoveAds) {
+            RemoveAdsView()
         }
         .sheet(isPresented: $showOnboarding) {
             OnboardingView {
@@ -331,6 +336,12 @@ struct SoundRadarView: View {
         }
     }
 
+    private var removeAdsPrompt: some View {
+        RemoveAdsPrompt {
+            showRemoveAds = true
+        }
+    }
+
     private var primaryButtonTitle: String {
         if manager.isScanning {
             return manager.selectedMode == .scan360 ? t("Stop & Analyze") : t("Stop Listening")
@@ -437,6 +448,41 @@ private struct AdSupportedScreen<Content: View>: View {
 
             content
         }
+    }
+}
+
+private struct RemoveAdsPrompt: View {
+    @EnvironmentObject private var purchaseManager: PurchaseManager
+    @AppStorage(LanguagePack.storageKey) private var languageCode = "en"
+    let onTap: () -> Void
+
+    var body: some View {
+        if !purchaseManager.isAdFree {
+            Button(action: onTap) {
+                HStack(spacing: 10) {
+                    Image(systemName: "xmark.circle")
+                        .font(.title3)
+
+                    Text(t("Remove banner ads."))
+                        .font(.subheadline)
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(10)
+                .frame(maxWidth: .infinity)
+                .background(Color.secondary.opacity(0.08))
+                .cornerRadius(8)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func t(_ key: String) -> String {
+        LanguagePack.text(key, languageCode: languageCode)
     }
 }
 
@@ -582,6 +628,7 @@ private struct SettingsView: View {
     @EnvironmentObject private var purchaseManager: PurchaseManager
     @AppStorage(LanguagePack.storageKey) private var languageCode = "en"
     @State private var showLanguageSelection = false
+    @State private var showRemoveAds = false
     @ObservedObject var manager: AudioDirectionManager
 
     var body: some View {
@@ -597,8 +644,11 @@ private struct SettingsView: View {
                                     .foregroundColor(.primary)
                                 Spacer()
                                 if let selectedLanguage {
-                                    Text("\(selectedLanguage.flag) \(selectedLanguage.name)")
-                                        .foregroundColor(.secondary)
+                                    HStack(spacing: 6) {
+                                        LanguageFlagView(language: selectedLanguage)
+                                        Text(selectedLanguage.name)
+                                    }
+                                    .foregroundColor(.secondary)
                                 }
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
@@ -614,19 +664,16 @@ private struct SettingsView: View {
                                 .foregroundColor(.green)
                         } else {
                             Button {
-                                Task {
-                                    await purchaseManager.purchaseRemoveAds()
-                                }
+                                showRemoveAds = true
                             } label: {
                                 HStack {
                                     Text(removeAdsTitle)
                                     Spacer()
-                                    if purchaseManager.isPurchasing {
-                                        ProgressView()
-                                    }
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
                                 }
                             }
-                            .disabled(purchaseManager.isPurchasing || purchaseManager.isLoadingProducts)
 
                             Button(t("Restore Purchases")) {
                                 Task {
@@ -725,6 +772,9 @@ private struct SettingsView: View {
         .sheet(isPresented: $showLanguageSelection) {
             LanguageSelectionView()
         }
+        .sheet(isPresented: $showRemoveAds) {
+            RemoveAdsView()
+        }
     }
 
     private var selectedLanguage: AppLanguage? {
@@ -735,7 +785,91 @@ private struct SettingsView: View {
         if let product = purchaseManager.removeAdsProduct {
             return "\(t("Remove Ads")) - \(product.displayPrice)"
         }
-        return t("Remove Ads")
+        return "\(t("Remove Ads")) - \(PurchaseManager.removeAdsFallbackPrice)"
+    }
+
+    private func t(_ key: String) -> String {
+        LanguagePack.text(key, languageCode: languageCode)
+    }
+}
+
+private struct RemoveAdsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var purchaseManager: PurchaseManager
+    @AppStorage(LanguagePack.storageKey) private var languageCode = "en"
+
+    var body: some View {
+        NavigationView {
+            VStack(alignment: .leading, spacing: 18) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(t("Remove Ads"))
+                        .font(.title2)
+                        .bold()
+
+                    Text(t("Remove banner ads from NoiseRadar forever with a one-time purchase."))
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+
+                if purchaseManager.isAdFree {
+                    Label(t("Ads removed"), systemImage: "checkmark.circle.fill")
+                        .font(.headline)
+                        .foregroundColor(.green)
+                } else {
+                    Button {
+                        Task {
+                            await purchaseManager.purchaseRemoveAds()
+                        }
+                    } label: {
+                        HStack {
+                            Text(removeAdsTitle)
+                            Spacer()
+                            if purchaseManager.isPurchasing {
+                                ProgressView()
+                            }
+                        }
+                        .font(.headline)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                    }
+                    .disabled(purchaseManager.isPurchasing || purchaseManager.isLoadingProducts)
+
+                    Button(t("Restore Purchases")) {
+                        Task {
+                            await purchaseManager.restorePurchases()
+                        }
+                    }
+                    .font(.subheadline)
+                }
+
+                if !purchaseManager.purchaseStatusMessage.isEmpty {
+                    Text(t(purchaseManager.purchaseStatusMessage))
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+            }
+            .padding()
+            .navigationTitle(t("Ad-Free"))
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(t("Done")) {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+
+    private var removeAdsTitle: String {
+        if let product = purchaseManager.removeAdsProduct {
+            return "\(t("Remove Ads")) - \(product.displayPrice)"
+        }
+        return "\(t("Remove Ads")) - \(PurchaseManager.removeAdsFallbackPrice)"
     }
 
     private func t(_ key: String) -> String {
@@ -755,9 +889,7 @@ private struct LanguageSelectionView: View {
                     dismiss()
                 } label: {
                     HStack(spacing: 12) {
-                        Text(language.flag)
-                            .font(.title2)
-                            .frame(width: 34)
+                        LanguageFlagView(language: language)
 
                         Text(language.name)
                             .foregroundColor(.primary)
@@ -786,6 +918,43 @@ private struct LanguageSelectionView: View {
 
     private func t(_ key: String) -> String {
         LanguagePack.text(key, languageCode: languageCode)
+    }
+}
+
+private struct LanguageFlagView: View {
+    let language: AppLanguage
+
+    var body: some View {
+        Group {
+            if language.code == "be" {
+                WhiteRedWhiteFlag()
+                    .frame(width: 34, height: 22)
+            } else {
+                Text(language.flag)
+                    .font(.title2)
+            }
+        }
+        .frame(width: 42, height: 28)
+        .accessibilityHidden(true)
+    }
+}
+
+private struct WhiteRedWhiteFlag: View {
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 3)
+                .fill(Color.white)
+
+            VStack(spacing: 0) {
+                Color.white
+                Color(red: 0.72, green: 0.0, blue: 0.0)
+                Color.white
+            }
+
+            RoundedRectangle(cornerRadius: 3)
+                .stroke(Color.secondary.opacity(0.35), lineWidth: 1)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 3))
     }
 }
 

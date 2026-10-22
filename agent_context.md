@@ -56,6 +56,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - Remove Ads is implemented as a StoreKit 2 non-consumable with product ID `lt.bourdo.noiseradar.remove_ads`.
 - The ad-free entitlement is cached with `UserDefaults` key `isAdFree` and refreshed from current StoreKit entitlements.
 - In-app language selection is persisted with `@AppStorage("appLanguageCode")`; Settings shows one Language row that opens a flag/checkmark language picker sheet.
+- Belarusian uses a drawn white-red-white flag view in the in-app language picker.
 - The language pack currently supports English, German, Spanish, French, Italian, Polish, Czech, Romanian, Lithuanian, Latvian, Estonian, Swedish, Finnish, Ukrainian, Greek, and Belarusian.
 
 ## How The App Works
@@ -82,6 +83,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - Settings sheet for threshold alerts and calibration offset.
 - Settings sheet includes one Language row that opens a separate flag/checkmark language picker.
 - Settings sheet includes an Ad-Free section with Remove Ads and Restore Purchases controls.
+- Free users see a main-screen `Remove banner ads.` prompt that opens the Remove Ads purchase sheet, matching the Dust Cleaner Remove Ads flow.
 - Share sheet for generated text and CSV session report files.
 - First-run onboarding sheet using `@AppStorage("hasSeenOnboarding")`.
 - A Help sheet with basic usage steps.
@@ -176,6 +178,65 @@ For code-only changes, useful checks include:
 - Verify threshold alerts, screen flash, haptic/sound alert styles, calibration offset, and Share report output on a physical iPhone.
 
 ## Change Log
+
+### 2026-10-22
+
+Files changed:
+- `NoiseRadar/NoiseRadar/PurchaseSupport.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `NoiseRadar/NoiseRadar/LanguageSupport.swift`
+- `app_store_deploy.md`
+- `agent_context.md`
+
+What changed:
+- Added a Dust Cleaner-style main-screen `Remove banner ads.` prompt for free users.
+- Added a dedicated `RemoveAdsView` sheet with purchase, restore, ad-free status, and StoreKit status text.
+- Kept Settings as a secondary Ad-Free path, but changed its Remove Ads action to open the same sheet.
+- Added a `€0.99` fallback price label while still using StoreKit `displayPrice` when the product loads.
+- Updated App Store Connect setup guidance to use a `EUR 0.99` launch price and the main-screen Remove Ads review path.
+
+Why:
+- The user asked to match the Dust Cleaner Remove Ads experience and use a `0.99 EUR` price for this app.
+
+Verification:
+- Ran `plutil -lint NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`.
+- Ran `xcodebuild -project NoiseRadar/NoiseRadar.xcodeproj -scheme NoiseRadar -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO`; build succeeded.
+
+### 2026-10-22
+
+Files changed:
+- `NoiseRadar/NoiseRadar/LanguageSupport.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `agent_context.md`
+
+What changed:
+- Replaced the temporary text/block Belarusian flag marker with a dedicated SwiftUI white-red-white flag view.
+- Updated the Settings selected-language row and language picker rows to render the Belarusian white-red-white flag as an actual bordered flag icon, while keeping normal emoji flags for the other languages.
+
+Why:
+- The user clarified that the MyFinance-style implementation should show the correct Belarusian white-red-white flag, not a block-text approximation.
+
+Verification:
+- Ran `plutil -lint NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`.
+- Ran `xcodebuild -project NoiseRadar/NoiseRadar.xcodeproj -scheme NoiseRadar -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO`; build succeeded.
+
+### 2026-10-22
+
+Files changed:
+- `NoiseRadar/NoiseRadar/LanguageSupport.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `agent_context.md`
+
+What changed:
+- Replaced the Belarusian language flag marker from the red-green state emoji to a white-red-white marker.
+- Widened the language picker flag slot so the white-red-white marker fits without clipping.
+
+Why:
+- The user corrected that the Belarusian language option must use the white-red-white Belarusian flag representation, not the red-green Lukashenko state flag.
+
+Verification:
+- Ran `plutil -lint NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`.
+- Ran `xcodebuild -project NoiseRadar/NoiseRadar.xcodeproj -scheme NoiseRadar -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO`; build succeeded.
 
 ### 2026-10-22
 

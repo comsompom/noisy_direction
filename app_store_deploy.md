@@ -660,19 +660,20 @@ Create this App Store Connect in-app purchase before submitting version `1.1`:
 | Product ID | `lt.bourdo.noiseradar.remove_ads` |
 | Display Name | `Remove Ads` |
 | Description | `Remove all ads from NoiseRadar forever with a one-time purchase.` |
-| Suggested launch price | `USD 2.99` or Apple-localized equivalent |
+| Suggested launch price | `EUR 0.99` or Apple-localized equivalent |
 
 Review note for the IAP:
 
 ```text
-The Remove Ads in-app purchase is a non-consumable purchase available from Settings.
+The Remove Ads in-app purchase is a non-consumable purchase available from the main NoiseRadar screen and from Settings.
 
 Review path:
 1. Launch NoiseRadar on a physical iPhone.
-2. Tap Settings.
-3. Open the Ad-Free section.
-4. Tap Remove Ads to start the StoreKit purchase flow.
-5. Tap Restore Purchases to restore a previous purchase.
+2. Scroll to the main guidance area.
+3. Tap Remove banner ads.
+4. The Remove Ads sheet appears.
+5. Tap Remove Ads to start the StoreKit purchase flow.
+6. Tap Restore Purchases to restore a previous purchase.
 
 After purchase or restore, all AdMob banner placements are hidden and ads are no longer loaded.
 
@@ -734,7 +735,8 @@ Main test flow:
 9. The app displays the estimated loudest heading in degrees, shows a green marker on the radar, and shows best-effort direction results by sound type.
 10. Switch to Listen mode, tap Start Listening, make nearby sounds, then confirm local recent events appear in History.
 11. Tap Settings and confirm the Language row opens the language selection screen.
-12. In Settings, confirm the Ad-Free section shows Remove Ads and Restore Purchases. Purchasing or restoring Remove Ads hides all AdMob banners forever for that Apple ID.
+12. On the main screen, tap Remove banner ads and confirm the Remove Ads sheet shows purchase and restore controls.
+13. In Settings, confirm the Ad-Free section also opens Remove Ads and shows Restore Purchases. Purchasing or restoring Remove Ads hides all AdMob banners forever for that Apple ID.
 13. The Help button opens short usage instructions.
 
 Required hardware:
