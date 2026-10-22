@@ -183,6 +183,41 @@ For code-only changes, useful checks include:
 ### 2026-10-22
 
 Files changed:
+- `shared_experience/ios_apps_experience/noisy_direction/app_deployment.md`
+- `agent_context.md`
+
+What changed:
+- Updated the shared NoiseRadar deployment experience from the old `1.0` no-ads/no-IAP release notes to the current `1.1` AdMob and Remove Ads deployment flow.
+- Added AdMob console/setup lessons, production/test ad IDs, Debug test banner guidance, StoreKit Remove Ads setup, App Privacy data-type answers, IDFA/tracking guidance, YouTube demo details, screenshot sizing notes for `nr_06` and `nr_ads`, and final submission checklist updates.
+- Documented the App Store Connect App Privacy gotcha where each selected data type must be configured individually before warning triangles disappear.
+
+Why:
+- Future iOS apps need the deployment lessons learned during this AdMob/IAP NoiseRadar submission instead of repeating the old no-ads assumptions.
+
+Verification:
+- Checked the shared deployment note for stale `1.0`, no-ads, no-data-collected, and IDFA-no wording after the update.
+
+### 2026-10-22
+
+Files changed:
+- `app_store_deploy.md`
+- `agent_context.md`
+
+What changed:
+- Updated the App Store deployment guide for version `1.1` with AdMob banner setup, production/test ad IDs, App Store Connect app record fields, product page text, screenshot inventory, App Privacy guidance, IDFA guidance, age-rating changes, Remove Ads IAP setup, and App Review notes.
+- Replaced stale `1.0`, no-ads, and no-data-collected guidance with instructions that match the current Google Mobile Ads and StoreKit implementation.
+- Added official Apple and Google reference links for App Privacy and AdMob data disclosure/consent setup.
+
+Why:
+- The next App Store submission includes AdMob banners and a non-consumable Remove Ads purchase, so App Store Connect metadata, privacy answers, review notes, and IAP setup must match the submitted binary.
+
+Verification:
+- Reviewed the app's current AdMob IDs, StoreKit product ID, version/build settings, and existing deployment guide.
+- Checked the updated deployment guide for stale `1.0`, no-ads, and no-data-collected text.
+
+### 2026-10-22
+
+Files changed:
 - `screenshots/nr_06.jpg`
 - `screenshots/nr_ads.jpg`
 - `agent_context.md`

@@ -1,6 +1,6 @@
 # NoiseRadar App Store Deployment Guide
 
-Last reviewed: 2026-10-14
+Last reviewed: 2026-10-22
 
 Use this guide to prepare, upload, and submit NoiseRadar to App Store Review.
 It includes lessons from the previous `get_distance`, `iphone_dust_cleaner`,
@@ -31,7 +31,7 @@ device.
 | Account required | No |
 | In-app purchases | One non-consumable Remove Ads purchase |
 | Developer backend | No |
-| Ads / analytics / tracking SDKs | Google Mobile Ads banner ads; no analytics SDK or tracking SDK |
+| Ads / analytics / tracking SDKs | Google Mobile Ads banner ads for free users; no separate analytics SDK |
 | Main user value | Estimate the direction of the loudest sound by combining microphone sound levels with compass heading while the user rotates 360 degrees, classify the sound type locally on device, keep recent local sound events, provide configurable foreground threshold alerts, and share local session reports |
 
 Prepared bundle ID:
@@ -42,6 +42,21 @@ lt.bourdo.NoiseRadar
 
 Before upload, confirm this identifier exists in the Apple Developer account
 owned by team `8J9SSA37RS` and matches the App Store Connect app record.
+
+AdMob and StoreKit identifiers for version `1.1`:
+
+| Field | Value |
+| --- | --- |
+| AdMob app ID | `ca-app-pub-2367013361044576~9236993009` |
+| Release banner ad unit ID | `ca-app-pub-2367013361044576/3564109908` |
+| Debug banner ad unit ID | `ca-app-pub-3940256099942544/2934735716` |
+| Remove Ads product ID | `lt.bourdo.noiseradar.remove_ads` |
+| Remove Ads type | Non-consumable |
+| Remove Ads launch price | `EUR 0.99` |
+
+The submitted Release build must use the production banner unit. Debug builds
+intentionally use Google's test banner unit so local testing can display a
+banner without relying on live ad fill.
 
 ## Review Risk Guardrails
 
@@ -195,6 +210,71 @@ Bundle Identifier: lt.bourdo.NoiseRadar
 
 Use the same team that owns the App Store Connect app record.
 
+## AdMob Setup For Version 1.1
+
+The code already contains the production AdMob IDs. Use this section to verify
+the AdMob console and App Store Connect metadata before submitting.
+
+### AdMob App
+
+In Google AdMob:
+
+```text
+Apps -> Add app
+Platform: iOS
+App listed on a supported app store?: No, if the App Store listing is not live yet
+App name: NoiseRadar
+```
+
+After creation, confirm the AdMob app ID matches the value in `Info.plist`:
+
+```text
+ca-app-pub-2367013361044576~9236993009
+```
+
+After Apple approves and the App Store page is live, return to AdMob and link
+the AdMob app to the App Store listing.
+
+### Banner Ad Unit
+
+Create or verify this banner ad unit in AdMob:
+
+```text
+Ad format: Banner
+Ad unit name: NoiseRadar Top Banner
+Ad unit ID: ca-app-pub-2367013361044576/3564109908
+Placement: Top banner on app-owned screens
+Ad content rating: General audience
+```
+
+The app displays a `320x50` banner at the top of the main screen, Help, History,
+Settings, and onboarding while the user is not ad-free. When the user buys or
+restores Remove Ads, all banner placements are hidden and no banner view is
+shown.
+
+### AdMob Privacy And Consent
+
+Before submitting in countries where Google requires consent messaging, review
+AdMob privacy settings and create any required GDPR/EEA or other regional
+messages in the AdMob console. If consent behavior is added in code later,
+re-test the first launch flow and update this guide, the privacy policy, and App
+Review notes.
+
+### App-ads.txt
+
+Recommended after the app is live:
+
+1. In AdMob, open the app's `app-ads.txt` section.
+2. Add the required Google seller line to the developer website domain used by
+   the App Store listing.
+3. Verify AdMob marks `app-ads.txt` as found and authorized.
+
+Do this on the same domain used for Support/Marketing/Privacy when possible:
+
+```text
+www.vozhyk.com
+```
+
 ## Archive And Upload From Xcode
 
 1. Open the project in Xcode.
@@ -203,12 +283,15 @@ Use the same team that owns the App Store Connect app record.
 
 ```text
 Display Name: NoiseRadar
-Version: 1.0
+Version: 1.1
 Build: 1 or next unused build number if App Store Connect already processed build 1
 Bundle Identifier: lt.bourdo.NoiseRadar
 Minimum iOS: 15.0
 Device family: iPhone
 Signing team: 8J9SSA37RS
+AdMob App ID in Info.plist: ca-app-pub-2367013361044576~9236993009
+Release banner unit: ca-app-pub-2367013361044576/3564109908
+Remove Ads product ID: lt.bourdo.noiseradar.remove_ads
 ```
 
 4. Select:
@@ -250,7 +333,7 @@ IPA: build/AppStoreExport/NoiseRadar.ipa
 Signing: Cloud Managed Apple Distribution
 Provisioning profile: iOS Team Store Provisioning Profile: lt.bourdo.NoiseRadar
 Team: 8J9SSA37RS
-Version: 1.0
+Version: 1.1
 Build: 1
 ```
 
@@ -307,7 +390,7 @@ record instead of trying to create a new record named `NoiseRadar`.
 Maximum 30 characters.
 
 ```text
-NoiseRadar
+NoiseRadar: Sound Finder
 ```
 
 ### Subtitle
@@ -332,6 +415,15 @@ Can be edited without submitting a new app version.
 
 ```text
 Estimate where the loudest sound is coming from and classify the sound type with an offline 360 degree scan using your iPhone microphone and compass.
+```
+
+### What's New In This Version
+
+Required for updates; optional/not shown the same way for a first release.
+Use this for version `1.1` if App Store Connect asks for it:
+
+```text
+Version 1.1 adds banner-supported free access, a one-time Remove Ads purchase, expanded language selection, translated help and interface text, and improved App Store-ready screenshots.
 ```
 
 ### Description
@@ -364,11 +456,14 @@ Key features:
 - Local calibration for background noise
 - Haptic feedback for scan actions
 - Built-in help screen
-- No account, subscription, advertising, analytics, or developer backend
+- Interface language selection with flags
+- Free version supported by banner ads
+- One-time Remove Ads purchase to hide banner ads forever
+- No account, subscription, audio recording, cloud processing, or developer backend
 
 NoiseRadar is designed for casual sound-direction estimates, troubleshooting, demonstrations, and general utility use. Results and sound labels are estimates and can be affected by background noise, echoes, overlapping sounds, microphone position, compass accuracy, phone movement, and how slowly the user rotates.
 
-Privacy: sound levels, sound classification, compass heading, and recent event history are processed on device. The app does not create accounts, record audio files, upload microphone audio, or send scan data to a developer server.
+Privacy: sound levels, sound classification, compass heading, and recent event history are processed on device. The app does not create accounts, record audio files, upload microphone audio, or send scan data to a developer server. The free version displays Google Mobile Ads banner ads; users can remove banner ads forever with a non-consumable in-app purchase.
 ```
 
 ### Keywords
@@ -385,10 +480,10 @@ Character count: 83.
 
 Required.
 
-TODO:
+Recommended:
 
 ```text
-https://TODO.example.com/noisy-detector/support
+https://www.vozhyk.com/noiseradar/support
 ```
 
 Minimum support page content:
@@ -400,7 +495,7 @@ Minimum support page content:
 - Privacy policy link.
 - Statement that the app requires a physical iPhone with microphone and compass.
 
-Temporary option if the repository is public:
+Temporary option only if the repository is public:
 
 ```text
 https://github.com/TODO/noiseradar/issues
@@ -440,14 +535,17 @@ The privacy policy must match the current app behavior. Recommended content:
 - The app can generate local share reports from the current session.
 - The app does not collect precise location for developer use.
 - The app does not create accounts.
-- The app does not use advertising or tracking SDKs.
-- The app does not use analytics SDKs.
+- The free version uses Google Mobile Ads banner ads.
+- Google Mobile Ads may process data such as IP address, device identifiers, advertising data, user interactions with ads, crash logs, and performance diagnostics for advertising, measurement, fraud prevention, and SDK operation.
+- The app does not use a separate analytics SDK or developer backend.
+- The optional Remove Ads purchase is handled by Apple StoreKit.
+- Buying or restoring Remove Ads hides all AdMob banner placements in the app.
 - The app does not send scan results to a developer backend.
 - Include contact email for privacy questions.
 
-Do not say `no data collected` in the privacy policy if analytics, crash
-reporting, ads, remote logging, cloud sync, accounts, or any server upload is
-added later.
+Do not say `no data collected` in the privacy policy because this build includes
+Google Mobile Ads. Keep the App Privacy answers, privacy policy, review notes,
+and actual SDK behavior consistent.
 
 ### Copyright
 
@@ -501,11 +599,20 @@ display size in App Store Connect, and upload up to 10 if available.
 
 Recommended first submission screenshot set:
 
-1. Main screen before scanning.
-2. Calibration/scanning state.
-3. Completed scan with green result arrow and loudest heading.
-4. Scan quality warning, if visually useful.
-5. Help screen.
+1. `screenshots/nr_01.jpg`: main screen before scanning.
+2. `screenshots/nr_02.jpg`: calibration or scanning state.
+3. `screenshots/nr_03.jpg`: completed scan with green result arrow and loudest heading.
+4. `screenshots/nr_04.jpg`: scan quality/status or settings view.
+5. `screenshots/nr_05.jpg`: help or language/settings view.
+6. `screenshots/nr_06.jpg`: additional localized/settings/help screen.
+7. `screenshots/nr_ads.jpg`: Remove Ads or ad-supported screen.
+
+Current screenshot dimensions:
+
+```text
+nr_01.jpg through nr_06.jpg: 1179 x 2556 JPEG
+nr_ads.jpg: 1179 x 2556 JPEG
+```
 
 Rules:
 
@@ -514,7 +621,7 @@ Rules:
 - Do not upload iPad screenshots unless the target is changed to support iPad.
 - Do not show exaggerated claims in screenshot text.
 - Do not include private addresses, private conversations, or unrelated third-party copyrighted material.
-- App previews are optional. Skip the preview video for version 1.0 unless there is a polished physical-device demo.
+- App previews are optional. Skip the preview video for version 1.1 unless there is a polished physical-device demo.
 
 ## App Privacy Answers
 
@@ -524,29 +631,72 @@ In App Store Connect:
 Apps -> NoiseRadar: Sound Finder -> App Privacy
 ```
 
-Recommended answer for the current codebase, if no analytics, ads, crash
-reporting SDK, account system, backend upload, or third-party SDK data sharing
-is added:
+Because version `1.1` includes Google Mobile Ads, do not answer `No data
+collected`. Apple says App Privacy must include the app's own privacy practices
+and the privacy practices of third-party partners whose code is integrated.
+Google's AdMob data-disclosure guidance says the Google Mobile Ads SDK may
+collect data such as IP address, crash logs, performance data, device
+identifiers, advertising data, and user interactions.
+
+Recommended App Privacy setup for this build:
 
 ```text
-Data Collection: No, we do not collect data from this app.
-Tracking: No
+Data Collection: Yes
+Tracking: Yes if personalized ads, cross-app ad measurement, IDFA access, or any other Apple-defined tracking is enabled.
+Tracking: No only if you have configured ads/consent so the app and Google Mobile Ads do not track under Apple's definition.
 ```
 
-Important: this means the developer does not collect data. The app still
-processes microphone levels, sound classification, and compass heading locally
-on device. Explain that clearly in the privacy policy and Review Notes.
+Use the conservative path for the first AdMob submission unless you have
+explicitly disabled personalized ads/tracking and verified the final SDK
+behavior:
 
-If any of these are added, update App Privacy before submission:
+```text
+Tracking: Yes
+```
 
-- Remote logging.
-- Analytics.
-- Crash reporting SDK.
-- Ads.
-- Account or login.
-- Cloud sync.
-- Server-side audio processing.
-- Uploading audio, headings, scan history, diagnostics, identifiers, or location.
+Data types to disclose for Google Mobile Ads:
+
+```text
+Location:
+- Coarse Location
+
+Identifiers:
+- Device ID
+
+Usage Data:
+- Product Interaction
+- Advertising Data
+
+Diagnostics:
+- Crash Data
+- Performance Data
+```
+
+Suggested purposes for the Google Mobile Ads data types:
+
+```text
+Third-Party Advertising
+Analytics
+App Functionality / SDK operation where App Store Connect offers it
+Fraud Prevention, Security, and Compliance where App Store Connect offers it
+```
+
+NoiseRadar app-owned local sensor processing:
+
+```text
+Microphone levels: processed on device, not recorded, not uploaded.
+Sound classification: processed on device through Apple SoundAnalysis.
+Compass heading: used on device for direction estimates, not uploaded.
+Motion/rotation speed: used on device for scan quality, not uploaded.
+Recent history: in-memory local session history, not uploaded.
+Share reports: generated locally only when the user taps Share.
+```
+
+If App Store Connect asks whether each data type is linked to the user's
+identity, answer based on Google's current SDK disclosure and your AdMob account
+configuration. If unsure, use the more conservative linked/tracking disclosure
+and make sure the privacy policy says Google Mobile Ads is used for free-user
+banner ads.
 
 ## Age Rating
 
@@ -561,7 +711,8 @@ Suggested answers for the current app:
 - User-generated content: No.
 - Web access/browser: No.
 - Messaging/chat/social networking: No.
-- Purchases/gambling/contests/loot boxes: No.
+- In-app purchases: Yes, non-consumable Remove Ads only.
+- Gambling/contests/loot boxes: No.
 - Cartoon/fantasy violence: None.
 - Realistic violence: None.
 - Sexual content/nudity: None.
@@ -614,23 +765,38 @@ ITSAppUsesNonExemptEncryption = NO
 
 ## Advertising Identifier
 
-Recommended for the current app:
+Because this build includes Google Mobile Ads, answer this only after checking
+the final Release build and AdMob configuration.
+
+Conservative App Store Connect answer for an AdMob-supported free app:
 
 ```text
-No, this app does not use the Advertising Identifier (IDFA).
+Yes, this app may use the Advertising Identifier (IDFA).
 ```
 
-Only answer `Yes` if an ads or attribution SDK that uses IDFA is added.
+Select the purposes that match the final configuration:
+
+```text
+Serve advertisements within the app.
+Attribute this app installation to a previously served advertisement.
+Attribute an action taken within this app to a previously served advertisement.
+```
+
+If the app does not request App Tracking Transparency permission and you have
+verified that the final build does not access IDFA, you may answer `No`, but
+keep the App Privacy disclosures for Google Mobile Ads data collection. Do not
+add an ATT prompt unless you intentionally support personalized ads/tracking and
+have a clear `NSUserTrackingUsageDescription` purpose string.
 
 ## Digital Services Act / Trader Status
 
 This is a legal/business answer for EU distribution.
 
-TODO:
+Fill this according to the legal/business status of the Apple developer account:
 
 ```text
 Trader status: Trader / Non-trader
-Contact details: TODO
+Contact details: legal address, email, and phone required by App Store Connect if prompted
 ```
 
 Choose based on whether the app is distributed in connection with a trade,
@@ -643,7 +809,7 @@ Recommended first submission:
 
 ```text
 Price: Free
-Availability: TODO All countries and regions / Selected countries
+Availability: All countries and regions, unless you intentionally limit distribution
 Release method: Manual release after approval
 ```
 
@@ -661,6 +827,43 @@ Create this App Store Connect in-app purchase before submitting version `1.1`:
 | Display Name | `Remove Ads` |
 | Description | `Remove all ads from NoiseRadar forever with a one-time purchase.` |
 | Suggested launch price | `EUR 0.99` or Apple-localized equivalent |
+| Cleared for Sale | Yes |
+| Review screenshot | Screenshot showing the Remove Ads sheet or `screenshots/nr_ads.jpg` if it clearly shows the purchase entry point |
+
+Step-by-step:
+
+1. Open App Store Connect.
+2. Open `Apps -> NoiseRadar: Sound Finder`.
+3. Open `Features -> In-App Purchases`.
+4. Click `+`.
+5. Select `Non-Consumable`.
+6. Fill:
+
+```text
+Reference Name: Remove Ads
+Product ID: lt.bourdo.noiseradar.remove_ads
+```
+
+7. Add English localization:
+
+```text
+Display Name: Remove Ads
+Description: Remove all ads from NoiseRadar forever with a one-time purchase.
+```
+
+8. Set price:
+
+```text
+Price Schedule: EUR 0.99 launch price, or the closest App Store price tier that displays as €0.99.
+Availability: All selected app countries/regions unless intentionally limited.
+```
+
+9. Upload the IAP review screenshot.
+10. Save the in-app purchase.
+11. On the app version `1.1` submission page, add this in-app purchase to the same submission before clicking `Add for Review`.
+
+Do not submit version `1.1` without this product created. If the product is
+missing, the app's Remove Ads sheet will show purchase unavailable for reviewers.
 
 Review note for the IAP:
 
@@ -693,7 +896,7 @@ Apps -> NoiseRadar: Sound Finder -> Distribution -> iOS App Version 1.1 -> App R
 
 Required.
 
-TODO:
+Fill with the real review contact:
 
 ```text
 First Name: TODO
@@ -721,7 +924,7 @@ Paste this into App Store Connect:
 ```text
 NoiseRadar is a local sound-direction utility for iPhone. It estimates the direction of the loudest sound by combining microphone sound level readings with the iPhone compass heading while the user slowly rotates 360 degrees. It also uses Apple's on-device SoundAnalysis classifier to show broad sound type labels such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds. The app includes Scan 360 mode, foreground Listen mode, direction results by sound type, local recent event history, configurable foreground threshold alerts, manual calibration offset, and local share reports.
 
-No account, login, subscription, sample file, server setup, or test credentials are required. The optional Remove Ads in-app purchase is available from Settings and only removes advertisements.
+No account, login, subscription, sample file, server setup, or test credentials are required. The optional Remove Ads in-app purchase is available from the main screen and Settings and only removes banner advertisements.
 
 Main test flow:
 1. Install and launch NoiseRadar on a physical iPhone running iOS 15.0 or later.
@@ -737,13 +940,13 @@ Main test flow:
 11. Tap Settings and confirm the Language row opens the language selection screen.
 12. On the main screen, tap Remove banner ads and confirm the Remove Ads sheet shows purchase and restore controls.
 13. In Settings, confirm the Ad-Free section also opens Remove Ads and shows Restore Purchases. Purchasing or restoring Remove Ads hides all AdMob banners forever for that Apple ID.
-13. The Help button opens short usage instructions.
+14. The Help button opens short usage instructions.
 
 Required hardware:
 Review should be performed on a physical iPhone with microphone and compass support. The iOS Simulator cannot fully test the microphone, compass, and motion-sensor workflow.
 
 External services:
-The app uses SwiftUI, AVFoundation, SoundAnalysis, Core Location, Core Motion, UIKit haptics, Apple StoreKit for the optional Remove Ads purchase, and Google Mobile Ads for banner ads shown to free users. It does not use backend servers, authentication services, analytics SDKs, tracking SDKs, or cloud AI services.
+The app uses SwiftUI, AVFoundation, SoundAnalysis, Core Location, Core Motion, UIKit haptics, Apple StoreKit for the optional Remove Ads purchase, and Google Mobile Ads for banner ads shown to free users. It does not use developer backend servers, authentication services, a separate analytics SDK, or cloud AI services.
 
 Regional behavior:
 The app functions consistently in all selected countries and regions, subject to iOS permissions and device sensor availability. There are no region-specific accounts, payments, or content differences.
@@ -878,3 +1081,6 @@ If App Store Connect blocks submission, check these common missing items:
 - Screenshot specifications: `https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications`
 - Manage app privacy: `https://developer.apple.com/help/app-store-connect/manage-app-information/manage-app-privacy/`
 - Export compliance: `https://developer.apple.com/help/app-store-connect/manage-app-information/overview-of-export-compliance`
+- Apple user privacy and data use: `https://developer.apple.com/app-store/user-privacy-and-data-use/`
+- Google Mobile Ads iOS App Store data disclosure: `https://developers.google.com/admob/ios/privacy/data-disclosure`
+- Google Mobile Ads iOS privacy and consent setup: `https://developers.google.com/admob/ios/privacy`
