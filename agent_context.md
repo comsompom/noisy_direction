@@ -53,6 +53,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - Mac Catalyst, Designed for iPhone/iPad on Mac, and Designed for iPhone/iPad on Vision Pro are disabled.
 - Google Mobile Ads Swift Package is linked from `https://github.com/googleads/swift-package-manager-google-mobile-ads.git`, up to next major from `13.0.0`.
 - `Package.resolved` currently pins GoogleMobileAds `13.11.0` and GoogleUserMessagingPlatform `3.1.0`.
+- Debug builds use Google's test banner ad unit for reliable local banner rendering; Release builds use the NoiseRadar production banner unit `ca-app-pub-2367013361044576/3564109908`.
 - Remove Ads is implemented as a StoreKit 2 non-consumable with product ID `lt.bourdo.noiseradar.remove_ads`.
 - The ad-free entitlement is cached with `UserDefaults` key `isAdFree` and refreshed from current StoreKit entitlements.
 - In-app language selection is persisted with `@AppStorage("appLanguageCode")`; Settings shows one Language row that opens a flag/checkmark language picker sheet.
@@ -178,6 +179,24 @@ For code-only changes, useful checks include:
 - Verify threshold alerts, screen flash, haptic/sound alert styles, calibration offset, and Share report output on a physical iPhone.
 
 ## Change Log
+
+### 2026-10-22
+
+Files changed:
+- `NoiseRadar/NoiseRadar/AdSupport.swift`
+- `agent_context.md`
+
+What changed:
+- Split the AdMob banner unit into Debug and Release values.
+- Debug builds now use Google's test banner ad unit so the banner can render reliably during local development.
+- Release builds continue to use the NoiseRadar production banner ad unit.
+
+Why:
+- The user reported that the banner was not visible while running the app locally. Live AdMob units can return no fill or remain inactive during development, while test units are intended for local verification.
+
+Verification:
+- Ran `plutil -lint NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`.
+- Ran `xcodebuild -project NoiseRadar/NoiseRadar.xcodeproj -scheme NoiseRadar -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO`; build succeeded.
 
 ### 2026-10-22
 

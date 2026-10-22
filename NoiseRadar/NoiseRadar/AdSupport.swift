@@ -4,7 +4,14 @@ import GoogleMobileAds
 
 enum AdMobSupport {
     static let applicationID = "ca-app-pub-2367013361044576~9236993009"
-    static let bannerAdUnitID = "ca-app-pub-2367013361044576/3564109908"
+    private static let productionBannerAdUnitID = "ca-app-pub-2367013361044576/3564109908"
+    private static let testBannerAdUnitID = "ca-app-pub-3940256099942544/2934735716"
+
+    #if DEBUG
+    static let bannerAdUnitID = testBannerAdUnitID
+    #else
+    static let bannerAdUnitID = productionBannerAdUnitID
+    #endif
 
     static func configure() {
         MobileAds.shared.requestConfiguration.maxAdContentRating = GADMaxAdContentRating.general
