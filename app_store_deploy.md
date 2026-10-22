@@ -20,7 +20,7 @@ device.
 | Platform | iOS |
 | Device family | iPhone only (`TARGETED_DEVICE_FAMILY = 1`) |
 | Minimum iOS | iOS 15.0 |
-| Version | 1.0 |
+| Version | 1.1 |
 | Build | 1 |
 | Current bundle ID | `lt.bourdo.NoiseRadar` |
 | Current Apple team in project | `8J9SSA37RS` |
@@ -29,9 +29,9 @@ device.
 | Motion permission text | `NSMotionUsageDescription` |
 | App Store export options | `build/AppStoreExport/ExportOptions.plist` |
 | Account required | No |
-| In-app purchases | No |
+| In-app purchases | One non-consumable Remove Ads purchase |
 | Developer backend | No |
-| Ads / analytics / tracking SDKs | None seen in current code |
+| Ads / analytics / tracking SDKs | Google Mobile Ads banner ads; no analytics SDK or tracking SDK |
 | Main user value | Estimate the direction of the loudest sound by combining microphone sound levels with compass heading while the user rotates 360 degrees, classify the sound type locally on device, keep recent local sound events, provide configurable foreground threshold alerts, and share local session reports |
 
 Prepared bundle ID:
@@ -97,8 +97,9 @@ Detector, keep the app framed as a general utility, not as surveillance,
 security, emergency, police, military, or safety equipment.
 
 Review Notes should say what hardware is required, which permissions are used,
-what is processed locally, and that no backend, account, payment, analytics,
-advertising, or tracking services are used.
+what is processed locally, and that there is no backend, account, analytics,
+tracking, or cloud processing. The submitted build now includes Google Mobile
+Ads banner ads for free users and a StoreKit non-consumable Remove Ads purchase.
 
 ## Pre-Submission Code And Project Checklist
 
@@ -107,7 +108,7 @@ Complete these before archiving:
 - [ ] Confirm bundle ID `lt.bourdo.NoiseRadar` is registered in Apple Developer.
 - [ ] Confirm `CFBundleDisplayName` is `NoiseRadar`.
 - [ ] Confirm signing team is `8J9SSA37RS`.
-- [ ] Confirm Version is `1.0`.
+- [ ] Confirm Version is `1.1`.
 - [ ] Increment Build to a new integer before each upload.
 - [ ] Confirm `TARGETED_DEVICE_FAMILY = 1` if this is intended to be iPhone-only.
 - [ ] Confirm App Icon exists, including 1024 x 1024 marketing icon.
@@ -115,7 +116,7 @@ Complete these before archiving:
 - [ ] Confirm microphone permission text is clear.
 - [ ] Confirm location permission text explains compass heading.
 - [ ] Consider adding `ITSAppUsesNonExemptEncryption = NO` to `Info.plist` if the app does not use encryption beyond Apple system functionality, so App Store Connect does not repeatedly ask export questions.
-- [ ] Do not add analytics, ads, crash SDKs, networking, accounts, or cloud upload unless App Privacy and Privacy Policy are updated.
+- [ ] Confirm Google Mobile Ads and StoreKit behavior matches App Privacy, Review Notes, and the Privacy Policy.
 
 Recommended improved permission text before submission:
 
@@ -648,12 +649,43 @@ Release method: Manual release after approval
 
 Manual release gives time to inspect the approved version before it goes live.
 
+## Remove Ads In-App Purchase
+
+Create this App Store Connect in-app purchase before submitting version `1.1`:
+
+| Field | Value |
+| --- | --- |
+| Type | Non-Consumable |
+| Reference Name | `Remove Ads` |
+| Product ID | `lt.bourdo.noiseradar.remove_ads` |
+| Display Name | `Remove Ads` |
+| Description | `Remove all ads from NoiseRadar forever with a one-time purchase.` |
+| Suggested launch price | `USD 2.99` or Apple-localized equivalent |
+
+Review note for the IAP:
+
+```text
+The Remove Ads in-app purchase is a non-consumable purchase available from Settings.
+
+Review path:
+1. Launch NoiseRadar on a physical iPhone.
+2. Tap Settings.
+3. Open the Ad-Free section.
+4. Tap Remove Ads to start the StoreKit purchase flow.
+5. Tap Restore Purchases to restore a previous purchase.
+
+After purchase or restore, all AdMob banner placements are hidden and ads are no longer loaded.
+
+Product ID:
+lt.bourdo.noiseradar.remove_ads
+```
+
 ## App Review Information
 
 In App Store Connect:
 
 ```text
-Apps -> NoiseRadar: Sound Finder -> Distribution -> iOS App Version 1.0 -> App Review
+Apps -> NoiseRadar: Sound Finder -> Distribution -> iOS App Version 1.1 -> App Review
 ```
 
 ### Contact Information
@@ -688,7 +720,7 @@ Paste this into App Store Connect:
 ```text
 NoiseRadar is a local sound-direction utility for iPhone. It estimates the direction of the loudest sound by combining microphone sound level readings with the iPhone compass heading while the user slowly rotates 360 degrees. It also uses Apple's on-device SoundAnalysis classifier to show broad sound type labels such as human voice, vehicles, mechanical sounds, animals, alarms, music, nature, household, and impact sounds. The app includes Scan 360 mode, foreground Listen mode, direction results by sound type, local recent event history, configurable foreground threshold alerts, manual calibration offset, and local share reports.
 
-No account, login, subscription, in-app purchase, sample file, server setup, or test credentials are required.
+No account, login, subscription, sample file, server setup, or test credentials are required. The optional Remove Ads in-app purchase is available from Settings and only removes advertisements.
 
 Main test flow:
 1. Install and launch NoiseRadar on a physical iPhone running iOS 15.0 or later.
@@ -701,19 +733,21 @@ Main test flow:
 8. Tap Stop & Analyze.
 9. The app displays the estimated loudest heading in degrees, shows a green marker on the radar, and shows best-effort direction results by sound type.
 10. Switch to Listen mode, tap Start Listening, make nearby sounds, then confirm local recent events appear in History.
-11. The Help button opens short usage instructions.
+11. Tap Settings and confirm the Language row opens the language selection screen.
+12. In Settings, confirm the Ad-Free section shows Remove Ads and Restore Purchases. Purchasing or restoring Remove Ads hides all AdMob banners forever for that Apple ID.
+13. The Help button opens short usage instructions.
 
 Required hardware:
 Review should be performed on a physical iPhone with microphone and compass support. The iOS Simulator cannot fully test the microphone, compass, and motion-sensor workflow.
 
 External services:
-The app uses Apple system frameworks only: SwiftUI, AVFoundation, SoundAnalysis, Core Location, Core Motion, and UIKit haptics. It does not use backend servers, authentication services, payment processors, analytics SDKs, advertising SDKs, tracking SDKs, or cloud AI services.
+The app uses SwiftUI, AVFoundation, SoundAnalysis, Core Location, Core Motion, UIKit haptics, Apple StoreKit for the optional Remove Ads purchase, and Google Mobile Ads for banner ads shown to free users. It does not use backend servers, authentication services, analytics SDKs, tracking SDKs, or cloud AI services.
 
 Regional behavior:
 The app functions consistently in all selected countries and regions, subject to iOS permissions and device sensor availability. There are no region-specific accounts, payments, or content differences.
 
 Privacy:
-Sound levels, sound classification, compass heading, and recent event history are processed on device. The app does not create accounts, record audio files, upload microphone audio, upload location, or send scan data to developer servers.
+Sound levels, sound classification, compass heading, and recent event history are processed on device. The app does not create accounts, record audio files, upload microphone audio, upload location, or send scan data to developer servers. Free users may see Google Mobile Ads banner ads; users who buy or restore Remove Ads no longer load those banners.
 
 Scope:
 NoiseRadar provides casual estimates only. It is not a certified acoustic instrument, emergency system, security system, surveillance tool, medical tool, or professional measurement device. Direction results and sound labels may be affected by background noise, echoes, overlapping sounds, microphone position, compass accuracy, phone movement, and rotation speed.
@@ -747,7 +781,7 @@ Attach a 30-90 second physical-device video showing:
 After App Store Connect processes the upload:
 
 ```text
-Apps -> NoiseRadar: Sound Finder -> Distribution -> iOS App Version 1.0 -> Build
+Apps -> NoiseRadar: Sound Finder -> Distribution -> iOS App Version 1.1 -> Build
 ```
 
 Select the exact processed build that was tested on a physical iPhone.
@@ -770,7 +804,7 @@ Before selecting:
 5. Archive in Xcode.
 6. Upload with Organizer.
 7. Wait for App Store Connect build processing.
-8. Create or open the iOS app version `1.0`.
+8. Create or open the iOS app version `1.1`.
 9. Select the processed build.
 10. Fill Name, Subtitle, Promotional Text, Description, Keywords, categories, and copyright.
 11. Add Support URL.
@@ -779,15 +813,16 @@ Before selecting:
 14. Complete Age Rating.
 15. Complete Content Rights.
 16. Complete Export Compliance.
-17. Confirm IDFA answer is No.
+17. Confirm the IDFA answer matches Google Mobile Ads usage in the submitted binary.
 18. Complete DSA/trader status if prompted.
 19. Upload iPhone screenshots.
 20. Set pricing and availability.
 21. Add App Review contact information.
 22. Add Review Notes from this guide.
 23. Choose manual release after approval unless you intentionally want automatic release.
-24. Click `Add for Review`.
-25. Open Draft Submissions and click `Submit for Review`.
+24. Add the `Remove Ads` in-app purchase to the same app-version submission.
+25. Click `Add for Review`.
+26. Open Draft Submissions and click `Submit for Review`.
 
 ## Unable To Add For Review Checklist
 
@@ -809,7 +844,7 @@ If App Store Connect blocks submission, check these common missing items:
 - [ ] Export Compliance incomplete.
 - [ ] Pricing and availability incomplete.
 - [ ] DSA/trader status incomplete if prompted.
-- [ ] Paid Apps agreement, banking, or tax forms incomplete if submitting as a paid app.
+- [ ] Paid Apps agreement, banking, or tax forms incomplete if submitting IAP.
 - [ ] App Store listing name is already used. If so, keep the installed app
       display name as `NoiseRadar`, but use a unique listing name such as
       `NoiseRadar: Sound Finder` in App Store Connect.
@@ -821,7 +856,7 @@ If App Store Connect blocks submission, check these common missing items:
 - [ ] Review Notes include the exact sensor test flow.
 - [ ] Privacy Policy matches current code.
 - [ ] App Privacy answers match actual data collection.
-- [ ] No analytics, ads, tracking, account, or backend was added without updating privacy answers.
+- [ ] Google Mobile Ads and StoreKit usage are reflected in privacy answers and review notes.
 - [ ] Screenshots show the actual app UI from the submitted build.
 - [ ] No iPad screenshots are uploaded while the target is iPhone-only.
 - [ ] UI remains usable with larger text and short-height/iPad compatibility review environments.

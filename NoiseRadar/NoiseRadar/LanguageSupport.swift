@@ -32,7 +32,7 @@ enum LanguagePack {
 
     static func text(_ key: String, languageCode: String) -> String {
         guard languageCode != "en" else { return key }
-        return translations[languageCode]?[key] ?? key
+        return translations[languageCode]?[key] ?? purchaseTranslations[languageCode]?[key] ?? key
     }
 
     static func modeTitle(_ mode: AudioDirectionManager.DetectionMode, languageCode: String) -> String {
@@ -111,6 +111,40 @@ enum LanguagePack {
         "uk": commonSlavic(scan: "Скан 360", listen: "Слухати", language: "Мова", settings: "Налаштування", help: "Довідка", history: "Історія", share: "Поділитися", start: "Почати", done: "Готово", ready: "Готово", good: "Добре", calibrating: "Калібрування", listening: "Слухання", tooFast: "Занадто швидко", tooNoisy: "Занадто шумно", tooQuiet: "Занадто тихо", human: "Людський голос", animals: "Тварини", vehicles: "Транспорт", mechanical: "Механічне", alarm: "Сигнал", music: "Музика", nature: "Природа", household: "Побут", impact: "Удар", other: "Інше", any: "Будь-який").merging(commonUI(mode: "Режим", quality: "Якість", soundType: "Тип звуку", threshold: "Порогові сповіщення", directions: "Напрямки за типом звуку", readiness: "Готовність", on: "Увімк.", off: "Вимк.", topSounds: "Основні звуки", topHeadings: "Основні напрямки", raw: "Сире", smoothed: "Згладжене")) { _, new in new },
         "el": commonRomance("Σάρωση 360", listen: "Ακρόαση", language: "Γλώσσα", settings: "Ρυθμίσεις", help: "Βοήθεια", history: "Ιστορικό", share: "Κοινή χρήση", start: "Έναρξη", done: "Τέλος", ready: "Έτοιμο", good: "Καλή", calibrating: "Βαθμονόμηση", listening: "Ακρόαση", tooFast: "Πολύ γρήγορα", tooNoisy: "Πολύς θόρυβος", tooQuiet: "Πολύ χαμηλά", human: "Ανθρώπινη φωνή", animals: "Ζώα", vehicles: "Οχήματα", mechanical: "Μηχανικό", alarm: "Συναγερμός", music: "Μουσική", nature: "Φύση", household: "Σπίτι", impact: "Κρούση", other: "Άλλο", any: "Οποιοδήποτε").merging(commonUI(mode: "Λειτουργία", quality: "Ποιότητα", soundType: "Τύπος ήχου", threshold: "Ειδοποιήσεις ορίου", directions: "Κατευθύνσεις ανά τύπο ήχου", readiness: "Ετοιμότητα", on: "Ενεργό", off: "Ανενεργό", topSounds: "Κύριοι ήχοι", topHeadings: "Κύριες κατευθύνσεις", raw: "Ακατέργαστο", smoothed: "Εξομαλυμένο")) { _, new in new },
         "be": commonSlavic(scan: "Скан 360", listen: "Слухаць", language: "Мова", settings: "Налады", help: "Даведка", history: "Гісторыя", share: "Падзяліцца", start: "Пачаць", done: "Гатова", ready: "Гатова", good: "Добра", calibrating: "Каліброўка", listening: "Слуханне", tooFast: "Занадта хутка", tooNoisy: "Занадта шумна", tooQuiet: "Занадта ціха", human: "Чалавечы голас", animals: "Жывёлы", vehicles: "Транспарт", mechanical: "Механічнае", alarm: "Сігнал", music: "Музыка", nature: "Прырода", household: "Побыт", impact: "Удар", other: "Іншае", any: "Любы").merging(commonUI(mode: "Рэжым", quality: "Якасць", soundType: "Тып гуку", threshold: "Парогавыя абвесткі", directions: "Напрамкі па тыпе гуку", readiness: "Гатоўнасць", on: "Укл.", off: "Выкл.", topSounds: "Асноўныя гукі", topHeadings: "Асноўныя напрамкі", raw: "Сырое", smoothed: "Згладжанае")) { _, new in new }
+    ]
+
+    private static let purchaseTranslations: [String: [String: String]] = [
+        "de": purchaseUI(adFree: "Werbefrei", removeAds: "Werbung entfernen", restore: "Käufe wiederherstellen", removed: "Werbung entfernt", unavailable: "Kauf nicht verfügbar", already: "Bereits gekauft", pending: "Kauf ausstehend", failed: "Kauf fehlgeschlagen", restored: "Kauf wiederhergestellt", none: "Kein Kauf gefunden", restoreFailed: "Wiederherstellung fehlgeschlagen"),
+        "es": purchaseUI(adFree: "Sin anuncios", removeAds: "Quitar anuncios", restore: "Restaurar compras", removed: "Anuncios eliminados", unavailable: "Compra no disponible", already: "Ya comprado", pending: "Compra pendiente", failed: "Compra fallida", restored: "Compra restaurada", none: "No se encontró compra", restoreFailed: "Restauración fallida"),
+        "fr": purchaseUI(adFree: "Sans publicité", removeAds: "Supprimer les pubs", restore: "Restaurer les achats", removed: "Publicités supprimées", unavailable: "Achat indisponible", already: "Déjà acheté", pending: "Achat en attente", failed: "Échec de l'achat", restored: "Achat restauré", none: "Aucun achat trouvé", restoreFailed: "Échec de la restauration"),
+        "it": purchaseUI(adFree: "Senza pubblicità", removeAds: "Rimuovi annunci", restore: "Ripristina acquisti", removed: "Annunci rimossi", unavailable: "Acquisto non disponibile", already: "Già acquistato", pending: "Acquisto in sospeso", failed: "Acquisto non riuscito", restored: "Acquisto ripristinato", none: "Nessun acquisto trovato", restoreFailed: "Ripristino non riuscito"),
+        "pl": purchaseUI(adFree: "Bez reklam", removeAds: "Usuń reklamy", restore: "Przywróć zakupy", removed: "Reklamy usunięte", unavailable: "Zakup niedostępny", already: "Już kupione", pending: "Zakup oczekuje", failed: "Zakup nieudany", restored: "Zakup przywrócony", none: "Nie znaleziono zakupu", restoreFailed: "Przywracanie nieudane"),
+        "cs": purchaseUI(adFree: "Bez reklam", removeAds: "Odstranit reklamy", restore: "Obnovit nákupy", removed: "Reklamy odstraněny", unavailable: "Nákup není dostupný", already: "Již zakoupeno", pending: "Nákup čeká", failed: "Nákup se nezdařil", restored: "Nákup obnoven", none: "Nákup nenalezen", restoreFailed: "Obnovení se nezdařilo"),
+        "ro": purchaseUI(adFree: "Fără reclame", removeAds: "Elimină reclamele", restore: "Restaurează achizițiile", removed: "Reclame eliminate", unavailable: "Achiziție indisponibilă", already: "Deja cumpărat", pending: "Achiziție în așteptare", failed: "Achiziție eșuată", restored: "Achiziție restaurată", none: "Nu s-a găsit achiziția", restoreFailed: "Restaurare eșuată"),
+        "lt": purchaseUI(adFree: "Be reklamų", removeAds: "Pašalinti reklamas", restore: "Atkurti pirkinius", removed: "Reklamos pašalintos", unavailable: "Pirkimas nepasiekiamas", already: "Jau nupirkta", pending: "Pirkimas laukia", failed: "Pirkimas nepavyko", restored: "Pirkinys atkurtas", none: "Pirkinys nerastas", restoreFailed: "Atkurti nepavyko"),
+        "lv": purchaseUI(adFree: "Bez reklāmām", removeAds: "Noņemt reklāmas", restore: "Atjaunot pirkumus", removed: "Reklāmas noņemtas", unavailable: "Pirkums nav pieejams", already: "Jau iegādāts", pending: "Pirkums gaida", failed: "Pirkums neizdevās", restored: "Pirkums atjaunots", none: "Pirkums nav atrasts", restoreFailed: "Atjaunošana neizdevās"),
+        "et": purchaseUI(adFree: "Reklaamideta", removeAds: "Eemalda reklaamid", restore: "Taasta ostud", removed: "Reklaamid eemaldatud", unavailable: "Ost pole saadaval", already: "Juba ostetud", pending: "Ost on ootel", failed: "Ost ebaõnnestus", restored: "Ost taastatud", none: "Ostu ei leitud", restoreFailed: "Taastamine ebaõnnestus"),
+        "sv": purchaseUI(adFree: "Reklamfri", removeAds: "Ta bort annonser", restore: "Återställ köp", removed: "Annonser borttagna", unavailable: "Köp ej tillgängligt", already: "Redan köpt", pending: "Köp väntar", failed: "Köp misslyckades", restored: "Köp återställt", none: "Inget köp hittades", restoreFailed: "Återställning misslyckades"),
+        "fi": purchaseUI(adFree: "Ilman mainoksia", removeAds: "Poista mainokset", restore: "Palauta ostot", removed: "Mainokset poistettu", unavailable: "Osto ei saatavilla", already: "Jo ostettu", pending: "Osto odottaa", failed: "Osto epäonnistui", restored: "Osto palautettu", none: "Ostoa ei löytynyt", restoreFailed: "Palautus epäonnistui"),
+        "uk": purchaseUI(adFree: "Без реклами", removeAds: "Прибрати рекламу", restore: "Відновити покупки", removed: "Рекламу прибрано", unavailable: "Покупка недоступна", already: "Уже придбано", pending: "Покупка очікує", failed: "Покупка не вдалася", restored: "Покупку відновлено", none: "Покупку не знайдено", restoreFailed: "Відновлення не вдалося"),
+        "el": purchaseUI(adFree: "Χωρίς διαφημίσεις", removeAds: "Κατάργηση διαφημίσεων", restore: "Επαναφορά αγορών", removed: "Οι διαφημίσεις αφαιρέθηκαν", unavailable: "Η αγορά δεν είναι διαθέσιμη", already: "Ήδη αγοράστηκε", pending: "Η αγορά εκκρεμεί", failed: "Η αγορά απέτυχε", restored: "Η αγορά επαναφέρθηκε", none: "Δεν βρέθηκε αγορά", restoreFailed: "Η επαναφορά απέτυχε"),
+        "be": purchaseUI(adFree: "Без рэкламы", removeAds: "Прыбраць рэкламу", restore: "Аднавіць пакупкі", removed: "Рэклама прыбрана", unavailable: "Пакупка недаступная", already: "Ужо куплена", pending: "Пакупка чакае", failed: "Пакупка не ўдалася", restored: "Пакупка адноўлена", none: "Пакупка не знойдзена", restoreFailed: "Аднаўленне не ўдалося")
+    ]
+}
+
+private func purchaseUI(adFree: String, removeAds: String, restore: String, removed: String, unavailable: String, already: String, pending: String, failed: String, restored: String, none: String, restoreFailed: String) -> [String: String] {
+    [
+        "Ad-Free": adFree,
+        "Remove Ads": removeAds,
+        "Restore Purchases": restore,
+        "Ads removed": removed,
+        "Purchase unavailable": unavailable,
+        "Already purchased": already,
+        "Purchase pending": pending,
+        "Purchase failed": failed,
+        "Purchase restored": restored,
+        "No purchase found": none,
+        "Restore failed": restoreFailed
     ]
 }
 

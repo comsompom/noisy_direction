@@ -27,6 +27,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - `NoiseRadar/NoiseRadar/NoiseRadarApp.swift`: SwiftUI app entry point.
 - `NoiseRadar/NoiseRadar/AdSupport.swift`: Google Mobile Ads setup, production AdMob IDs, and SwiftUI banner wrapper.
 - `NoiseRadar/NoiseRadar/LanguageSupport.swift`: In-app language pack, supported language list, phrase translations, and translation helpers.
+- `NoiseRadar/NoiseRadar/PurchaseSupport.swift`: StoreKit 2 Remove Ads purchase manager and ad-free entitlement state.
 - `NoiseRadar/NoiseRadar/SoundRadarView.swift`: Main SwiftUI interface, radar visualization, help sheet, controls, and status display.
 - `NoiseRadar/NoiseRadar/AudioDirectionManager.swift`: Sensor, microphone, offline sound classification, scan state, signal processing, and result analysis logic.
 - `NoiseRadar/NoiseRadar/Info.plist`: App display name and permission usage strings.
@@ -52,7 +53,9 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - Mac Catalyst, Designed for iPhone/iPad on Mac, and Designed for iPhone/iPad on Vision Pro are disabled.
 - Google Mobile Ads Swift Package is linked from `https://github.com/googleads/swift-package-manager-google-mobile-ads.git`, up to next major from `13.0.0`.
 - `Package.resolved` currently pins GoogleMobileAds `13.11.0` and GoogleUserMessagingPlatform `3.1.0`.
-- In-app language selection is persisted with `@AppStorage("appLanguageCode")` and shown as tappable flag rows in Settings.
+- Remove Ads is implemented as a StoreKit 2 non-consumable with product ID `lt.bourdo.noiseradar.remove_ads`.
+- The ad-free entitlement is cached with `UserDefaults` key `isAdFree` and refreshed from current StoreKit entitlements.
+- In-app language selection is persisted with `@AppStorage("appLanguageCode")`; Settings shows one Language row that opens a flag/checkmark language picker sheet.
 - The language pack currently supports English, German, Spanish, French, Italian, Polish, Czech, Romanian, Lithuanian, Latvian, Estonian, Swedish, Finnish, Ukrainian, Greek, and Belarusian.
 
 ## How The App Works
@@ -61,8 +64,11 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 
 `NoiseRadarApp` also initializes Google Mobile Ads through `AdMobSupport.configure()`, setting the SDK max ad content rating to General before startup.
 
+`NoiseRadarApp` owns a `PurchaseManager` as a `@StateObject` and injects it as an environment object so the banner wrapper and Settings can read the Remove Ads entitlement.
+
 `SoundRadarView` owns one `@StateObject` instance of `AudioDirectionManager`. It renders:
-- A 320x50 AdMob banner at the top of the main screen.
+- A 320x50 AdMob banner at the top of the main screen, Help, History, Settings, and onboarding for free users.
+- No AdMob banner once `PurchaseManager.isAdFree` is true after Remove Ads purchase or restore.
 - Localized text through `LanguagePack`, including the main screen, Help, History, Settings, onboarding, modes, alert styles, categories, readiness labels, status messages, and sound-category labels.
 - App title and usage prompt.
 - Segmented mode control for `Scan 360` and `Listen`.
@@ -74,6 +80,8 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - Scan/listen status, progress, quality, raw/smoothed decibels, top 3 headings, threshold alert status, direction-by-sound-type cards, readiness checklist, and Start/Stop controls.
 - History sheet for recent local sound events.
 - Settings sheet for threshold alerts and calibration offset.
+- Settings sheet includes one Language row that opens a separate flag/checkmark language picker.
+- Settings sheet includes an Ad-Free section with Remove Ads and Restore Purchases controls.
 - Share sheet for generated text and CSV session report files.
 - First-run onboarding sheet using `@AppStorage("hasSeenOnboarding")`.
 - A Help sheet with basic usage steps.
@@ -152,6 +160,7 @@ These constants are currently in `AudioDirectionManager.swift`:
 - History is currently local in-memory only and is not persisted across app launches.
 - Threshold alerts are foreground-only and best-effort; sound alerts may be picked up by the microphone in quiet environments.
 - No automated tests are currently present.
+- The StoreKit product `lt.bourdo.noiseradar.remove_ads` must be created in App Store Connect before production purchase testing; until then, the app will show the purchase as unavailable.
 
 ## Verification Notes
 
@@ -167,6 +176,33 @@ For code-only changes, useful checks include:
 - Verify threshold alerts, screen flash, haptic/sound alert styles, calibration offset, and Share report output on a physical iPhone.
 
 ## Change Log
+
+### 2026-10-22
+
+Files changed:
+- `NoiseRadar/NoiseRadar/NoiseRadarApp.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `NoiseRadar/NoiseRadar/LanguageSupport.swift`
+- `NoiseRadar/NoiseRadar/PurchaseSupport.swift`
+- `NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`
+- `app_store_deploy.md`
+- `agent_context.md`
+
+What changed:
+- Added StoreKit 2 Remove Ads support with non-consumable product ID `lt.bourdo.noiseradar.remove_ads`.
+- Added a root `PurchaseManager` environment object, product loading, purchase, restore, transaction update handling, entitlement refresh, and cached ad-free state.
+- Gated the shared top AdMob banner so it is shown only to free users and is hidden once Remove Ads is purchased or restored.
+- Confirmed the shared top banner wrapper is used on the main screen, Help, History, Settings, and onboarding.
+- Reworked Settings language selection from inline flag rows into one Language row that opens a separate flag/checkmark language picker sheet.
+- Added localized purchase/status strings for the supported language pack.
+- Updated App Store deployment notes for app version `1.1`, Google Mobile Ads, StoreKit, and the Remove Ads IAP setup/review path.
+
+Why:
+- The user requested the MyFinance-style language selector and an in-app Remove Ads purchase so paid users can use the app forever without advertisements.
+
+Verification:
+- Ran `plutil -lint NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`.
+- Ran `xcodebuild -project NoiseRadar/NoiseRadar.xcodeproj -scheme NoiseRadar -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO`; build succeeded after rerunning outside the sandbox because Xcode needed DerivedData, SwiftPM, and simulator cache access.
 
 ### 2026-10-22
 

@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 struct SoundRadarView: View {
     @StateObject private var manager = AudioDirectionManager()
@@ -13,12 +14,7 @@ struct SoundRadarView: View {
 
     var body: some View {
         ZStack {
-            VStack(spacing: 0) {
-                BannerAdView()
-                    .frame(width: 320, height: 50)
-                    .padding(.top, 8)
-                    .padding(.bottom, 6)
-
+            AdSupportedScreen {
                 ScrollView {
                     VStack(spacing: 20) {
                         header
@@ -426,9 +422,28 @@ private struct SoundBlobShape: Shape {
     }
 }
 
+private struct AdSupportedScreen<Content: View>: View {
+    @EnvironmentObject private var purchaseManager: PurchaseManager
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if !purchaseManager.isAdFree {
+                BannerAdView()
+                    .frame(width: 320, height: 50)
+                    .padding(.top, 8)
+                    .padding(.bottom, 6)
+            }
+
+            content
+        }
+    }
+}
+
 #if DEBUG
 #Preview {
     SoundRadarView()
+        .environmentObject(PurchaseManager())
 }
 #endif
 
@@ -437,43 +452,45 @@ private struct HelpView: View {
     @AppStorage(LanguagePack.storageKey) private var languageCode = "en"
 
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    Text(t("Quick Help"))
-                        .font(.title2)
-                        .bold()
+        AdSupportedScreen {
+            NavigationView {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text(t("Quick Help"))
+                            .font(.title2)
+                            .bold()
 
-                    Text(t("1. Hold the phone upright."))
-                    Text(t("2. Tap Start Scan."))
-                    Text(t("3. Slowly rotate 360°."))
-                    Text(t("4. Tap Stop & Analyze."))
-                    Text(t("5. The green arrow points to the loudest direction."))
-                    Text(t("6. Sound type labels run offline on device."))
+                        Text(t("1. Hold the phone upright."))
+                        Text(t("2. Tap Start Scan."))
+                        Text(t("3. Slowly rotate 360°."))
+                        Text(t("4. Tap Stop & Analyze."))
+                        Text(t("5. The green arrow points to the loudest direction."))
+                        Text(t("6. Sound type labels run offline on device."))
 
-                    Text(t("Tips"))
-                        .font(.headline)
-                    Text(t("Do not cover the bottom microphone."))
-                    Text(t("Use a real device for accurate compass readings."))
-                    Text(t("Sound labels are best-effort categories and may be wrong in noisy rooms."))
+                        Text(t("Tips"))
+                            .font(.headline)
+                        Text(t("Do not cover the bottom microphone."))
+                        Text(t("Use a real device for accurate compass readings."))
+                        Text(t("Sound labels are best-effort categories and may be wrong in noisy rooms."))
 
-                    Divider()
+                        Divider()
 
-                    Text("\(t("Version")) \(Bundle.main.releaseVersion) (\(Bundle.main.buildVersion))")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
+                        Text("\(t("Version")) \(Bundle.main.releaseVersion) (\(Bundle.main.buildVersion))")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
 
-                    Text("\(t("Website")): https://www.vozhyk.com/")
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
+                        Text("\(t("Website")): https://www.vozhyk.com/")
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
                 }
-                .padding()
-            }
-            .navigationTitle(t("Help"))
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(t("Done")) {
-                        dismiss()
+                .navigationTitle(t("Help"))
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(t("Done")) {
+                            dismiss()
+                        }
                     }
                 }
             }
@@ -491,46 +508,48 @@ private struct HistoryView: View {
     let events: [AudioDirectionManager.SoundEvent]
 
     var body: some View {
-        NavigationView {
-            Group {
-                if events.isEmpty {
-                    VStack(spacing: 8) {
-                        Text(t("No history yet"))
-                            .font(.headline)
-                        Text(t("Scan or listen to create local sound events."))
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding()
-                } else {
-                    List(events) { event in
-                        VStack(alignment: .leading, spacing: 6) {
-                            HStack {
-                                Text(categoryText(event.category))
-                                    .font(.headline)
-                                Spacer()
-                                Text(LanguagePack.modeTitle(event.mode, languageCode: languageCode))
+        AdSupportedScreen {
+            NavigationView {
+                Group {
+                    if events.isEmpty {
+                        VStack(spacing: 8) {
+                            Text(t("No history yet"))
+                                .font(.headline)
+                            Text(t("Scan or listen to create local sound events."))
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding()
+                    } else {
+                        List(events) { event in
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack {
+                                    Text(categoryText(event.category))
+                                        .font(.headline)
+                                    Spacer()
+                                    Text(LanguagePack.modeTitle(event.mode, languageCode: languageCode))
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+
+                                Text(event.label)
+                                    .font(.subheadline)
+
+                                Text(historyDetail(for: event))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
-
-                            Text(event.label)
-                                .font(.subheadline)
-
-                            Text(historyDetail(for: event))
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                            .padding(.vertical, 4)
                         }
-                        .padding(.vertical, 4)
                     }
                 }
-            }
-            .navigationTitle(t("History"))
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(t("Done")) {
-                        dismiss()
+                .navigationTitle(t("History"))
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(t("Done")) {
+                            dismiss()
+                        }
                     }
                 }
             }
@@ -560,109 +579,201 @@ private struct HistoryView: View {
 
 private struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var purchaseManager: PurchaseManager
     @AppStorage(LanguagePack.storageKey) private var languageCode = "en"
+    @State private var showLanguageSelection = false
     @ObservedObject var manager: AudioDirectionManager
 
     var body: some View {
-        NavigationView {
-            Form {
-                Section(t("Language")) {
-                    ForEach(LanguagePack.supportedLanguages) { language in
+        AdSupportedScreen {
+            NavigationView {
+                Form {
+                    Section(t("Language")) {
                         Button {
-                            languageCode = language.code
+                            showLanguageSelection = true
                         } label: {
-                            HStack(spacing: 12) {
-                                Text(language.flag)
-                                    .font(.title2)
-                                    .frame(width: 34)
-
-                                Text(language.name)
+                            HStack {
+                                Text(t("Language"))
                                     .foregroundColor(.primary)
-
                                 Spacer()
-
-                                if languageCode == language.code {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.green)
+                                if let selectedLanguage {
+                                    Text("\(selectedLanguage.flag) \(selectedLanguage.name)")
+                                        .foregroundColor(.secondary)
                                 }
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
-                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }
-                }
 
-                Section(t("Threshold Alerts")) {
-                    Toggle(t("Enable Alerts"), isOn: $manager.isThresholdAlertEnabled)
+                    Section(t("Ad-Free")) {
+                        if purchaseManager.isAdFree {
+                            Label(t("Ads removed"), systemImage: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                        } else {
+                            Button {
+                                Task {
+                                    await purchaseManager.purchaseRemoveAds()
+                                }
+                            } label: {
+                                HStack {
+                                    Text(removeAdsTitle)
+                                    Spacer()
+                                    if purchaseManager.isPurchasing {
+                                        ProgressView()
+                                    }
+                                }
+                            }
+                            .disabled(purchaseManager.isPurchasing || purchaseManager.isLoadingProducts)
 
-                    Picker(t("Sound Type"), selection: $manager.alertCategory) {
-                        ForEach(AudioDirectionManager.alertCategories, id: \.self) { category in
-                            Text(LanguagePack.category(category, languageCode: languageCode)).tag(category)
+                            Button(t("Restore Purchases")) {
+                                Task {
+                                    await purchaseManager.restorePurchases()
+                                }
+                            }
+                        }
+
+                        if !purchaseManager.purchaseStatusMessage.isEmpty {
+                            Text(t(purchaseManager.purchaseStatusMessage))
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
                         }
                     }
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("\(t("dB Threshold")): \(Int(manager.alertDecibelThreshold)) dB")
-                        Slider(
-                            value: Binding(
-                                get: { Double(manager.alertDecibelThreshold) },
-                                set: { manager.alertDecibelThreshold = Float($0) }
-                            ),
-                            in: -70...0,
-                            step: 1
-                        )
-                    }
+                    Section(t("Threshold Alerts")) {
+                        Toggle(t("Enable Alerts"), isOn: $manager.isThresholdAlertEnabled)
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("\(t("Confidence")): \(Int((manager.alertConfidenceThreshold * 100.0).rounded()))%")
-                        Slider(value: $manager.alertConfidenceThreshold, in: 0.15...0.95, step: 0.05)
-                    }
+                        Picker(t("Sound Type"), selection: $manager.alertCategory) {
+                            ForEach(AudioDirectionManager.alertCategories, id: \.self) { category in
+                                Text(LanguagePack.category(category, languageCode: languageCode)).tag(category)
+                            }
+                        }
 
-                    Picker(t("Alert Style"), selection: $manager.alertStyle) {
-                        ForEach(AudioDirectionManager.AlertStyle.allCases) { style in
-                            Text(LanguagePack.alertStyleTitle(style, languageCode: languageCode)).tag(style)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("\(t("dB Threshold")): \(Int(manager.alertDecibelThreshold)) dB")
+                            Slider(
+                                value: Binding(
+                                    get: { Double(manager.alertDecibelThreshold) },
+                                    set: { manager.alertDecibelThreshold = Float($0) }
+                                ),
+                                in: -70...0,
+                                step: 1
+                            )
+                        }
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("\(t("Confidence")): \(Int((manager.alertConfidenceThreshold * 100.0).rounded()))%")
+                            Slider(value: $manager.alertConfidenceThreshold, in: 0.15...0.95, step: 0.05)
+                        }
+
+                        Picker(t("Alert Style"), selection: $manager.alertStyle) {
+                            ForEach(AudioDirectionManager.AlertStyle.allCases) { style in
+                                Text(LanguagePack.alertStyleTitle(style, languageCode: languageCode)).tag(style)
+                            }
                         }
                     }
-                }
 
-                Section(t("Calibration")) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("\(t("Manual Offset")): \(String(format: "%.1f", manager.calibrationOffset)) dB")
-                        Slider(
-                            value: Binding(
-                                get: { Double(manager.calibrationOffset) },
-                                set: { manager.calibrationOffset = Float($0) }
-                            ),
-                            in: -20...20,
-                            step: 0.5
-                        )
-                    }
+                    Section(t("Calibration")) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("\(t("Manual Offset")): \(String(format: "%.1f", manager.calibrationOffset)) dB")
+                            Slider(
+                                value: Binding(
+                                    get: { Double(manager.calibrationOffset) },
+                                    set: { manager.calibrationOffset = Float($0) }
+                                ),
+                                in: -20...20,
+                                step: 0.5
+                            )
+                        }
 
-                    Button(t("Reset Calibration")) {
-                        manager.resetCalibrationOffset()
-                    }
+                        Button(t("Reset Calibration")) {
+                            manager.resetCalibrationOffset()
+                        }
 
-                    Text(t("Use a quiet room or a known reference meter. NoiseRadar results are phone microphone estimates, not certified measurements."))
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                }
-
-                Section(t("Reports")) {
-                    Text(t("The Share button exports a text summary and CSV event log for the current local session."))
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                }
-
-                Section(t("About")) {
-                    HStack {
-                        Text(t("Version"))
-                        Spacer()
-                        Text("\(Bundle.main.releaseVersion) (\(Bundle.main.buildVersion))")
+                        Text(t("Use a quiet room or a known reference meter. NoiseRadar results are phone microphone estimates, not certified measurements."))
+                            .font(.footnote)
                             .foregroundColor(.secondary)
+                    }
+
+                    Section(t("Reports")) {
+                        Text(t("The Share button exports a text summary and CSV event log for the current local session."))
+                            .font(.footnote)
+                            .foregroundColor(.secondary)
+                    }
+
+                    Section(t("About")) {
+                        HStack {
+                            Text(t("Version"))
+                            Spacer()
+                            Text("\(Bundle.main.releaseVersion) (\(Bundle.main.buildVersion))")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .navigationTitle(t("Settings"))
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button(t("Done")) {
+                            dismiss()
+                        }
                     }
                 }
             }
-            .navigationTitle(t("Settings"))
+        }
+        .sheet(isPresented: $showLanguageSelection) {
+            LanguageSelectionView()
+        }
+    }
+
+    private var selectedLanguage: AppLanguage? {
+        LanguagePack.supportedLanguages.first { $0.code == languageCode }
+    }
+
+    private var removeAdsTitle: String {
+        if let product = purchaseManager.removeAdsProduct {
+            return "\(t("Remove Ads")) - \(product.displayPrice)"
+        }
+        return t("Remove Ads")
+    }
+
+    private func t(_ key: String) -> String {
+        LanguagePack.text(key, languageCode: languageCode)
+    }
+}
+
+private struct LanguageSelectionView: View {
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage(LanguagePack.storageKey) private var languageCode = "en"
+
+    var body: some View {
+        NavigationView {
+            List(LanguagePack.supportedLanguages) { language in
+                Button {
+                    languageCode = language.code
+                    dismiss()
+                } label: {
+                    HStack(spacing: 12) {
+                        Text(language.flag)
+                            .font(.title2)
+                            .frame(width: 34)
+
+                        Text(language.name)
+                            .foregroundColor(.primary)
+
+                        Spacer()
+
+                        if languageCode == language.code {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.green)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+            .navigationTitle(t("Language"))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(t("Done")) {
@@ -693,32 +804,34 @@ private struct OnboardingView: View {
     let onDone: () -> Void
 
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
+        AdSupportedScreen {
+            VStack(spacing: 24) {
+                Spacer()
 
-            Text("NoiseRadar")
-                .font(.largeTitle)
-                .bold()
+                Text("NoiseRadar")
+                    .font(.largeTitle)
+                    .bold()
 
-            VStack(alignment: .leading, spacing: 18) {
-                OnboardingRow(icon: "iphone", title: t("Hold upright"), detail: t("Keep the bottom microphone uncovered."))
-                OnboardingRow(icon: "timer", title: t("Calibrate first"), detail: t("Stay still while the app learns the room noise."))
-                OnboardingRow(icon: "arrow.triangle.2.circlepath", title: t("Turn slowly"), detail: t("Use Scan 360 for direction or Listen mode for ongoing sound events."))
+                VStack(alignment: .leading, spacing: 18) {
+                    OnboardingRow(icon: "iphone", title: t("Hold upright"), detail: t("Keep the bottom microphone uncovered."))
+                    OnboardingRow(icon: "timer", title: t("Calibrate first"), detail: t("Stay still while the app learns the room noise."))
+                    OnboardingRow(icon: "arrow.triangle.2.circlepath", title: t("Turn slowly"), detail: t("Use Scan 360 for direction or Listen mode for ongoing sound events."))
+                }
+
+                Spacer()
+
+                Button(t("Start")) {
+                    onDone()
+                }
+                .font(.headline)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
             }
-
-            Spacer()
-
-            Button(t("Start")) {
-                onDone()
-            }
-            .font(.headline)
             .padding()
-            .frame(maxWidth: .infinity)
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(10)
         }
-        .padding()
     }
 
     private func t(_ key: String) -> String {

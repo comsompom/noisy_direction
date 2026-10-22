@@ -16,6 +16,7 @@
 		E1F2A3B4C5D6E7F8091A2B64 /* AdSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D6E7F8091A2B62 /* AdSupport.swift */; };
 		E1F2A3B4C5D6E7F8091A2B67 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = E1F2A3B4C5D6E7F8091A2B66 /* GoogleMobileAds */; };
 		E1F2A3B4C5D6E7F8091A2B69 /* LanguageSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D6E7F8091A2B68 /* LanguageSupport.swift */; };
+		E1F2A3B4C5D6E7F8091A2B6B /* PurchaseSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1F2A3B4C5D6E7F8091A2B6A /* PurchaseSupport.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 		E1F2A3B4C5D6E7F8091A2B60 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E1F2A3B4C5D6E7F8091A2B62 /* AdSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdSupport.swift; sourceTree = "<group>"; };
 		E1F2A3B4C5D6E7F8091A2B68 /* LanguageSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSupport.swift; sourceTree = "<group>"; };
+		E1F2A3B4C5D6E7F8091A2B6A /* PurchaseSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseSupport.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +69,7 @@
 				E1F2A3B4C5D6E7F8091A2B46 /* AudioDirectionManager.swift */,
 				E1F2A3B4C5D6E7F8091A2B62 /* AdSupport.swift */,
 				E1F2A3B4C5D6E7F8091A2B68 /* LanguageSupport.swift */,
+				E1F2A3B4C5D6E7F8091A2B6A /* PurchaseSupport.swift */,
 				E1F2A3B4C5D6E7F8091A2B47 /* Assets.xcassets */,
 				E1F2A3B4C5D6E7F8091A2B60 /* LaunchScreen.storyboard */,
 				E1F2A3B4C5D6E7F8091A2B56 /* Preview Content */,
@@ -165,6 +168,7 @@
 				E1F2A3B4C5D6E7F8091A2B52 /* AudioDirectionManager.swift in Sources */,
 				E1F2A3B4C5D6E7F8091A2B64 /* AdSupport.swift in Sources */,
 				E1F2A3B4C5D6E7F8091A2B69 /* LanguageSupport.swift in Sources */,
+				E1F2A3B4C5D6E7F8091A2B6B /* PurchaseSupport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
