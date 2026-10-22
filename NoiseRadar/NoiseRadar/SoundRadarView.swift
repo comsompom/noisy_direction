@@ -9,6 +9,7 @@ struct SoundRadarView: View {
     @State private var shareItems: [Any] = []
     @State private var showOnboarding = false
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+    @AppStorage(LanguagePack.storageKey) private var languageCode = "en"
 
     var body: some View {
         ZStack {
@@ -72,7 +73,7 @@ struct SoundRadarView: View {
                 .font(.title)
                 .bold()
 
-            Text(manager.selectedMode == .scan360 ? "Turn slowly 360° while scanning." : "Keep the iPhone still and let it listen.")
+            Text(t(manager.selectedMode == .scan360 ? "Turn slowly 360° while scanning." : "Keep the iPhone still and let it listen."))
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -80,9 +81,9 @@ struct SoundRadarView: View {
     }
 
     private var modePicker: some View {
-        Picker("Mode", selection: $manager.selectedMode) {
+        Picker(t("Mode"), selection: $manager.selectedMode) {
             ForEach(AudioDirectionManager.DetectionMode.allCases) { mode in
-                Text(mode.title).tag(mode)
+                Text(LanguagePack.modeTitle(mode, languageCode: languageCode)).tag(mode)
             }
         }
         .pickerStyle(.segmented)
@@ -155,32 +156,32 @@ struct SoundRadarView: View {
             }
 
             if let result = manager.directionOfLoudestSound {
-                Text("Loudest sound at: \(Int(result))°")
+                Text("\(t("Loudest sound at")): \(Int(result))°")
                     .font(.title3)
                     .foregroundColor(.green)
             }
 
-            Text("Quality: \(manager.scanQualityText)")
+            Text("\(t("Quality")): \(t(manager.scanQualityText))")
                 .font(.subheadline)
                 .foregroundColor(scanQualityColor)
 
-            Text(manager.soundClassificationStatus)
+            Text(LanguagePack.soundStatus(manager.soundClassificationStatus, languageCode: languageCode))
                 .font(.subheadline)
                 .multilineTextAlignment(.center)
 
             if !manager.topSoundClassifications.isEmpty {
-                Text("Top sounds: \(topSoundsText)")
+                Text("\(t("Top sounds")): \(topSoundsText)")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
 
-            Text("Raw \(Int(manager.lastRawDecibels)) dB · Smoothed \(Int(manager.lastSmoothedDecibels)) dB")
+            Text("\(t("Raw")) \(Int(manager.lastRawDecibels)) dB · \(t("Smoothed")) \(Int(manager.lastSmoothedDecibels)) dB")
                 .font(.caption)
                 .foregroundColor(.secondary)
 
             if !manager.topHeadings.isEmpty {
-                Text("Top headings: \(topHeadingsText)")
+                Text("\(t("Top headings")): \(topHeadingsText)")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -190,20 +191,20 @@ struct SoundRadarView: View {
     private var alertPanel: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text("Threshold Alerts")
+                Text(t("Threshold Alerts"))
                     .font(.headline)
                 Spacer()
-                Text(manager.isThresholdAlertEnabled ? "On" : "Off")
+                Text(t(manager.isThresholdAlertEnabled ? "On" : "Off"))
                     .font(.caption)
                     .foregroundColor(manager.isThresholdAlertEnabled ? .green : .secondary)
             }
 
-            Text(manager.lastAlertMessage)
+            Text(alertMessageText)
                 .font(.caption)
                 .foregroundColor(.secondary)
 
             if manager.isThresholdAlertEnabled {
-                Text("\(manager.alertCategory) · \(Int(manager.alertDecibelThreshold)) dB · \(Int((manager.alertConfidenceThreshold * 100.0).rounded()))% · \(manager.alertStyle.title)")
+                Text("\(categoryText(manager.alertCategory)) · \(Int(manager.alertDecibelThreshold)) dB · \(Int((manager.alertConfidenceThreshold * 100.0).rounded()))% · \(LanguagePack.alertStyleTitle(manager.alertStyle, languageCode: languageCode))")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
@@ -216,21 +217,21 @@ struct SoundRadarView: View {
 
     private var categoryResults: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Directions by Sound Type")
+            Text(t("Directions by Sound Type"))
                 .font(.headline)
 
             if manager.categoryDirectionResults.isEmpty {
-                Text("No categorized direction yet.")
+                Text(t("No categorized direction yet."))
                     .font(.caption)
                     .foregroundColor(.secondary)
             } else {
                 ForEach(manager.categoryDirectionResults) { result in
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(result.category)
+                            Text(categoryText(result.category))
                                 .font(.subheadline)
                                 .bold()
-                            Text(result.label)
+                            Text(displayLabel(result.label))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -255,7 +256,7 @@ struct SoundRadarView: View {
 
     private var readinessPanel: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Readiness")
+            Text(t("Readiness"))
                 .font(.headline)
 
             ForEach(manager.readinessItems) { item in
@@ -263,9 +264,9 @@ struct SoundRadarView: View {
                     Image(systemName: item.isReady ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
                         .foregroundColor(item.isReady ? .green : .orange)
                     VStack(alignment: .leading, spacing: 1) {
-                        Text(item.title)
+                        Text(t(item.title))
                             .font(.subheadline)
-                        Text(item.detail)
+                        Text(t(item.detail))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -273,7 +274,7 @@ struct SoundRadarView: View {
                 }
             }
 
-            Text("Do not cover the bottom microphone.")
+            Text(t("Do not cover the bottom microphone."))
                 .font(.footnote)
                 .foregroundColor(.orange)
         }
@@ -299,21 +300,21 @@ struct SoundRadarView: View {
             }
 
             HStack {
-                Button("History") {
+                Button(t("History")) {
                     showHistory = true
                 }
                 .font(.subheadline)
 
                 Spacer()
 
-                Button("Settings") {
+                Button(t("Settings")) {
                     showSettings = true
                 }
                 .font(.subheadline)
 
                 Spacer()
 
-                Button("Share") {
+                Button(t("Share")) {
                     do {
                         shareItems = try manager.writeSessionReportFiles()
                     } catch {
@@ -326,7 +327,7 @@ struct SoundRadarView: View {
 
                 Spacer()
 
-                Button("Help") {
+                Button(t("Help")) {
                     showHelp = true
                 }
                 .font(.subheadline)
@@ -336,9 +337,9 @@ struct SoundRadarView: View {
 
     private var primaryButtonTitle: String {
         if manager.isScanning {
-            return manager.selectedMode == .scan360 ? "Stop & Analyze" : "Stop Listening"
+            return manager.selectedMode == .scan360 ? t("Stop & Analyze") : t("Stop Listening")
         }
-        return manager.selectedMode == .scan360 ? "Start Scan" : "Start Listening"
+        return manager.selectedMode == .scan360 ? t("Start Scan") : t("Start Listening")
     }
 
     private var scanQualityColor: Color {
@@ -362,9 +363,35 @@ struct SoundRadarView: View {
         manager.topSoundClassifications
             .map { classification in
                 let confidence = Int((classification.confidence * 100.0).rounded())
-                return "\(classification.category) \(confidence)%"
+                return "\(categoryText(classification.category)) \(confidence)%"
             }
             .joined(separator: ", ")
+    }
+
+    private var alertMessageText: String {
+        if manager.lastAlertMessage == "Alerts ready" {
+            return t("Alerts ready")
+        }
+
+        if let range = manager.lastAlertMessage.range(of: " over ") {
+            let category = String(manager.lastAlertMessage[..<range.lowerBound])
+            let suffix = String(manager.lastAlertMessage[range.upperBound...])
+            return "\(categoryText(category)) \(t("over")) \(suffix)"
+        }
+
+        return t(manager.lastAlertMessage)
+    }
+
+    private func t(_ key: String) -> String {
+        LanguagePack.text(key, languageCode: languageCode)
+    }
+
+    private func categoryText(_ category: String) -> String {
+        LanguagePack.category(category, languageCode: languageCode)
+    }
+
+    private func displayLabel(_ label: String) -> String {
+        AudioDirectionManager.alertCategories.contains(label) ? categoryText(label) : label
     }
 }
 
@@ -407,54 +434,60 @@ private struct SoundBlobShape: Shape {
 
 private struct HelpView: View {
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(LanguagePack.storageKey) private var languageCode = "en"
 
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Quick Help")
+                    Text(t("Quick Help"))
                         .font(.title2)
                         .bold()
 
-                    Text("1. Hold the phone upright.")
-                    Text("2. Tap Start Scan.")
-                    Text("3. Slowly rotate 360°.")
-                    Text("4. Tap Stop & Analyze.")
-                    Text("5. The green arrow points to the loudest direction.")
-                    Text("6. Sound type labels run offline on device.")
+                    Text(t("1. Hold the phone upright."))
+                    Text(t("2. Tap Start Scan."))
+                    Text(t("3. Slowly rotate 360°."))
+                    Text(t("4. Tap Stop & Analyze."))
+                    Text(t("5. The green arrow points to the loudest direction."))
+                    Text(t("6. Sound type labels run offline on device."))
 
-                    Text("Tips")
+                    Text(t("Tips"))
                         .font(.headline)
-                    Text("Do not cover the bottom microphone.")
-                    Text("Use a real device for accurate compass readings.")
-                    Text("Sound labels are best-effort categories and may be wrong in noisy rooms.")
+                    Text(t("Do not cover the bottom microphone."))
+                    Text(t("Use a real device for accurate compass readings."))
+                    Text(t("Sound labels are best-effort categories and may be wrong in noisy rooms."))
 
                     Divider()
 
-                    Text("Version \(Bundle.main.releaseVersion) (\(Bundle.main.buildVersion))")
+                    Text("\(t("Version")) \(Bundle.main.releaseVersion) (\(Bundle.main.buildVersion))")
                         .font(.footnote)
                         .foregroundColor(.secondary)
 
-                    Text("Website: https://www.vozhyk.com/")
+                    Text("\(t("Website")): https://www.vozhyk.com/")
                         .font(.footnote)
                         .foregroundColor(.secondary)
                 }
                 .padding()
             }
-            .navigationTitle("Help")
+            .navigationTitle(t("Help"))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") {
+                    Button(t("Done")) {
                         dismiss()
                     }
                 }
             }
         }
     }
+
+    private func t(_ key: String) -> String {
+        LanguagePack.text(key, languageCode: languageCode)
+    }
 }
 
 private struct HistoryView: View {
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(LanguagePack.storageKey) private var languageCode = "en"
     let events: [AudioDirectionManager.SoundEvent]
 
     var body: some View {
@@ -462,9 +495,9 @@ private struct HistoryView: View {
             Group {
                 if events.isEmpty {
                     VStack(spacing: 8) {
-                        Text("No history yet")
+                        Text(t("No history yet"))
                             .font(.headline)
-                        Text("Scan or listen to create local sound events.")
+                        Text(t("Scan or listen to create local sound events."))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
@@ -474,10 +507,10 @@ private struct HistoryView: View {
                     List(events) { event in
                         VStack(alignment: .leading, spacing: 6) {
                             HStack {
-                                Text(event.category)
+                                Text(categoryText(event.category))
                                     .font(.headline)
                                 Spacer()
-                                Text(event.mode.title)
+                                Text(LanguagePack.modeTitle(event.mode, languageCode: languageCode))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -493,10 +526,10 @@ private struct HistoryView: View {
                     }
                 }
             }
-            .navigationTitle("History")
+            .navigationTitle(t("History"))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") {
+                    Button(t("Done")) {
                         dismiss()
                     }
                 }
@@ -510,31 +543,48 @@ private struct HistoryView: View {
         if let heading = event.heading {
             headingText = "\(Int(heading))°"
         } else {
-            headingText = "No heading"
+            headingText = t("No heading")
         }
 
-        return "\(DateFormatter.shortTime.string(from: event.date)) · \(headingText) · \(confidence)% · peak \(Int(event.peakDecibels)) dB · avg \(Int(event.averageDecibels)) dB"
+        return "\(DateFormatter.shortTime.string(from: event.date)) · \(headingText) · \(confidence)% · \(t("peak")) \(Int(event.peakDecibels)) dB · \(t("avg")) \(Int(event.averageDecibels)) dB"
+    }
+
+    private func t(_ key: String) -> String {
+        LanguagePack.text(key, languageCode: languageCode)
+    }
+
+    private func categoryText(_ category: String) -> String {
+        LanguagePack.category(category, languageCode: languageCode)
     }
 }
 
 private struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(LanguagePack.storageKey) private var languageCode = "en"
     @ObservedObject var manager: AudioDirectionManager
 
     var body: some View {
         NavigationView {
             Form {
-                Section("Threshold Alerts") {
-                    Toggle("Enable Alerts", isOn: $manager.isThresholdAlertEnabled)
+                Section(t("Language")) {
+                    Picker(t("Language"), selection: $languageCode) {
+                        ForEach(LanguagePack.supportedLanguages) { language in
+                            Text(language.name).tag(language.code)
+                        }
+                    }
+                }
 
-                    Picker("Sound Type", selection: $manager.alertCategory) {
+                Section(t("Threshold Alerts")) {
+                    Toggle(t("Enable Alerts"), isOn: $manager.isThresholdAlertEnabled)
+
+                    Picker(t("Sound Type"), selection: $manager.alertCategory) {
                         ForEach(AudioDirectionManager.alertCategories, id: \.self) { category in
-                            Text(category).tag(category)
+                            Text(LanguagePack.category(category, languageCode: languageCode)).tag(category)
                         }
                     }
 
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("dB Threshold: \(Int(manager.alertDecibelThreshold)) dB")
+                        Text("\(t("dB Threshold")): \(Int(manager.alertDecibelThreshold)) dB")
                         Slider(
                             value: Binding(
                                 get: { Double(manager.alertDecibelThreshold) },
@@ -546,20 +596,20 @@ private struct SettingsView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Confidence: \(Int((manager.alertConfidenceThreshold * 100.0).rounded()))%")
+                        Text("\(t("Confidence")): \(Int((manager.alertConfidenceThreshold * 100.0).rounded()))%")
                         Slider(value: $manager.alertConfidenceThreshold, in: 0.15...0.95, step: 0.05)
                     }
 
-                    Picker("Alert Style", selection: $manager.alertStyle) {
+                    Picker(t("Alert Style"), selection: $manager.alertStyle) {
                         ForEach(AudioDirectionManager.AlertStyle.allCases) { style in
-                            Text(style.title).tag(style)
+                            Text(LanguagePack.alertStyleTitle(style, languageCode: languageCode)).tag(style)
                         }
                     }
                 }
 
-                Section("Calibration") {
+                Section(t("Calibration")) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Manual Offset: \(String(format: "%.1f", manager.calibrationOffset)) dB")
+                        Text("\(t("Manual Offset")): \(String(format: "%.1f", manager.calibrationOffset)) dB")
                         Slider(
                             value: Binding(
                                 get: { Double(manager.calibrationOffset) },
@@ -570,39 +620,43 @@ private struct SettingsView: View {
                         )
                     }
 
-                    Button("Reset Calibration") {
+                    Button(t("Reset Calibration")) {
                         manager.resetCalibrationOffset()
                     }
 
-                    Text("Use a quiet room or a known reference meter. NoiseRadar results are phone microphone estimates, not certified measurements.")
+                    Text(t("Use a quiet room or a known reference meter. NoiseRadar results are phone microphone estimates, not certified measurements."))
                         .font(.footnote)
                         .foregroundColor(.secondary)
                 }
 
-                Section("Reports") {
-                    Text("The Share button exports a text summary and CSV event log for the current local session.")
+                Section(t("Reports")) {
+                    Text(t("The Share button exports a text summary and CSV event log for the current local session."))
                         .font(.footnote)
                         .foregroundColor(.secondary)
                 }
 
-                Section("About") {
+                Section(t("About")) {
                     HStack {
-                        Text("Version")
+                        Text(t("Version"))
                         Spacer()
                         Text("\(Bundle.main.releaseVersion) (\(Bundle.main.buildVersion))")
                             .foregroundColor(.secondary)
                     }
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle(t("Settings"))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") {
+                    Button(t("Done")) {
                         dismiss()
                     }
                 }
             }
         }
+    }
+
+    private func t(_ key: String) -> String {
+        LanguagePack.text(key, languageCode: languageCode)
     }
 }
 
@@ -617,6 +671,7 @@ private struct ShareSheet: UIViewControllerRepresentable {
 }
 
 private struct OnboardingView: View {
+    @AppStorage(LanguagePack.storageKey) private var languageCode = "en"
     let onDone: () -> Void
 
     var body: some View {
@@ -628,14 +683,14 @@ private struct OnboardingView: View {
                 .bold()
 
             VStack(alignment: .leading, spacing: 18) {
-                OnboardingRow(icon: "iphone", title: "Hold upright", detail: "Keep the bottom microphone uncovered.")
-                OnboardingRow(icon: "timer", title: "Calibrate first", detail: "Stay still while the app learns the room noise.")
-                OnboardingRow(icon: "arrow.triangle.2.circlepath", title: "Turn slowly", detail: "Use Scan 360 for direction or Listen mode for ongoing sound events.")
+                OnboardingRow(icon: "iphone", title: t("Hold upright"), detail: t("Keep the bottom microphone uncovered."))
+                OnboardingRow(icon: "timer", title: t("Calibrate first"), detail: t("Stay still while the app learns the room noise."))
+                OnboardingRow(icon: "arrow.triangle.2.circlepath", title: t("Turn slowly"), detail: t("Use Scan 360 for direction or Listen mode for ongoing sound events."))
             }
 
             Spacer()
 
-            Button("Start") {
+            Button(t("Start")) {
                 onDone()
             }
             .font(.headline)
@@ -646,6 +701,10 @@ private struct OnboardingView: View {
             .cornerRadius(10)
         }
         .padding()
+    }
+
+    private func t(_ key: String) -> String {
+        LanguagePack.text(key, languageCode: languageCode)
     }
 }
 

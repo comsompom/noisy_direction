@@ -26,6 +26,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - `NoiseRadar/NoiseRadar.xcodeproj`: Xcode project.
 - `NoiseRadar/NoiseRadar/NoiseRadarApp.swift`: SwiftUI app entry point.
 - `NoiseRadar/NoiseRadar/AdSupport.swift`: Google Mobile Ads setup, production AdMob IDs, and SwiftUI banner wrapper.
+- `NoiseRadar/NoiseRadar/LanguageSupport.swift`: In-app language pack, supported language list, phrase translations, and translation helpers.
 - `NoiseRadar/NoiseRadar/SoundRadarView.swift`: Main SwiftUI interface, radar visualization, help sheet, controls, and status display.
 - `NoiseRadar/NoiseRadar/AudioDirectionManager.swift`: Sensor, microphone, offline sound classification, scan state, signal processing, and result analysis logic.
 - `NoiseRadar/NoiseRadar/Info.plist`: App display name and permission usage strings.
@@ -51,6 +52,8 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - Mac Catalyst, Designed for iPhone/iPad on Mac, and Designed for iPhone/iPad on Vision Pro are disabled.
 - Google Mobile Ads Swift Package is linked from `https://github.com/googleads/swift-package-manager-google-mobile-ads.git`, up to next major from `13.0.0`.
 - `Package.resolved` currently pins GoogleMobileAds `13.11.0` and GoogleUserMessagingPlatform `3.1.0`.
+- In-app language selection is persisted with `@AppStorage("appLanguageCode")`.
+- The language pack currently supports English, German, Spanish, French, Italian, Polish, Czech, Romanian, Lithuanian, Latvian, Estonian, Swedish, Finnish, Ukrainian, Greek, and Belarusian.
 
 ## How The App Works
 
@@ -60,6 +63,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 
 `SoundRadarView` owns one `@StateObject` instance of `AudioDirectionManager`. It renders:
 - A 320x50 AdMob banner at the top of the main screen.
+- Localized text through `LanguagePack`, including the main screen, Help, History, Settings, onboarding, modes, alert styles, categories, readiness labels, status messages, and sound-category labels.
 - App title and usage prompt.
 - Segmented mode control for `Scan 360` and `Listen`.
 - Radar circle with N/E/S/W labels.
@@ -163,6 +167,28 @@ For code-only changes, useful checks include:
 - Verify threshold alerts, screen flash, haptic/sound alert styles, calibration offset, and Share report output on a physical iPhone.
 
 ## Change Log
+
+### 2026-10-22
+
+Files changed:
+- `NoiseRadar/NoiseRadar/LanguageSupport.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`
+- `agent_context.md`
+
+What changed:
+- Added the same 16-language in-app language pack pattern documented for Magnetic Multi-Tool: English, German, Spanish, French, Italian, Polish, Czech, Romanian, Lithuanian, Latvian, Estonian, Swedish, Finnish, Ukrainian, Greek, and Belarusian.
+- Added a Settings > Language picker backed by `@AppStorage("appLanguageCode")`.
+- Localized the NoiseRadar main screen, Help sheet, History sheet, Settings sheet, onboarding, primary actions, mode names, alert styles, sound categories, readiness labels, quality/status labels, and dynamic sound-status/category displays.
+- Added `LanguageSupport.swift` to the Xcode target.
+
+Why:
+- The user asked to deploy the same language-pack approach used by prior apps and provide a fully translated app interface for NoiseRadar.
+
+Verification:
+- Ran `plutil -lint NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`.
+- Ran `xcodebuild -project NoiseRadar/NoiseRadar.xcodeproj -scheme NoiseRadar -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO`; build succeeded.
+- Rebuilt after removing duplicate translation dictionary keys; build succeeded without duplicate-key warnings.
 
 ### 2026-10-22
 
