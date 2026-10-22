@@ -550,6 +550,27 @@ Verification:
 - Searched the NoiseRadar repository outside `.git`, `.idea`, and `build`; no previous external personal/agency references remain.
 - Flask route and Swift typecheck verification were run after the web/app changes; see final response for results.
 
+### 2026-10-22
+
+Files changed:
+- `NoiseRadar/NoiseRadar/LanguageSupport.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `NoiseRadar/NoiseRadar/AudioDirectionManager.swift`
+- `agent_context.md`
+
+What changed:
+- Expanded the in-app language pack so fixed UI, help, onboarding, settings, readiness, status, calibration, reporting, and remove-ads strings are translated across the supported languages.
+- Prioritized the complete interface translation table before older fallback tables to avoid English fallback text in supported languages.
+- Localized app-owned status and history/category display paths.
+- Removed raw Apple SoundAnalysis display labels from user-facing category/history rows and event storage, so dynamic classifier names do not leak English into translated UI.
+
+Why:
+- The app needed the MyFinance-style language pack to translate the complete interface and help content, not only the settings picker and core labels.
+
+Verification:
+- Ran `plutil -lint NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj` successfully.
+- Ran `xcodebuild -project NoiseRadar/NoiseRadar.xcodeproj -scheme NoiseRadar -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath /private/tmp/noiseradar-dd build CODE_SIGNING_ALLOWED=NO CLANG_MODULE_CACHE_PATH=/private/tmp/noiseradar-module-cache` successfully after allowing Xcode/SwiftPM package cache access.
+
 ### 2026-10-14
 
 Files changed:

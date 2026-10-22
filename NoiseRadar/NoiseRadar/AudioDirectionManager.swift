@@ -675,7 +675,7 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
                 heading: best.heading,
                 confidence: best.soundConfidence,
                 signal: best.signal,
-                label: best.soundLabel ?? category,
+                label: category,
                 sampleCount: samples.count
             )
         }
@@ -697,8 +697,7 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         guard selectedMode == .listen,
               sample.signal > minDetectedSignal,
               sample.soundConfidence >= 0.25,
-              let category = sample.soundCategory,
-              let label = sample.soundLabel else {
+              let category = sample.soundCategory else {
             return
         }
 
@@ -712,7 +711,7 @@ final class AudioDirectionManager: NSObject, ObservableObject, CLLocationManager
         addSoundEvent(
             mode: .listen,
             category: category,
-            label: label,
+            label: category,
             confidence: sample.soundConfidence,
             heading: isLocationAuthorized ? sample.heading : nil,
             peakDecibels: sample.smoothedDecibels,

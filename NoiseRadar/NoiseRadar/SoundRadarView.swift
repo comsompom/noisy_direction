@@ -147,7 +147,7 @@ struct SoundRadarView: View {
 
     private var statusPanel: some View {
         VStack(spacing: 8) {
-            Text(manager.statusText)
+            Text(t(manager.statusText))
                 .font(.headline)
                 .multilineTextAlignment(.center)
 
@@ -232,9 +232,6 @@ struct SoundRadarView: View {
                             Text(categoryText(result.category))
                                 .font(.subheadline)
                                 .bold()
-                            Text(displayLabel(result.label))
-                                .font(.caption)
-                                .foregroundColor(.secondary)
                         }
 
                         Spacer()
@@ -397,9 +394,6 @@ struct SoundRadarView: View {
         LanguagePack.category(category, languageCode: languageCode)
     }
 
-    private func displayLabel(_ label: String) -> String {
-        AudioDirectionManager.alertCategories.contains(label) ? categoryText(label) : label
-    }
 }
 
 private struct SoundBlobShape: Shape {
@@ -579,9 +573,6 @@ private struct HistoryView: View {
                                         .foregroundColor(.secondary)
                                 }
 
-                                Text(event.label)
-                                    .font(.subheadline)
-
                                 Text(historyDetail(for: event))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
@@ -621,6 +612,7 @@ private struct HistoryView: View {
     private func categoryText(_ category: String) -> String {
         LanguagePack.category(category, languageCode: languageCode)
     }
+
 }
 
 private struct SettingsView: View {
