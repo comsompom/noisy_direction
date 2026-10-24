@@ -186,6 +186,25 @@ For code-only changes, useful checks include:
 ### 2026-10-24
 
 Files changed:
+- `/Users/olegbourdo/Development/vozhyk_web/deployed_applications/NOISERADAR_PRIVACY_POLICY.html`
+- `/Users/olegbourdo/Development/vozhyk_web/context_agent.md`
+- `agent_context.md`
+
+What changed:
+- Updated the hosted NoiseRadar privacy policy effective date to October 24, 2026.
+- Replaced stale no-advertising/no-tracking language with the current Google Mobile Ads banner, ATT permission, general-audience ad configuration, Remove Ads, StoreKit purchase, provider-data, and provider-retention language.
+- Added Support and Development navigation links to the privacy page header and changed the footer action to link back to NoiseRadar Support.
+
+Why:
+- The deployed App Store build includes AdMob banners and a StoreKit Remove Ads purchase, so the public privacy policy needed to match the shipped data practices before finishing the AdMob/App Store privacy cleanup.
+
+Verification:
+- Ran a Flask test-client check from the Vozhyk web repo; `/noiseradar/privacy-policy` and `/noiseradar/support` returned 200.
+- Verified the privacy page contains the October 24, 2026 effective date, Google Mobile Ads, tracking permission, Remove Ads, Apple StoreKit, and support-link language, and no longer contains the stale `No Advertising or Tracking` heading.
+
+### 2026-10-24
+
+Files changed:
 - `NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`
 - `NoiseRadar/NoiseRadar/AdSupport.swift`
 - `NoiseRadar/NoiseRadar/SoundRadarView.swift`
