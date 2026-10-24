@@ -46,7 +46,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - Bundle identifier: `lt.bourdo.NoiseRadar`.
 - Development team currently set in the Xcode project: `8J9SSA37RS`.
 - Marketing version: `1.1`.
-- Build number: `3`.
+- Build number: `4`.
 - App Store export options: `build/AppStoreExport/ExportOptions.plist`.
 - Target device family: iPhone only (`TARGETED_DEVICE_FAMILY = 1`).
 - Supported platforms: `iphoneos iphonesimulator`.
@@ -66,7 +66,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 
 `NoiseRadarApp` owns an `AdMobManager` as a `@StateObject` and injects it as an environment object. For free users, it requests App Tracking Transparency permission on first app activation before starting Google Mobile Ads or loading banner ads. Users with cached Remove Ads entitlement do not start AdMob banner placements.
 
-`AdMobManager` sets the Google Mobile Ads SDK max ad content rating to General, requests ATT permission through `ATTrackingManager`, starts Google Mobile Ads after the ATT callback, and publishes readiness so banner views are only created after this flow completes.
+`AdMobManager` sets the Google Mobile Ads SDK max ad content rating to General, waits for an active app window, requests ATT permission through `ATTrackingManager`, retries if the system returns `notDetermined` without showing the prompt, starts Google Mobile Ads after ATT is resolved, and publishes readiness so banner views are only created after this flow completes.
 
 `NoiseRadarApp` owns a `PurchaseManager` as a `@StateObject` and injects it as an environment object so the banner wrapper and Settings can read the Remove Ads entitlement.
 
@@ -88,7 +88,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - Settings sheet includes an Ad-Free section with Remove Ads and Restore Purchases controls.
 - Free users see a main-screen `Remove banner ads.` prompt that opens the Remove Ads purchase sheet, matching the Dust Cleaner Remove Ads flow.
 - Share sheet for generated text and CSV session report files.
-- First-run onboarding sheet using `@AppStorage("hasSeenOnboarding")`.
+- First-run onboarding sheet using `@AppStorage("hasSeenOnboarding")`; for free users, onboarding waits until the ATT/AdMob startup flow has completed so it does not collide with the ATT system prompt on fresh install.
 - A Help sheet with basic usage steps.
 
 `AudioDirectionManager` coordinates:
@@ -154,6 +154,7 @@ These constants are currently in `AudioDirectionManager.swift`:
 - `NSMicrophoneUsageDescription`: required for reading microphone sound levels.
 - `NSLocationWhenInUseUsageDescription`: required because compass heading is accessed through Core Location.
 - `NSMotionUsageDescription`: explains device motion use for rotation-speed checks.
+- `NSUserTrackingUsageDescription`: required because the free version uses Google Mobile Ads and App Store privacy declares tracking.
 
 ## Current Known Gaps And Risks
 
@@ -181,6 +182,32 @@ For code-only changes, useful checks include:
 - Verify threshold alerts, screen flash, haptic/sound alert styles, calibration offset, and Share report output on a physical iPhone.
 
 ## Change Log
+
+### 2026-10-24
+
+Files changed:
+- `NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`
+- `NoiseRadar/NoiseRadar/AdSupport.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `shared_experience/ios_apps_experience/noisy_direction/deployment_config.json`
+- `shared_experience/ios_apps_experience/noisy_direction/app_deployment.md`
+- `agent_context.md`
+
+What changed:
+- Made the ATT/AdMob startup flow wait for an active app window before calling `ATTrackingManager.requestTrackingAuthorization`.
+- Added retry handling when ATT returns `notDetermined`, which Apple documents can happen when the system dismisses the prompt without a user decision.
+- Kept Google Mobile Ads startup and banner creation behind the resolved ATT flow.
+- Delayed first-run onboarding for free users until the ATT/AdMob startup flow is ready, avoiding a fresh-launch presentation race between the onboarding sheet and the ATT system prompt.
+- Added the missing `AdMobManager` environment object to the SwiftUI preview.
+- Bumped build `1.1` from `3` to `4` and updated the deployment config/review notes for the new archive.
+
+Why:
+- Apple rejected build `1.1 (3)` because App Review could not locate the ATT permission request on iPadOS 27.0.1. The previous implementation requested ATT from SwiftUI `onAppear` at the same time first-run onboarding could present, which could prevent the system ATT dialog from being visible during review. A binary change requires a new build number for the next App Store upload.
+
+Verification:
+- Ran `plutil -lint NoiseRadar/NoiseRadar/Info.plist NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`; both files passed.
+- Ran `python3 -m json.tool shared_experience/ios_apps_experience/noisy_direction/deployment_config.json`; JSON validation passed.
+- Ran `xcodebuild -project NoiseRadar/NoiseRadar.xcodeproj -scheme NoiseRadar -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO`; sandboxed runs failed because Xcode needed DerivedData, SwiftPM cache, and simulator service access, then approved reruns outside the sandbox succeeded after the ATT changes and again after the build `4` update.
 
 ### 2026-10-24
 

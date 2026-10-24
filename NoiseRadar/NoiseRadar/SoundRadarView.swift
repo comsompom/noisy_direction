@@ -2,6 +2,8 @@ import SwiftUI
 import StoreKit
 
 struct SoundRadarView: View {
+    @EnvironmentObject private var purchaseManager: PurchaseManager
+    @EnvironmentObject private var adMobManager: AdMobManager
     @StateObject private var manager = AudioDirectionManager()
     @State private var showHelp = false
     @State private var showHistory = false
@@ -62,9 +64,23 @@ struct SoundRadarView: View {
             }
         }
         .onAppear {
-            if !hasSeenOnboarding {
-                showOnboarding = true
-            }
+            presentOnboardingIfNeeded()
+        }
+        .onChange(of: adMobManager.isReady) { _ in
+            presentOnboardingIfNeeded()
+        }
+        .onChange(of: purchaseManager.isAdFree) { _ in
+            presentOnboardingIfNeeded()
+        }
+    }
+
+    private var canPresentOnboarding: Bool {
+        purchaseManager.isAdFree || adMobManager.isReady
+    }
+
+    private func presentOnboardingIfNeeded() {
+        if !hasSeenOnboarding && canPresentOnboarding {
+            showOnboarding = true
         }
     }
 
@@ -485,6 +501,7 @@ private struct RemoveAdsPrompt: View {
 #Preview {
     SoundRadarView()
         .environmentObject(PurchaseManager())
+        .environmentObject(AdMobManager())
 }
 #endif
 

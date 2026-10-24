@@ -6,19 +6,75 @@ import GoogleMobileAds
 @MainActor
 final class AdMobManager: ObservableObject {
     @Published private(set) var isReady = false
-    private var didStart = false
+    private enum StartupState {
+        case idle
+        case requestingAuthorization
+        case startingAds
+        case started
+    }
+
+    private var startupState: StartupState = .idle
+    private var retryTask: Task<Void, Never>?
 
     func requestTrackingAuthorizationAndStart() {
-        guard !didStart else { return }
-        didStart = true
+        guard !isReady, startupState == .idle else { return }
+        startupState = .requestingAuthorization
 
         MobileAds.shared.requestConfiguration.maxAdContentRating = GADMaxAdContentRating.general
 
-        ATTrackingManager.requestTrackingAuthorization { _ in
-            Task { @MainActor in
-                MobileAds.shared.start { _ in
-                    self.isReady = true
+        Task { @MainActor in
+            await waitForActiveWindow()
+            requestTrackingAuthorizationIfNeeded()
+        }
+    }
+
+    private func waitForActiveWindow() async {
+        for _ in 0..<20 {
+            if UIApplication.shared.applicationState == .active,
+               UIApplication.shared.topMostViewController != nil {
+                return
+            }
+
+            try? await Task.sleep(nanoseconds: 250_000_000)
+        }
+    }
+
+    private func requestTrackingAuthorizationIfNeeded() {
+        switch ATTrackingManager.trackingAuthorizationStatus {
+        case .notDetermined:
+            ATTrackingManager.requestTrackingAuthorization { status in
+                Task { @MainActor in
+                    if status == .notDetermined {
+                        self.scheduleAuthorizationRetry()
+                    } else {
+                        self.startGoogleMobileAds()
+                    }
                 }
+            }
+        case .restricted, .denied, .authorized:
+            startGoogleMobileAds()
+        @unknown default:
+            startGoogleMobileAds()
+        }
+    }
+
+    private func scheduleAuthorizationRetry() {
+        startupState = .idle
+        retryTask?.cancel()
+        retryTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 750_000_000)
+            requestTrackingAuthorizationAndStart()
+        }
+    }
+
+    private func startGoogleMobileAds() {
+        guard startupState != .startingAds, startupState != .started else { return }
+        startupState = .startingAds
+
+        MobileAds.shared.start { _ in
+            Task { @MainActor in
+                self.startupState = .started
+                self.isReady = true
             }
         }
     }
