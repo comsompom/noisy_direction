@@ -429,11 +429,12 @@ private struct SoundBlobShape: Shape {
 
 private struct AdSupportedScreen<Content: View>: View {
     @EnvironmentObject private var purchaseManager: PurchaseManager
+    @EnvironmentObject private var adMobManager: AdMobManager
     @ViewBuilder let content: Content
 
     var body: some View {
         VStack(spacing: 0) {
-            if !purchaseManager.isAdFree {
+            if !purchaseManager.isAdFree && adMobManager.isReady {
                 BannerAdView()
                     .frame(width: 320, height: 50)
                     .padding(.top, 8)

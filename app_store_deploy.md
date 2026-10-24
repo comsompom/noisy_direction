@@ -1,6 +1,6 @@
 # NoiseRadar App Store Deployment Guide
 
-Last reviewed: 2026-10-22
+Last reviewed: 2026-10-24
 
 Use this guide to prepare, upload, and submit NoiseRadar to App Store Review.
 It includes lessons from the previous `get_distance`, `iphone_dust_cleaner`,
@@ -21,7 +21,7 @@ device.
 | Device family | iPhone only (`TARGETED_DEVICE_FAMILY = 1`) |
 | Minimum iOS | iOS 15.0 |
 | Version | 1.1 |
-| Build | 1 |
+| Build | 3 for the ATT resubmission; previous rejected build was 2 |
 | Current bundle ID | `lt.bourdo.NoiseRadar` |
 | Current Apple team in project | `8J9SSA37RS` |
 | Microphone permission | `NSMicrophoneUsageDescription` |
@@ -56,7 +56,9 @@ AdMob and StoreKit identifiers for version `1.1`:
 
 The submitted Release build must use the production banner unit. Debug builds
 intentionally use Google's test banner unit so local testing can display a
-banner without relying on live ad fill.
+banner without relying on live ad fill. Because App Privacy declares tracking
+for Google Mobile Ads, the submitted build must request App Tracking
+Transparency permission before starting Google Mobile Ads or loading banners.
 
 ## Review Risk Guardrails
 
@@ -115,6 +117,12 @@ Review Notes should say what hardware is required, which permissions are used,
 what is processed locally, and that there is no backend, account, analytics,
 tracking, or cloud processing. The submitted build now includes Google Mobile
 Ads banner ads for free users and a StoreKit non-consumable Remove Ads purchase.
+
+For the `1.1` ATT resubmission, include this in Review Notes:
+
+```text
+For free users, NoiseRadar requests App Tracking Transparency permission on first launch before starting Google Mobile Ads or loading banner ads. Users who have purchased or restored Remove Ads do not load AdMob banner placements.
+```
 
 ## Pre-Submission Code And Project Checklist
 

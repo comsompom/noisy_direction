@@ -1,6 +1,28 @@
 import SwiftUI
 import UIKit
+import AppTrackingTransparency
 import GoogleMobileAds
+
+@MainActor
+final class AdMobManager: ObservableObject {
+    @Published private(set) var isReady = false
+    private var didStart = false
+
+    func requestTrackingAuthorizationAndStart() {
+        guard !didStart else { return }
+        didStart = true
+
+        MobileAds.shared.requestConfiguration.maxAdContentRating = GADMaxAdContentRating.general
+
+        ATTrackingManager.requestTrackingAuthorization { _ in
+            Task { @MainActor in
+                MobileAds.shared.start { _ in
+                    self.isReady = true
+                }
+            }
+        }
+    }
+}
 
 enum AdMobSupport {
     static let applicationID = "ca-app-pub-2367013361044576~9236993009"
@@ -12,11 +34,6 @@ enum AdMobSupport {
     #else
     static let bannerAdUnitID = productionBannerAdUnitID
     #endif
-
-    static func configure() {
-        MobileAds.shared.requestConfiguration.maxAdContentRating = GADMaxAdContentRating.general
-        MobileAds.shared.start()
-    }
 }
 
 struct BannerAdView: UIViewRepresentable {

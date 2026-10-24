@@ -1,6 +1,6 @@
 # Agent Context: NoiseRadar iPhone App
 
-Last reviewed: 2026-10-22
+Last reviewed: 2026-10-24
 
 ## Mandatory Agent Rule
 
@@ -46,7 +46,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - Bundle identifier: `lt.bourdo.NoiseRadar`.
 - Development team currently set in the Xcode project: `8J9SSA37RS`.
 - Marketing version: `1.1`.
-- Build number: `1`.
+- Build number: `3`.
 - App Store export options: `build/AppStoreExport/ExportOptions.plist`.
 - Target device family: iPhone only (`TARGETED_DEVICE_FAMILY = 1`).
 - Supported platforms: `iphoneos iphonesimulator`.
@@ -64,7 +64,9 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 
 `NoiseRadarApp` opens `SoundRadarView`.
 
-`NoiseRadarApp` also initializes Google Mobile Ads through `AdMobSupport.configure()`, setting the SDK max ad content rating to General before startup.
+`NoiseRadarApp` owns an `AdMobManager` as a `@StateObject` and injects it as an environment object. For free users, it requests App Tracking Transparency permission on first app activation before starting Google Mobile Ads or loading banner ads. Users with cached Remove Ads entitlement do not start AdMob banner placements.
+
+`AdMobManager` sets the Google Mobile Ads SDK max ad content rating to General, requests ATT permission through `ATTrackingManager`, starts Google Mobile Ads after the ATT callback, and publishes readiness so banner views are only created after this flow completes.
 
 `NoiseRadarApp` owns a `PurchaseManager` as a `@StateObject` and injects it as an environment object so the banner wrapper and Settings can read the Remove Ads entitlement.
 
@@ -179,6 +181,60 @@ For code-only changes, useful checks include:
 - Verify threshold alerts, screen flash, haptic/sound alert styles, calibration offset, and Share report output on a physical iPhone.
 
 ## Change Log
+
+### 2026-10-24
+
+Files changed:
+- `NoiseRadar/NoiseRadar/AdSupport.swift`
+- `NoiseRadar/NoiseRadar/NoiseRadarApp.swift`
+- `NoiseRadar/NoiseRadar/SoundRadarView.swift`
+- `NoiseRadar/NoiseRadar/Info.plist`
+- `NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`
+- `shared_experience/ios_apps_experience/noisy_direction/deployment_config.json`
+- `shared_experience/ios_apps_experience/noisy_direction/app_deployment.md`
+- `app_store_deploy.md`
+- `agent_context.md`
+
+What changed:
+- Added App Tracking Transparency support for the AdMob-supported free version after Apple rejected build `1.1 (2)` under Guideline `5.1.2(i)` because App Privacy declared tracking but the app did not request ATT permission.
+- Added `AdMobManager`, which requests ATT before starting Google Mobile Ads and marks ads ready only after the ATT callback and Mobile Ads startup complete.
+- Changed the app launch flow so free users trigger ATT/AdMob startup on first appearance or active scene phase, while users with cached Remove Ads entitlement do not start AdMob placements.
+- Changed `AdSupportedScreen` so banner ad views are only created for free users after `AdMobManager.isReady` is true.
+- Added `NSUserTrackingUsageDescription` explaining that tracking permission is used for Google Mobile Ads in the free version and that Remove Ads hides ads.
+- Bumped the project build number from `1` to `3` so a new App Store binary can replace the rejected `1.1 (2)` binary.
+- Updated the NoiseRadar deployment config to use build `3` and review notes that explicitly tell App Review where the ATT prompt appears.
+- Updated deployment docs with the specific Apple rejection text, the ATT fix, and the need to upload build `3` before API resubmission.
+
+Why:
+- The current App Privacy answers say the app tracks users for AdMob. Apple requires apps with tracking disclosures to request user permission through AppTrackingTransparency before collecting data used for tracking.
+
+Verification:
+- Ran `plutil -lint NoiseRadar/NoiseRadar/Info.plist NoiseRadar/NoiseRadar.xcodeproj/project.pbxproj`; both files passed.
+- Ran `python3 -m json.tool shared_experience/ios_apps_experience/noisy_direction/deployment_config.json`; JSON validation passed.
+- Ran `xcodebuild -project NoiseRadar/NoiseRadar.xcodeproj -scheme NoiseRadar -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' build CODE_SIGNING_ALLOWED=NO`; build succeeded after rerunning outside the sandbox so Xcode could access DerivedData, SwiftPM caches, and simulator services.
+
+### 2026-10-24
+
+Files changed:
+- `shared_experience/ios_apps_experience/app_connect/scripts/deploy_app_version.py`
+- `shared_experience/ios_apps_experience/noisy_direction/deployment_config.json`
+- `shared_experience/ios_apps_experience/noisy_direction/app_deployment.md`
+- `agent_context.md`
+
+What changed:
+- Updated the App Store Connect deployment helper to reuse Remove Ads IAP versions in `READY_FOR_REVIEW` state, matching the live NoiseRadar IAP state observed through the API.
+- Updated the NoiseRadar App Store Connect deployment config to match the successful `get_distance` config shape for resubmission: live build `2`, support URL, privacy URL, full version metadata, promotional text, stronger review notes, Remove Ads product ID, `0.99` LTU IAP price, IAP review screenshot path, automatic release, and completed checklist flags.
+- Added a 2026-10-24 rejection note documenting the `5.1.2 Legal: Privacy - Data Use and Sharing` rejection, the live App Store Connect version/build/IAP state, and the required manual App Privacy questionnaire fix before API resubmission.
+
+Why:
+- Apple rejected the current `1.1` review submission for privacy/data use. The app binary and Remove Ads IAP are ready, but the ad-supported build needs App Privacy disclosures for Google Mobile Ads before resubmission.
+
+Verification:
+- Queried App Store Connect API and confirmed NoiseRadar app ID `6822675407`, version `1.1` state `REJECTED`, attached build `2` state `VALID`, review submission state `UNRESOLVED_ISSUES`, Remove Ads product `lt.bourdo.noiseradar.remove_ads` state `READY_TO_SUBMIT`, IAP version state `READY_FOR_REVIEW`, and IAP review screenshot processing state `COMPLETE`.
+- Verified Apple/Google documentation that App Privacy must include third-party partner practices and Google Mobile Ads data disclosure guidance; API automation can update metadata/IAP/review submission but not the App Privacy questionnaire.
+- Ran `python3 -m json.tool shared_experience/ios_apps_experience/noisy_direction/deployment_config.json`; JSON validation succeeded.
+- Ran `python3 -m py_compile shared_experience/ios_apps_experience/app_connect/scripts/deploy_app_version.py`; Python compilation succeeded.
+- Ran `deploy_app_version.py` with the NoiseRadar `1.1` build `2` settings in `--dry-run`; it matched the live app, build, app version, existing Remove Ads IAP, reusable IAP version, existing IAP localization, existing price/availability, and processed IAP review screenshot, then planned a review submission without mutating App Store Connect.
 
 ### 2026-10-22
 
