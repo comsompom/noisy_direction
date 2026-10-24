@@ -185,6 +185,28 @@ For code-only changes, useful checks include:
 ### 2026-10-24
 
 Files changed:
+- `shared_experience/ios_apps_experience/app_connect/scripts/deploy_app_version.py`
+- `agent_context.md`
+
+What changed:
+- Updated the App Store Connect deployment helper so existing IAP localization updates omit `locale`, which Apple rejects in PATCH requests.
+- Updated the helper to skip IAP localization edits when the IAP version is already `READY_FOR_REVIEW`, because Apple marks that version unmodifiable.
+- Attempted the live build `3` API submission after the user uploaded the archive.
+
+Why:
+- Build `3` was uploaded and valid, and the app needed to be attached and resubmitted with ATT review notes and the existing Remove Ads IAP.
+- The first live API run failed on existing IAP localization update; the second failed because the ready IAP version was unmodifiable. Both were helper assumptions that did not match Apple's live state for an already-ready IAP.
+
+Verification:
+- Queried App Store Connect API and confirmed build `3` ID `53e988b2-ba16-4d98-8ee8-785dcae62458` is `VALID`.
+- Ran the deployment helper in `--dry-run` for build `3`; it matched the live app, build, version, IAP, IAP version, price/availability, and processed IAP screenshot.
+- Live API runs attached build `3` to app version `1.1`, updated version metadata, updated App Review notes with the ATT explanation, updated the privacy policy URL, reused Remove Ads IAP `6825730297`, and confirmed the IAP screenshot was already processed.
+- Set `usesIdfa=true` on app version `1.1` through the App Store Connect API.
+- App Store Connect still reports version `1.1` in `PREPARE_FOR_SUBMISSION` and the original submission `9b5d9e5e-4508-4676-8b8d-981c88c1e430` in `UNRESOLVED_ISSUES`. API resubmission currently returns `Version is not ready to be submitted yet, please try again later`; App Store Connect exposes no `idfaDeclaration` API relationship, so the remaining resubmit/IDFA declaration step likely needs the web UI.
+
+### 2026-10-24
+
+Files changed:
 - `NoiseRadar/NoiseRadar/AdSupport.swift`
 - `NoiseRadar/NoiseRadar/NoiseRadarApp.swift`
 - `NoiseRadar/NoiseRadar/SoundRadarView.swift`
