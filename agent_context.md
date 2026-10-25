@@ -183,6 +183,23 @@ For code-only changes, useful checks include:
 
 ## Change Log
 
+### 2026-10-25
+
+Files changed:
+- `image_prompts.md`
+- `agent_context.md`
+
+What changed:
+- Added a dedicated Product Page Search Prompt for App Store search/discovery visuals.
+- Updated the image prompt file date and added a final-review note that search/discovery images must remain readable in cropped or small placements.
+
+Why:
+- NoiseRadar needs a reusable prompt specifically tailored to App Store product page search/discovery placements, separate from the wider custom product page header prompt.
+
+Verification:
+- Reviewed the new prompt for consistency with the app's offline, best-effort sound direction and sound type positioning.
+- No build was run because this change only updates documentation.
+
 ### 2026-10-24
 
 Files changed:

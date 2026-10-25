@@ -1,6 +1,6 @@
 # Image Generation Prompts: NoiseRadar
 
-Last updated: 2026-10-14
+Last updated: 2026-10-25
 
 Use these prompts to generate visual assets for NoiseRadar. Keep all output clean, original, non-photorealistic unless specified, and free of copyrighted brands, app-store badges, Apple logos, device mockups, or misleading emergency/security claims.
 
@@ -66,10 +66,32 @@ Negative prompt:
 text, slogan, app store badge, Apple logo, huge phone mockup, people close-up, animals close-up, weapon, police, military, emergency siren, surveillance camera, horror forest, fantasy scene, clutter, too many icons, stock photo look, low contrast, one-color palette, beige/brown dominated palette
 ```
 
+## 4. Product Page Search Prompt
+
+Target use:
+- App Store product page search/discovery visual.
+- Export as high-resolution landscape JPG or PNG.
+- Recommended master size: 3840 x 1646 px.
+- Keep the app function obvious when cropped or shown in a small search/discovery placement.
+- No visible text, slogans, app badges, or unsupported detection claims.
+
+Prompt:
+
+```text
+Create a clean App Store search and product page discovery image for NoiseRadar, an offline iPhone utility that estimates the direction of nearby sounds and labels broad sound types. The image should immediately communicate "sound direction scanner" at a glance: a dark modern radar compass interface, bright green sound-wave arcs arriving from multiple directions, and one strongest source highlighted with a small restrained red directional marker. Use a real-feeling but non-photorealistic outdoor setting such as a quiet park path or open field at dusk, with the radar visualization as the main focal point and the environment as supporting context. Include subtle abstract sound-category cues for voice, vehicle, animal, and mechanical sounds as simple icon-like shapes around the radar, without text labels. The style should be premium, practical, calm, trustworthy, and App Store ready. Use balanced deep graphite, natural greens, and small warm red accents with strong contrast so the concept remains readable in search results. No app name text, no marketing copy, no App Store badge, no Apple logo, no large phone mockup, no people close-up, no emergency, police, military, surveillance, rescue, or guaranteed-detection imagery.
+```
+
+Negative prompt:
+
+```text
+text, app name, slogan, app store badge, Apple logo, phone mockup as main subject, screenshots, tiny unreadable UI, people close-up, animals close-up, weapons, police, military, emergency siren, rescue scene, surveillance camera, horror forest, fantasy scene, scary mood, clutter, too many icons, stock photo look, low contrast, one-color palette, beige/brown dominated palette, misleading security claim, guaranteed detection
+```
+
 ## Notes For Final Asset Review
 
 - Icon must be clear at 60 x 60 px.
 - Launch screen must not rely on text or tiny UI details.
 - Header must not imply rescue, emergency, police, military, surveillance, or guaranteed detection.
+- Search/discovery images must stay readable when cropped or shown at small sizes.
 - All assets should support the App Store copy: casual offline sound direction estimates and best-effort sound type labels.
 - If generated assets include accidental text, distorted symbols, logos, or identifiable copyrighted material, regenerate before using them.
