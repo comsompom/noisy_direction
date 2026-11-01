@@ -1,6 +1,6 @@
 # Agent Context: NoiseRadar iPhone App
 
-Last reviewed: 2026-10-24
+Last reviewed: 2026-11-01
 
 ## Mandatory Agent Rule
 
@@ -182,6 +182,34 @@ For code-only changes, useful checks include:
 - Verify threshold alerts, screen flash, haptic/sound alert styles, calibration offset, and Share report output on a physical iPhone.
 
 ## Change Log
+
+### 2026-11-01
+
+Files changed:
+- `shared_experience/ios_apps_experience/review_errors_fix.md`
+- `shared_experience/ios_apps_experience/agent_context.md`
+- `agent_context.md`
+
+What changed:
+- Extended the shared iOS App Review errors reference with the missing
+  NoiseRadar review/submission mistakes: App Store listing-name conflict,
+  missing ATT after declaring tracking, App Store Connect API/IAP/IDFA
+  resubmission limits, and ATT prompt invisibility caused by first-run
+  onboarding/startup timing.
+- Added a NoiseRadar-specific pre-submission checklist to prevent the same
+  errors in future App Store submissions.
+- Logged the shared documentation change in the embedded shared-experience
+  context file.
+
+Why:
+- Future agents need the full NoiseRadar review history in the central
+  review-error file, not only the first App Privacy rejection, so they do not
+  repeat ATT, IDFA, IAP, naming, or review-note mistakes.
+
+Verification:
+- Documentation-only change; no app build was run.
+- Reviewed the edited sections for consistency with the existing review-error
+  format and the NoiseRadar deployment notes in this repository.
 
 ### 2026-10-25
 
