@@ -47,7 +47,7 @@ The app is meant to run on a physical iPhone. The iOS Simulator is not suitable 
 - Development team currently set in the Xcode project: `8J9SSA37RS`.
 - Marketing version: `1.1`.
 - Build number: `4`.
-- App Store export options: `build/AppStoreExport/ExportOptions.plist`.
+- App Store export options are generated locally when needed; the previous generated path was `build/AppStoreExport/ExportOptions.plist`.
 - Target device family: iPhone only (`TARGETED_DEVICE_FAMILY = 1`).
 - Supported platforms: `iphoneos iphonesimulator`.
 - Mac Catalyst, Designed for iPhone/iPad on Mac, and Designed for iPhone/iPad on Vision Pro are disabled.
@@ -182,6 +182,44 @@ For code-only changes, useful checks include:
 - Verify threshold alerts, screen flash, haptic/sound alert styles, calibration offset, and Share report output on a physical iPhone.
 
 ## Change Log
+
+### 2026-11-09
+
+Files changed:
+- `shared_experience/ios_apps_experience/previous_deployed_app_ui_concepts.md`
+- `agent_context.md`
+
+What changed:
+- Added a dedicated NoiseRadar/noisy_direction section to the shared previous deployed app UI concepts reference.
+- Documented NoiseRadar's current UI solution, logic concept, frameworks/templates, monetization/privacy pattern, App Review lessons, explicit "do not repeat" UI/design boundaries, and acceptable reuse boundaries for future apps.
+
+Why:
+- Future agents need a clear deny-list of NoiseRadar's already-used design and product template so new apps do not repeat the same radar UI, sensor workflow, monetization placement, screenshots, metadata, or review narrative in a way that could look duplicative in App Review.
+
+Verification:
+- Reviewed `shared_experience/ios_apps_experience/previous_deployed_app_ui_concepts.md`, `NoiseRadar/NoiseRadar/SoundRadarView.swift`, `NoiseRadar/NoiseRadar/AudioDirectionManager.swift`, `NoiseRadar/NoiseRadar/AdSupport.swift`, `NoiseRadar/NoiseRadar/PurchaseSupport.swift`, and `NoiseRadar/NoiseRadar/NoiseRadarApp.swift`.
+- Documentation-only change; no app build was run.
+
+### 2026-11-09
+
+Files changed:
+- `build/`
+- `app_store_deploy.md`
+- `agent_context.md`
+
+What changed:
+- Removed the untracked local `build/` directory, including generated Xcode DerivedData, the archived `.xcarchive`, exported `.ipa`, packaging logs, and generated export options plist.
+- Updated deployment documentation to clarify that `build/` is disposable generated output and export options should be regenerated locally for future App Store exports.
+- Updated this context file so it no longer describes `build/AppStoreExport/ExportOptions.plist` as a currently present file.
+
+Why:
+- The user requested cleanup if the `build` folder was not needed, and inspection showed it contained generated/untracked Xcode build and export artifacts.
+
+Verification:
+- Read `agent_context.md` for project context before cleanup.
+- Inspected `build/` contents, confirmed it was untracked in `git status --short`, and measured it at about 93 MB before removal.
+- Searched project references for `build/AppStoreExport`, `AppStoreExport`, `DerivedData`, `xcarchive`, and `ExportOptions`; only documentation referenced the NoiseRadar export artifacts.
+- No app build was run because this was a local artifact cleanup and documentation update.
 
 ### 2026-11-01
 

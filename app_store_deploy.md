@@ -1,6 +1,6 @@
 # NoiseRadar App Store Deployment Guide
 
-Last reviewed: 2026-10-24
+Last reviewed: 2026-11-09
 
 Use this guide to prepare, upload, and submit NoiseRadar to App Store Review.
 It includes lessons from the previous `get_distance`, `iphone_dust_cleaner`,
@@ -27,7 +27,7 @@ device.
 | Microphone permission | `NSMicrophoneUsageDescription` |
 | Location permission | `NSLocationWhenInUseUsageDescription` |
 | Motion permission text | `NSMotionUsageDescription` |
-| App Store export options | `build/AppStoreExport/ExportOptions.plist` |
+| App Store export options | Regenerate locally under `build/AppStoreExport/ExportOptions.plist` when exporting |
 | Account required | No |
 | In-app purchases | One non-consumable Remove Ads purchase |
 | Developer backend | No |
@@ -327,13 +327,18 @@ Distribute App -> App Store Connect -> Upload
 11. Wait for App Store Connect processing email or for the build to appear in
     the app version page.
 
-Command-line export should use:
+Command-line export can use a regenerated local plist at:
 
 ```text
 build/AppStoreExport/ExportOptions.plist
 ```
 
-Current prepared export from this repo:
+The local `build/` folder is disposable generated output and may be removed to
+reclaim space. The previous local export used automatic signing with team
+`8J9SSA37RS`, App Store Connect export method, Swift symbol stripping, and dSYM
+symbol upload enabled.
+
+Previous prepared export artifacts, removed during local cleanup on 2026-11-09:
 
 ```text
 Archive: build/archives/NoiseRadar.xcarchive
